@@ -17,7 +17,6 @@
 #include <boost/foreach.hpp>
 #include <bitset>
 #include <string>
-
 #include <functional>
 //@nonl
 //@-node:gmc.20080824181205.15:<< Headers >>
@@ -678,6 +677,18 @@ template<
             BOOST_FOREACH(quantum_operator& stabilizer, stabilizers) {
                 if(!(stabilizer||op)) stabilizer *= gauge_qubit.X;
             }
+        //@+at
+        // Get rid of the identity stabilizers.
+        //@-at
+        //@@c
+            operator_iterator next_stabilizer_to_overwrite =
+                std::find_if(stabilizers.begin(), stabilizers.end(), std::mem_fun_ref(&quantum_operator::is_identity));
+            if(next_stabilizer_to_overwrite == stabilizers.end()) continue;
+
+            BOOST_FOREACH(quantum_operator& stabilizer, std::make_pair(next_stabilizer_to_overwrite+1,stabilizers.end())) {
+                if(!stabilizer.is_identity()) *(next_stabilizer_to_overwrite++) = stabilizer;
+            }
+            stabilizers.erase(next_stabilizer_to_overwrite,stabilizers.end());
         }
 
         //@+at
