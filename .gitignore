@@ -165,3 +165,7 @@ codequery.conf
 CodeQuery-working.leo
 testing/randomized-tests
 build
+src/codequery-dense-1d.o
+src/codequery-sparse.o
+src/codequery.o
+testing/randomized-tests.o
