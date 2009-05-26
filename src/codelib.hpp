@@ -667,22 +667,15 @@ template<
             gauge_qubits.push_back(gauge_qubit);
         //@+at
         // We now need to make sure that all of the stabilizers commute with 
-        // op by multiplying those which done by op's conjugal partner.
+        // op by multiplying those which done by op's conjugal partner.  While 
+        // we are doing this, we simultaneously filter out all of the 
+        // duplicates of the stabilizer we chose to be op's conjugal partner.
         //@-at
         //@@c
-            BOOST_FOREACH(quantum_operator& stabilizer, stabilizers) {
-                if(!(stabilizer||op)) stabilizer *= gauge_qubit.X;
-            }
-        //@+at
-        // Get rid of the identity stabilizers.
-        //@-at
-        //@@c
-            operator_iterator next_stabilizer_to_overwrite =
-                std::find_if(stabilizers.begin(), stabilizers.end(), std::mem_fun_ref(&quantum_operator::is_identity));
-            if(next_stabilizer_to_overwrite == stabilizers.end()) continue;
-
-            BOOST_FOREACH(quantum_operator& stabilizer, std::make_pair(next_stabilizer_to_overwrite+1,stabilizers.end())) {
-                if(!stabilizer.is_identity()) *(next_stabilizer_to_overwrite++) = stabilizer;
+            operator_iterator next_stabilizer_to_overwrite = stabilizers.begin();
+            BOOST_FOREACH(quantum_operator& stabilizer, std::make_pair(next_stabilizer_to_overwrite,stabilizers.end())) {
+                if(stabilizer==gauge_qubit.X) continue;
+                *(next_stabilizer_to_overwrite++) = (stabilizer || op) ? stabilizer : stabilizer * gauge_qubit.X;
             }
             stabilizers.erase(next_stabilizer_to_overwrite,stabilizers.end());
         }
