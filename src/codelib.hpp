@@ -627,23 +627,40 @@ template<
 
         //@    << Build table of stabilizers and gauge qubits >>
         //@+node:gmc.20080824181205.34:<< Build table of stabilizers and gauge qubits >>
-        for(operator_iterator opref = operators.begin(); opref != operators.end(); ++opref) {
+        BOOST_FOREACH(quantum_operator& op, operators) {
         //@+at
-        // Search for stabilizer elements which do not commute with this 
-        // operator.
+        // Make sure that this operator commutes with all of the gauge qubit 
+        // operators.
         //@-at
         //@@c
-            operator_iterator stabilizerref = stabilizers.begin();
-            while((stabilizerref != stabilizers.end()) and (*stabilizerref||*opref))
-                ++stabilizerref;
+            BOOST_FOREACH(qubit& gauge_qubit, gauge_qubits) {
+                if(!(op||gauge_qubit.Z)) op *= gauge_qubit.X;
+                if(!(op||gauge_qubit.X)) op *= gauge_qubit.Z;
+            }
+        //@+at
+        // If the remaining operator is trivial, then we are done.
+        //@-at
+        //@@c
+            if(op.is_identity()) continue;
+        //@+at
+        // Otherwise, see if it commutes with all of the stabilizers.
+        //@-at
+        //@@c
+            quantum_operator* conjugal_partner = NULL;
+            BOOST_FOREACH(quantum_operator& stabilizer, stabilizers) {
+                if(!(stabilizer||op)) {
+                    conjugal_partner = &stabilizer;
+                    break;
+                }
+            }
         //@+at
         // If all stabilizer elements commute with this operator, then add 
         // this operator to the list of stabilizers and continue to the next 
         // one.
         //@-at
         //@@c
-            if(stabilizerref==stabilizers.end()) {
-                stabilizers.push_back(*opref);
+            if(conjugal_partner==NULL) {
+                stabilizers.push_back(op);
                 continue;
             }
         //@+at
@@ -651,34 +668,15 @@ template<
         // operators.
         //@-at
         //@@c
-            qubit gauge_qubit(*stabilizerref,*opref);
+            qubit gauge_qubit(*conjugal_partner,op);
             gauge_qubits.push_back(gauge_qubit);
         //@+at
-        // Remove this operator from the list of stabilizers
+        // We now need to make sure that all of the stabilizers commute with 
+        // op by multiplying those which done by op's conjugal partner.
         //@-at
         //@@c
-            stabilizers.erase(stabilizerref);
-        //@+at
-        // Now we multiply all of the rest of the non-commuting stabilizers by 
-        // the first stabilizer so that they will all commute with the Z 
-        // operator of the gauge qubit.
-        //@-at
-        //@@c
-            for(true; stabilizerref != stabilizers.end(); ++stabilizerref ) {
-                if(!(*stabilizerref||gauge_qubit.Z)) {
-                    *stabilizerref *= gauge_qubit.X; 
-                };
-            }
-        //@+at
-        // We also need to do this with the remaining operators that don't 
-        // commute
-        //@-at
-        //@@c
-            for(operator_iterator opref_ = opref+1; opref_ != operators.end(); ++opref_) {
-                if(!(*opref_||gauge_qubit.X))
-                    *opref_ *= gauge_qubit.Z;
-                if(!(*opref_||gauge_qubit.Z))
-                    *opref_ *= gauge_qubit.X;
+            BOOST_FOREACH(quantum_operator& stabilizer, stabilizers) {
+                if(!(stabilizer||op)) stabilizer *= gauge_qubit.X;
             }
         }
 
