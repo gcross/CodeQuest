@@ -645,20 +645,16 @@ template<
         // Otherwise, see if it commutes with all of the stabilizers.
         //@-at
         //@@c
-            quantum_operator* conjugal_partner = NULL;
-            BOOST_FOREACH(quantum_operator& stabilizer, stabilizers) {
-                if(!(stabilizer||op)) {
-                    conjugal_partner = &stabilizer;
-                    break;
-                }
-            }
+            operator_iterator first_found_conjugal_partner = stabilizers.begin();
+            while(first_found_conjugal_partner != stabilizers.end() and ((*first_found_conjugal_partner)||op))
+                ++first_found_conjugal_partner;
         //@+at
         // If all stabilizer elements commute with this operator, then add 
         // this operator to the list of stabilizers and continue to the next 
         // one.
         //@-at
         //@@c
-            if(conjugal_partner==NULL) {
+            if(first_found_conjugal_partner==stabilizers.end()) {
                 stabilizers.push_back(op);
                 continue;
             }
@@ -667,7 +663,7 @@ template<
         // operators.
         //@-at
         //@@c
-            qubit gauge_qubit(*conjugal_partner,op);
+            qubit gauge_qubit(*first_found_conjugal_partner,op);
             gauge_qubits.push_back(gauge_qubit);
         //@+at
         // We now need to make sure that all of the stabilizers commute with 
