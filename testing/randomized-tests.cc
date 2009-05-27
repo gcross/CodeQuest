@@ -313,7 +313,12 @@ template<class qec_type> bool run_test_batch(int batch_number, int number_of_cas
     }
     cout << endl;
     cout << "All test cases completed successfully.  Took " << T.elapsed() << " seconds." << endl;
-    cout << "Time spent computing codes was " << setprecision(2) << total_time << " second, or ~ " << ((int)(number_of_cases/total_time)) << " codes/second." << endl;
+    cout << "Time spent computing codes was " << setprecision(2) << total_time << " second, or ~ ";
+    if(total_time == 0)
+        cout << "infinite";
+    else
+        cout << ((long)(number_of_cases/total_time));
+    cout << " codes/second." << endl;
     cout << endl;
 }
 //@-node:gcross.20090522205550.5:run_test_batch
@@ -339,7 +344,12 @@ template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int bat
     }
     cout << endl;
     cout << "All test cases completed successfully.  Took " << T.elapsed() << " seconds." << endl;
-    cout << "Time spent computing codes was " << setprecision(2) << total_time << " second, or ~ " << ((int)(number_of_cases/total_time)) << " codes/second." << endl;
+    cout << "Time spent computing codes was " << setprecision(2) << total_time << " second, or ~ ";
+    if(total_time == 0)
+        cout << "infinite";
+    else
+        cout << ((long)(number_of_cases/total_time));
+    cout << " codes/second." << endl;
     cout << endl;
 }
 //@-node:gcross.20090522205550.8:run_test_batch_with_fixed_number_of_qubits
