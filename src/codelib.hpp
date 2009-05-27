@@ -1007,6 +1007,11 @@ template<
                 ++chosen_qubit_index_iter;
                 ++op_index;
             }
+            BOOST_FOREACH(qubit& q, gauge_qubits) {
+                if(!(logical_qubit.X||q.Z)) logical_qubit.X *= q.X;
+                if(!(logical_qubit.Z||q.Z)) logical_qubit.Z *= q.X;
+            }
+            logical_qubit.Y = logical_qubit.X * logical_qubit.Z;
             logical_qubits.push_back(logical_qubit);
         }
         assert(logical_qubits.size() == number_of_logical_qubits());
