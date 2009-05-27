@@ -542,7 +542,6 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
     void run_elimination(operator_vector& operators) {
         //@    << Perform the Gaussian elimination >>
         //@+node:gcross.20090526161317.6:<< Perform the Gaussian elimination >>
-        qubit_indices_chosen.reserve(operators.size());
         //@+at
         // Initialize some iterators.
         //@-at
