@@ -160,6 +160,47 @@ template<class quantum_operator, class operator_vector> void reduce_row_echelon_
     rows.erase(rowref,rows.end());
 }
 //@-node:gmc.20080907163416.84:reduce_row_echelon_block_representation
+//@+node:gcross.20090526153741.1:reduce_row_echelon_split_representation
+template<class operator_vector> void reduce_row_echelon_split_representation(operator_vector& rows, bool zero_upper=false) {
+    using namespace std;
+    if(rows.size()==0) return;
+    typename operator_vector::iterator rref, rowref = rows.begin();
+    size_t system_size = rowref->length();
+    size_t column = 0;
+    unsigned char op_mask = 1;
+    while(rowref != rows.end() && (op_mask == 1 || column < system_size)) {
+        if(column >= system_size) {
+            op_mask = 2;
+            column -= system_size;
+        }
+        for(rref = rowref; rref != rows.end(); rref++)
+            if((*rref)[column] & op_mask)
+                goto nonzero_found_in_column;
+
+        column += 1;
+        continue;
+
+    nonzero_found_in_column:
+
+        if(rref!=rowref)
+            iter_swap(rref,rowref);
+
+        if(zero_upper) {
+            for(rref = rows.begin(); rref != rowref; rref++)
+                if((*rref)[column] & op_mask)
+                    (*rref) *= (*rowref);
+        }
+
+        for(rref = rowref+1; rref != rows.end(); rref++)
+            if((*rref)[column] & op_mask)
+                (*rref) *= (*rowref);
+
+        rowref += 1;
+        column += 1;
+    }
+    rows.erase(rowref,rows.end());
+}
+//@-node:gcross.20090526153741.1:reduce_row_echelon_split_representation
 //@+node:gcross.20081122135542.13:Print/Println
 template<typename T> void Println(const T& value) { std::cout << value << std::endl; }
 template<typename T> void Print(const T& value) { std::cout << value << " "; }
