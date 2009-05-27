@@ -9,13 +9,15 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="gcross.20090221232044.2" str_leo_pos="2"><vh>@chapters</vh></v>
+<v t="gcross.20090221232044.2" str_leo_pos="1"><vh>@chapters</vh></v>
 <v t="gmc.20080824181205.12"><vh>Algorithm</vh>
-<v t="gcross.20090221223144.1"><vh>@path include</vh>
+<v t="gcross.20090221223144.1"><vh>@path src</vh>
 <v t="gmc.20080824181205.14"><vh>@thin codelib.hpp</vh></v>
-</v>
-<v t="gcross.20090221223144.3"><vh>@path src</vh>
 <v t="gmc.20080824181205.21"><vh>@thin codelib.cc</vh></v>
+</v>
+</v>
+<v t="gcross.20090526153741.2"><vh>Front end</vh>
+<v t="gcross.20090221223144.3"><vh>@path src</vh>
 <v t="gmc.20080826191619.3"><vh>@thin codequery-dense-1d.cc</vh></v>
 <v t="gmc.20080826191619.10"><vh>@thin codequery-sparse.cc</vh></v>
 <v t="gcross.20081119221421.5"><vh>@thin codequery.cc</vh></v>
@@ -58,6 +60,7 @@
 <t tx="gcross.20090221232044.2"></t>
 <t tx="gcross.20090521215822.28"></t>
 <t tx="gcross.20090521215822.29"></t>
+<t tx="gcross.20090526153741.2"></t>
 <t tx="gmc.20080824181205.12"></t>
 <t tx="gmc.20080911170647.4">@others
 </t>
