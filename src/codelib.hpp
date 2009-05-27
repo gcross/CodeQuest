@@ -964,6 +964,7 @@ template<
     //@-node:gcross.20081203190837.3:number_of_logical_qubits
     //@+node:gmc.20080916172520.9:recompute_logical_qubits
     void recompute_logical_qubits() {
+        if(number_of_logical_qubits()==0) return;
         //@    << Compute logical qubits >>
         //@+node:gcross.20090522205550.9:<< Compute logical qubits >>
         //@+at
