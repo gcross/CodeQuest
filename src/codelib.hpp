@@ -987,14 +987,35 @@ template<
         elimination_state.run_elimination(generators);
 
         //@+at
-        // Compute the logical operators.
+        // Loop though all of the qubit indices, looking for ones that have 
+        // not been taken by a generator
         //@-at
         //@@c
         for(size_t current_qubit_index = 0; current_qubit_index < number_of_physical_qubits; ++current_qubit_index) {
+        //@+at
+        // If this qubit index has been taken by a generator, then skip to the 
+        // next.
+        //@-at
+        //@@c
             if(elimination_state.indices_taken[current_qubit_index]) continue;
+        //@+at
+        // Okidoke, since this index has not been taken use it for our logical 
+        // qubit.
+        //@-at
+        //@@c
             qubit logical_qubit(number_of_physical_qubits);
             logical_qubit.X.X.set(current_qubit_index);
             logical_qubit.Z.Z.set(current_qubit_index);
+        //@+at
+        // Now we need to multiply this qubit by factors that ensure it 
+        // commutes with all of the generators.  The idea here is that if the 
+        // generator anti-commutes with the local Pauli operator X or Z at 
+        // current_qubit_index, then we need to multiply our logical qubit by 
+        // an operator which we know anti-commutes with this generator and 
+        // only this generator, and fortunately through the process of 
+        // Gaussian elimination we know exactly what this operator is.
+        //@-at
+        //@@c
             size_t op_index = 0;
             typename index_vector::iterator chosen_qubit_index_iter = elimination_state.qubit_indices_chosen.begin();
             BOOST_FOREACH(quantum_operator& op, generators) {
@@ -1008,13 +1029,28 @@ template<
                 ++chosen_qubit_index_iter;
                 ++op_index;
             }
+        //@+at
+        // We now need to make sure that the logical qubit also commutes with 
+        // all of the gauge qubit Z operators, since these were not present in 
+        // our list of generators.
+        //@-at
+        //@@c
             BOOST_FOREACH(qubit& q, gauge_qubits) {
                 if(!(logical_qubit.X||q.Z)) logical_qubit.X *= q.X;
                 if(!(logical_qubit.Z||q.Z)) logical_qubit.Z *= q.X;
             }
+        //@+at
+        // Finally, we are done.  Comptue the logical qubit Y operator for 
+        // convenience, and then add the logical qubit to the list.
+        //@-at
+        //@@c
             logical_qubit.Y = logical_qubit.X * logical_qubit.Z;
             logical_qubits.push_back(logical_qubit);
         }
+        //@+at
+        // Assert that we found the correct number of logical qubits.
+        //@-at
+        //@@c
         assert(logical_qubits.size() == number_of_logical_qubits());
         //@-node:gcross.20090522205550.9:<< Compute logical qubits >>
         //@nl
