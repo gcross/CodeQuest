@@ -105,47 +105,6 @@ template<class quantum_operator> void dump_bits(const std::string message, const
 }
 //@nonl
 //@-node:gmc.20080826191619.20:dump_bits
-//@+node:gmc.20080824181205.28:reduce_row_echelon_split_representation
-template<class operator_vector> void reduce_row_echelon_split_representation(operator_vector& rows, bool zero_upper=false) {
-    using namespace std;
-    if(rows.size()==0) return;
-    typename operator_vector::iterator rref, rowref = rows.begin();
-    size_t system_size = rowref->length();
-    size_t column = 0;
-    unsigned char op_mask = 1;
-    while(rowref != rows.end() && (op_mask == 1 || column < system_size)) {
-        if(column >= system_size) {
-            op_mask = 2;
-            column -= system_size;
-        }
-        for(rref = rowref; rref != rows.end(); rref++)
-            if((*rref)[column] & op_mask)
-                goto nonzero_found_in_column;
-
-        column += 1;
-        continue;
-
-    nonzero_found_in_column:
-
-        if(rref!=rowref)
-            iter_swap(rref,rowref);
-
-        if(zero_upper) {
-            for(rref = rows.begin(); rref != rowref; rref++)
-                if((*rref)[column] & op_mask)
-                    (*rref) *= (*rowref);
-        }
-
-        for(rref = rowref+1; rref != rows.end(); rref++)
-            if((*rref)[column] & op_mask)
-                (*rref) *= (*rowref);
-
-        rowref += 1;
-        column += 1;
-    }
-    rows.erase(rowref,rows.end());
-}
-//@-node:gmc.20080824181205.28:reduce_row_echelon_split_representation
 //@+node:gmc.20080907163416.84:reduce_row_echelon_block_representation
 template<class quantum_operator, class operator_vector> void reduce_row_echelon_block_representation(operator_vector& rows, bool zero_upper=true) {
     using namespace std;
@@ -201,74 +160,6 @@ template<class quantum_operator, class operator_vector> void reduce_row_echelon_
     rows.erase(rowref,rows.end());
 }
 //@-node:gmc.20080907163416.84:reduce_row_echelon_block_representation
-//@+node:gmc.20080824195504.2:gaussian_elimination
-template<class quantum_operator, class bit_getter, class operator_vector, class index_vector> size_t gaussian_elimination(
-    operator_vector& generators,
-    index_vector& permutation,
-    bit_getter get_bits=get_X<typename quantum_operator::bitset_type>(),
-    size_t start=0
-) {
-    using namespace std;
-
-    typename operator_vector::iterator
-        start_ref = generators.begin()+start,
-        top_ref = start_ref,
-        bottom_ref = generators.end();
-
-    typename index_vector::iterator current_column_ref = permutation.begin()+start;
-
-    while( (bottom_ref != top_ref) and get_bits(*(bottom_ref-1)).none() ) bottom_ref--;
-
-    while(top_ref < bottom_ref) {
-//@+at
-// Fetch the bits of interest.
-//@-at
-//@@c
-        typename quantum_operator::bitset_type& restrict bits = get_bits(*top_ref);
-//@+at
-// If the row is already zeroed, then move it to the bottom.
-//@-at
-//@@c
-        if(bits.none()) {
-            bottom_ref--;
-            iter_swap(top_ref,bottom_ref);
-            continue;
-        }
-//@+at
-// Find the first non-zero entry in this row.
-//@-at
-//@@c
-        typename index_vector::iterator first_set_column_ref = current_column_ref;
-        while(!bits.test(*first_set_column_ref))
-            first_set_column_ref++;
-//@+at
-// Swap the current column with the first column that has a set bit.
-//@-at
-//@@c
-        if(first_set_column_ref != current_column_ref)
-            iter_swap(first_set_column_ref,current_column_ref);
-//@+at
-// Now zero out all of the rows which also have the bit in this column set.
-//@-at
-//@@c
-        for(typename operator_vector::iterator row_ref = start_ref; row_ref < bottom_ref; row_ref++) {
-			if((row_ref != top_ref) and get_bits(*row_ref).test(*current_column_ref))
-                (*row_ref) *= (*top_ref);
-		}
-//@+at
-// We're done with this row; now move onto the next.
-//@-at
-//@@c   
-		current_column_ref++;
-        top_ref++;
-    }
-//@+at
-// Return to the caller our ending position.
-//@-at
-//@@c
-    return bottom_ref-generators.begin();
-}
-//@-node:gmc.20080824195504.2:gaussian_elimination
 //@+node:gcross.20081122135542.13:Print/Println
 template<typename T> void Println(const T& value) { std::cout << value << std::endl; }
 template<typename T> void Print(const T& value) { std::cout << value << " "; }
@@ -431,6 +322,10 @@ struct dynamic_quantum_operator : public quantum_operator<boost::dynamic_bitset<
         Z.resize(newlen,value);
     }
 
+    static void inline resize_bitset(BitsetType& bitset, size_t newlen, bool value = false) {
+        bitset.resize(newlen,value);
+    }
+
 };
 
 template<int number_of_bits> struct static_quantum_operator : public quantum_operator<std::bitset<number_of_bits> >{
@@ -439,6 +334,10 @@ template<int number_of_bits> struct static_quantum_operator : public quantum_ope
     inline static_quantum_operator(size_t len) { assert(len==number_of_bits); }
 
     inline size_t length() const { return number_of_bits; };
+
+    static void inline resize_bitset(std::bitset<number_of_bits>& bitset, size_t newlen, bool value = false) {
+        assert(newlen==number_of_bits);
+    }
 };
 
 template<class quantum_operator> quantum_operator inline operator*(const quantum_operator& restrict A, const quantum_operator& restrict B) {
@@ -454,7 +353,6 @@ template<int number_of_bits> std::ostream& operator<<(std::ostream& out, const s
         out.put(pauli_char_from_op(op,i));
 	return out;
 }
-//@nonl
 //@-node:gmc.20080824181205.17:quantum_operator
 //@+node:gmc.20080824181205.18:qubit
 template<class quantum_operator> struct qubit {
@@ -580,6 +478,115 @@ protected:
 
 };
 //@-node:gcross.20081201142225.2:static_vector
+//@+node:gcross.20090526161317.2:gaussian_elimination_state
+template<class quantum_operator, class operator_vector, class index_vector> struct gaussian_elimination_state {
+    //@    << Fields >>
+    //@+node:gcross.20090526161317.3:<< Fields >>
+    typename quantum_operator::bitset_type indices_taken, paulis_chosen;
+    index_vector qubit_indices_chosen;
+    size_t current_operator_index, number_of_physical_qubits;
+    //@-node:gcross.20090526161317.3:<< Fields >>
+    //@nl
+    //@    @+others
+    //@+node:gcross.20090526161317.4:constructor
+    gaussian_elimination_state(int number_of_physical_qubits_) :
+        number_of_physical_qubits(number_of_physical_qubits_),
+        current_operator_index(0)
+    {
+        quantum_operator::resize_bitset(indices_taken,number_of_physical_qubits);
+        quantum_operator::resize_bitset(paulis_chosen,number_of_physical_qubits);
+    }
+    //@-node:gcross.20090526161317.4:constructor
+    //@+node:gcross.20090526161317.5:run_elimination
+    void run_elimination(operator_vector& operators) {
+        //@    << Perform the Gaussian elimination >>
+        //@+node:gcross.20090526161317.6:<< Perform the Gaussian elimination >>
+        qubit_indices_chosen.reserve(operators.size());
+        //@+at
+        // Initialize some iterators.
+        //@-at
+        //@@c
+        typename operator_vector::iterator op_overwrite_iter = operators.begin()+current_operator_index;
+        //@+at
+        // Loop over the remaining operators.
+        //@-at
+        //@@c
+        BOOST_FOREACH(quantum_operator op, operators) {
+        //@+at
+        // Loop over the previous operators and make sure that operator is 
+        // independent of them.
+        //@-at
+        //@@c
+            typename index_vector::iterator qubit_index_chosen_iter = qubit_indices_chosen.begin();
+            size_t op2_index = 0;
+            BOOST_FOREACH(quantum_operator& op2, std::make_pair(operators.begin(),op_overwrite_iter)) {
+                // Check whether op contains either X or Z, depending on pauli chosen,
+                // and if so multiply it by op_factor to get rid of the pauli.
+                if(paulis_chosen[op2_index] ? op.X.test(*qubit_index_chosen_iter) : op.Z.test(*qubit_index_chosen_iter)) op *= op2;
+                ++qubit_index_chosen_iter;
+                ++op2_index;
+            }
+        //@+at
+        // If the operator is now the identity, then skip it and move to the 
+        // next.
+        //@-at
+        //@@c
+            if(op.is_identity()) continue;
+        //@+at
+        // Look for the first physical qubit at a non-taken index with a 
+        // non-trivial Pauli.
+        //@-at
+        //@@c
+            int qubit_index_chosen;
+            bool pauli_chosen;
+            for(qubit_index_chosen = 0; qubit_index_chosen < number_of_physical_qubits; ++qubit_index_chosen) {
+                if(indices_taken[qubit_index_chosen]) continue;
+                if(op.X.test(qubit_index_chosen)) {
+                    pauli_chosen = true;
+                    break;
+                }
+                if(op.Z.test(qubit_index_chosen)) {
+                    pauli_chosen = false;
+                    break;
+                }
+            }
+            assert(qubit_index_chosen < number_of_physical_qubits);
+        //@+at
+        // Loop over the previous operators and make sure that operator is 
+        // independent of them.
+        //@-at
+        //@@c
+            if(pauli_chosen)
+                BOOST_FOREACH(quantum_operator& op2, std::make_pair(operators.begin(),op_overwrite_iter)) {
+                    if(op2.X.test(qubit_index_chosen)) op2 *= op;
+                }
+            else
+                BOOST_FOREACH(quantum_operator& op2, std::make_pair(operators.begin(),op_overwrite_iter)) {
+                    if(op2.Z.test(qubit_index_chosen)) op2 *= op;
+                }
+        //@+at
+        // Store the index and pauli chosen, copy the operator to the 
+        // overwrite index, and increment the current operator index.
+        //@-at
+        //@@c
+            indices_taken.set(qubit_index_chosen);
+            qubit_indices_chosen.push_back(qubit_index_chosen);
+            paulis_chosen[current_operator_index++] = pauli_chosen;
+            *(op_overwrite_iter++) = op;
+        }
+        //@+at
+        // Erase everything after the last operator.
+        //@-at
+        //@@c
+        operators.erase(op_overwrite_iter,operators.end());
+        //@-node:gcross.20090526161317.6:<< Perform the Gaussian elimination >>
+        //@nl
+    }
+    //@-node:gcross.20090526161317.5:run_elimination
+    //@-others
+};
+
+//@-node:gcross.20090526161317.2:gaussian_elimination_state
 //@+node:gmc.20080824181205.19:qec
 template<
     class Quantum_operator,
@@ -602,6 +609,8 @@ template<
     typedef typename operator_vector::iterator operator_iterator;
     typedef typename operator_vector::const_iterator const_operator_iterator;
     typedef typename index_vector::iterator index_iterator;
+    typedef gaussian_elimination_state<quantum_operator,operator_vector,index_vector> gaussian_elimination_state_type;
+    //@nonl
     //@-node:gcross.20090521215822.9:<< Typedefs >>
     //@nl
 
@@ -611,13 +620,16 @@ template<
 
     operator_vector stabilizers;
     qubit_vector gauge_qubits, logical_qubits;
+
+    gaussian_elimination_state_type post_stabilizer_elimination_state;
     //@-node:gcross.20090521215822.10:<< Fields >>
     //@nl
 
     //@    @+others
     //@+node:gmc.20080824181205.26:constructor
     qec(operator_vector operators, bool compute_logicals=true) :
-        number_of_physical_qubits(operators[0].length())
+        number_of_physical_qubits(operators[0].length()),
+        post_stabilizer_elimination_state(operators[0].length())
     {
 
         using namespace std;
@@ -682,13 +694,10 @@ template<
 
         //@+at
         // Now we have a set of stabilizers, but they might not be linearly 
-        // independent.  We call reduce_row_echelon to fix this by computing 
-        // the reduced row echelon form  of the matrix with the stabilizers as 
-        // rows.
+        // independent.  We perform a gaussian elimination to fix this.
         //@-at
         //@@c
-
-        reduce_row_echelon_split_representation(stabilizers);
+        post_stabilizer_elimination_state.run_elimination(stabilizers);
         //@-node:gmc.20080824181205.34:<< Build table of stabilizers and gauge qubits >>
         //@nl
 
@@ -922,9 +931,7 @@ template<
         // the X logical operators of the gauge qubits.
         //@-at
         //@@c
-
         int number_of_generators = stabilizers.size() + gauge_qubits.size();
-
         if(number_of_generators==0) return;
 
         operator_vector generators(stabilizers);
@@ -932,162 +939,37 @@ template<
         BOOST_FOREACH(qubit& qubit, gauge_qubits) { generators.push_back(qubit.X); }
 
         //@+at
-        // n is the number of physical qubits, k is the number of logical 
-        // (encoded) qubits
+        // Run the Gaussian elimination.
         //@-at
         //@@c
-        size_t n = number_of_physical_qubits;
-        size_t k = n-generators.size();
+        gaussian_elimination_state_type elimination_state = post_stabilizer_elimination_state;
+        elimination_state.run_elimination(generators);
 
         //@+at
-        // Set up the permutation vector, which keeps track of how the qubits 
-        // have been permuted during the Gaussian elimination process.
+        // Compute the logical operators.
         //@-at
         //@@c
-        index_vector permutation(n);
-        for(int i = 0; i < n; ++i) permutation[i] = i;
-
-        //@+at
-        // Perform the Gaussian elimination on the X bits.
-        //@-at
-        //@@c
-
-        //dump_bits("PRE-ELIM:",generators,permutation);
-
-        size_t r = gaussian_elimination<quantum_operator,get_Z<bitset>,operator_vector,index_vector>(generators,permutation,get_Z<bitset>());
-
-        //dump_bits("PHASE 1:",generators,permutation);
-
-        //@+at
-        // If there are generators left with only Z bits set, then perform 
-        // Gaussian elimination on the Z bits.
-        //@-at
-        //@@c
-        if(r < generators.size()) {
-            size_t b = gaussian_elimination<quantum_operator,get_X<bitset>,operator_vector,index_vector>(generators,permutation,get_X<bitset>(),r);
-            generators.erase(generators.begin()+b,generators.end());
-            k = n-generators.size();
-            //dump_bits("PHASE 2:",generators,permutation);
-        //@+at
-        // Finish the process of putting the generators into the canonical 
-        // form by using the "identity" in the last n-k-r rows to zero out all 
-        // of the Z bits in the first n-k-r columns of the first r rows.
-        //@-at
-        //@@c
-            for(operator_iterator ref_of_row_to_zero = generators.begin();
-                ref_of_row_to_zero < generators.begin()+r;
-                ref_of_row_to_zero++)
-            {
-                operator_iterator ref_of_row_with_1_in_r_plus_ith_column = generators.begin()+r;
-                for(int i = 0;
-                    i < n-k-r;
-                    i++, ref_of_row_with_1_in_r_plus_ith_column++)
-                {
-                    if(ref_of_row_to_zero->X.test(permutation[r+i]))
-                        (*ref_of_row_to_zero) *= (*ref_of_row_with_1_in_r_plus_ith_column);
+        for(size_t current_qubit_index = 0; current_qubit_index < number_of_physical_qubits; ++current_qubit_index) {
+            if(elimination_state.indices_taken[current_qubit_index]) continue;
+            qubit logical_qubit(number_of_physical_qubits);
+            logical_qubit.X.X.set(current_qubit_index);
+            logical_qubit.Z.Z.set(current_qubit_index);
+            size_t op_index = 0;
+            typename index_vector::iterator chosen_qubit_index_iter = elimination_state.qubit_indices_chosen.begin();
+            BOOST_FOREACH(quantum_operator& op, generators) {
+                if(elimination_state.paulis_chosen[op_index]) {
+                    if(op.Z.test(current_qubit_index)) logical_qubit.X.Z.set(*chosen_qubit_index_iter);
+                    if(op.X.test(current_qubit_index)) logical_qubit.Z.Z.set(*chosen_qubit_index_iter);
+                } else {
+                    if(op.Z.test(current_qubit_index)) logical_qubit.X.X.set(*chosen_qubit_index_iter);
+                    if(op.X.test(current_qubit_index)) logical_qubit.Z.X.set(*chosen_qubit_index_iter);
                 }
+                ++chosen_qubit_index_iter;
+                ++op_index;
             }
+            logical_qubits.push_back(logical_qubit);
         }
-
-        //dump_bits("PHASE 3:",generators,permutation);
-
-        //@+at
-        // Now that the generator matrix is in canonical form, we extract the 
-        // relevent portions in order to construct the logical qubits.  
-        // Specifically, by Nielson and Chung, we have that (assuming no 
-        // permutations)
-        // 
-        //     A2 = generators[:r,1,-k:]
-        //     C = generators[:r,0,-k:]
-        //     E = generators[-(n-k-r):,0,-k:]
-        // 
-        // and then the logical qubits are given by
-        // 
-        //     logical_qubits_X = zeros((k,2,n),bool_)
-        //     logical_qubits_X[:,0,:r] = A2.transpose()
-        //     logical_qubits_X[:,0,-k:] = identity(k)
-        // 
-        //     logical_qubits_Z_ = zeros((k,2,n),bool_)
-        //     logical_qubits_Z[:,1,-k:] = identity(k)
-        //     logical_qubits_Z[:,0,:r] = C.transpose()
-        // 
-        //     if r < len(generators):
-        //         E = generators[-(n-k-r):,1,-k:]
-        //         logical_qubits_Z[:,1,-k-(n-k-r):-k] = E.transpose()
-        // 
-        //@-at
-        //@@c
-        logical_qubits.resize(k,qubit(n));
-        //@+at
-        // Outer loop is size "k", the number of logical qubits.
-        //@-at
-        //@@c
-        index_iterator source_column_index_ref = permutation.end()-k;
-        for(qubit_iterator destination_qubit_ref = logical_qubits.begin();
-            destination_qubit_ref != logical_qubits.end();
-            destination_qubit_ref++, source_column_index_ref++)
-        {
-        //@+at
-        // First inner loop is size "r", the number of columns in the logical 
-        // qubit to be copied from the generators.
-        //@-at
-        //@@c
-            index_iterator destination_column_index_ref = permutation.begin();
-            for(operator_iterator source_generator_ref = generators.begin();
-                source_generator_ref != generators.begin()+r;
-                source_generator_ref++, destination_column_index_ref++)
-            {
-                destination_qubit_ref->X.X[*destination_column_index_ref] = source_generator_ref->Z[*source_column_index_ref];
-                destination_qubit_ref->Z.X[*destination_column_index_ref] = source_generator_ref->X[*source_column_index_ref];
-            }
-        //@+at
-        // Next put in fill in the identity part for this row.  It just so 
-        // happens that the column of the logical qubit where we put a 1 is 
-        // the same as the column from which we read the bit from the 
-        // generator previously, so we re-use the reference variable here.
-        //@-at
-        //@@c
-            destination_qubit_ref->X.X.set(*source_column_index_ref);
-            destination_qubit_ref->Z.Z.set(*source_column_index_ref);
-        //@+at
-        // If the generators didn't have full rank, then we have a second 
-        // inner loop of size n-k-r -- i.e., in Python:
-        // 
-        //     if r < len(generators):
-        //         E = generators[-(n-k-r):,1,-k:]
-        //         logical_qubits_Z[:,1,-k-(n-k-r):-k] = E.transpose()
-        // 
-        //@-at
-        //@@c
-            destination_column_index_ref = permutation.end()-k-(n-k-r);
-            for(operator_iterator source_generator_ref = generators.end()-(n-k-r);
-                source_generator_ref != generators.end();
-                source_generator_ref++, destination_column_index_ref++)
-            {
-                destination_qubit_ref->Z.Z[*destination_column_index_ref] = source_generator_ref->X[*source_column_index_ref];
-            }
-        //@+at
-        // Now we're almost done;  we just have to go through and make sure 
-        // that our logical qubit commutes with all of the Z gauge qubit 
-        // operators, since we have only established so far that it commutes 
-        // with the X gauge qubit operators.
-        //@-at
-        //@@c
-            for(qubit_iterator gauge_qubit_ref = gauge_qubits.begin(); gauge_qubit_ref != gauge_qubits.end(); gauge_qubit_ref++) {
-                assert(destination_qubit_ref->X||gauge_qubit_ref->X); // this is here just in case a bug in the above code screwed things up
-                assert(destination_qubit_ref->Z||gauge_qubit_ref->X); // (this shouldn't ever be the case, but you never know...)
-                if(!(destination_qubit_ref->X||gauge_qubit_ref->Z))
-                    destination_qubit_ref->X *= gauge_qubit_ref->X;
-                if(!(destination_qubit_ref->Z||gauge_qubit_ref->Z))
-                    destination_qubit_ref->Z *= gauge_qubit_ref->X;
-            }
-        //@+at
-        // Last but not least, update the logical Y operator.
-        //@-at
-        //@@c
-            destination_qubit_ref->Y = destination_qubit_ref->Z * destination_qubit_ref->X;
-        }
-        //@nonl
+        assert(logical_qubits.size() == number_of_logical_qubits());
         //@-node:gcross.20090522205550.9:<< Compute logical qubits >>
         //@nl
     }
