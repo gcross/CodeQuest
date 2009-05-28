@@ -725,7 +725,7 @@ template<
         //@-at
         //@@c
             operator_iterator next_stabilizer_to_overwrite = stabilizers.begin();
-            BOOST_FOREACH(quantum_operator& stabilizer, std::make_pair(next_stabilizer_to_overwrite,stabilizers.end())) {
+            BOOST_FOREACH(quantum_operator& stabilizer, stabilizers) {
                 if(stabilizer==gauge_qubit.X) continue;
                 *(next_stabilizer_to_overwrite++) = (stabilizer || op) ? stabilizer : stabilizer * gauge_qubit.X;
             }
