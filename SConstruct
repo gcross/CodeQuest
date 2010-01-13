@@ -23,6 +23,9 @@ if not conf.CheckCXXHeader('boost/dynamic_bitset.hpp'):
 if not conf.CheckCXXHeader('blitz/array.h'):
    print 'You need to download and install the Blitz++ library to use this code.'
    Exit(1) 
+if not conf.CheckCXXHeader('tclap/CmdLine.h'):
+   print 'You need to download and install the TCLAP library to use this code.'
+   Exit(1) 
 
 #@+at
 # Get our configuration options:
