@@ -262,7 +262,7 @@ public:
 
     }
 
-    void operator ++(int) { increment(0); }
+    void operator ++() { increment(0); }
 
 };
 //@-node:gmc.20080910123558.3:<< Choice Iterator >>
@@ -295,7 +295,7 @@ public:
         }
     }
 
-    void operator ++(int) { increment(size()-1); }
+    void operator ++() { increment(size()-1); }
 
 };
 //@-node:gmc.20080910123558.4:<< Coefficient Iterator >>
@@ -323,6 +323,10 @@ template<class bitset> struct quantum_operator {
 
     bool inline operator||(const quantum_operator& restrict op) const {
         return ((X&op.Z).count()+(Z&op.X).count()) % 2 == 0;
+    }
+
+    bool inline operator&&(const quantum_operator& restrict op) const {
+        return ((X&op.Z).count()+(Z&op.X).count()) % 2 == 1;
     }
 
     void inline operator*=(const quantum_operator& op) { X ^= op.X; Z ^= op.Z; }
@@ -377,7 +381,7 @@ template<int number_of_bits> struct static_quantum_operator : public quantum_ope
     inline size_t length() const { return number_of_bits; };
 
     static void inline resize_bitset(std::bitset<number_of_bits>& bitset, size_t newlen, bool value = false) {
-        assert(newlen==number_of_bits);
+        assert(newlen<=number_of_bits);
     }
 };
 
@@ -662,6 +666,11 @@ template<
     qubit_vector gauge_qubits, logical_qubits;
 
     gaussian_elimination_state_type post_stabilizer_elimination_state;
+
+    index_vector logical_qubit_error_distances;
+    operator_vector logical_qubit_errors;
+    size_t number_of_optimized_logical_qubits;
+    bitset marked_as_eligible_to_fix_an_error;
     //@-node:gcross.20090521215822.10:<< Fields >>
     //@nl
 
@@ -669,7 +678,8 @@ template<
     //@+node:gmc.20080824181205.26:constructor
     qec(operator_vector operators, bool compute_logicals=true) :
         number_of_physical_qubits(operators[0].length()),
-        post_stabilizer_elimination_state(operators[0].length())
+        post_stabilizer_elimination_state(operators[0].length()),
+        number_of_optimized_logical_qubits(0)
     {
 
         using namespace std;
@@ -743,75 +753,17 @@ template<
 
         if(compute_logicals) {
             recompute_logical_qubits();
-            //assert(logical_qubits.size() == number_of_logical_qubits());
+            assert(logical_qubits.size() == number_of_logical_qubits());
         }
+
+        quantum_operator::resize_bitset(marked_as_eligible_to_fix_an_error,logical_qubits.size());
+        marked_as_eligible_to_fix_an_error.set();
 
     }
 
     //@-node:gmc.20080824181205.26:constructor
-    //@+node:gcross.20081119221421.3:compute_weights
-    void compute_weights(index_vector& minimum_weights, operator_vector& minimum_weight_operators, bool verbose=true) {
-
-        using namespace std;
-
-        if(logical_qubits.size() == 0) return;
-
-        int original_number_of_qubits = logical_qubits.size();
-
-        while (logical_qubits.size() > 0) {
-
-            if(verbose) cout << "LOGICAL QUBIT " << (minimum_weights.size()+1) << endl;
-
-            qubit bad_logical(number_of_physical_qubits);
-            if(verbose) cout << endl << "Logical X operator:" << endl;
-            quantum_operator minimum_weight_operator = compute_minimum_weight_operator(verbose);
-
-            minimum_weights.push_back(minimum_weight_operator.weight());
-            minimum_weight_operators.push_back(minimum_weight_operator);
-
-            for(qubit_iterator qubitref = logical_qubits.begin(); qubitref != logical_qubits.end(); qubitref++) {
-                if(not (qubitref->X||minimum_weight_operator)) {
-                    bad_logical.X *= qubitref->Z;
-                }
-                if(not (qubitref->Z||minimum_weight_operator)) {
-                    bad_logical.X *= qubitref->X;
-                }
-            }
-
-            if(verbose) cout << endl << "Logical Z operator:" << endl;
-            quantum_operator minimum_weight_operator2 = compute_minimum_weight_operator(verbose,&bad_logical.X);
-
-            assert(minimum_weight_operator.weight() <= minimum_weight_operator2.weight());
-
-            for(qubit_iterator qubitref = logical_qubits.begin(); qubitref != logical_qubits.end(); qubitref++) {
-                if(not (qubitref->X||minimum_weight_operator2)) {
-                    bad_logical.Z *= qubitref->Z;
-                }
-                if(not (qubitref->Z||minimum_weight_operator2)) {
-                    bad_logical.Z *= qubitref->X;
-                }
-            }
-
-            assert(not (bad_logical.X||bad_logical.Z));
-
-            bad_logical.Y = bad_logical.X;
-            bad_logical.Y *= bad_logical.Z;
-
-            gauge_qubits.push_back(bad_logical);
-            logical_qubits.clear();
-            recompute_logical_qubits();
-
-            if(verbose) cout << endl;
-
-        }
-
-        logical_qubits.insert(logical_qubits.begin(),gauge_qubits.end()-original_number_of_qubits,gauge_qubits.end());
-        gauge_qubits.erase(gauge_qubits.end()-original_number_of_qubits,gauge_qubits.end());
-
-    }
-    //@-node:gcross.20081119221421.3:compute_weights
-    //@+node:gmc.20080910123558.11:compute_minimum_weight_operator
-    quantum_operator compute_minimum_weight_operator(bool verbose=false, const quantum_operator* force_anticommutation=NULL) {
+    //@+node:gmc.20080910123558.11:compute_minimum_weight_unaccounted_undetectable_error
+    quantum_operator compute_minimum_weight_unaccounted_undetectable_error(int& error_case, int& error_index, bool verbose=false) {
 
         using namespace std;
 
@@ -862,11 +814,14 @@ template<
 
         quantum_operator op(number_of_physical_qubits);
 
-        bitset bits(number_of_physical_qubits);
+        bitset bits;
+        quantum_operator::resize_bitset(bits,number_of_physical_qubits);
+        bits.reset();
 
-        const_qubit_iterator logical_qubits_begin = logical_qubits.begin(),
-                             logical_qubits_end   = logical_qubits.end(),
-                             qubitref;
+        qubit_iterator logical_qubits_begin = logical_qubits.begin(),
+                       logical_qubits_end_of_optimized = logical_qubits_begin + number_of_optimized_logical_qubits,
+                       logical_qubits_end   = logical_qubits.end(),
+                       qubitref;
 
         while(minimum_weight_found > (r+1)) {
             r += 1;
@@ -886,68 +841,43 @@ template<
 
                 while(coefficients.valid) {
                     pseudo_generators[choices[0]].set(op,coefficients[0]);
-                    switch(r) {
-                        default:
-                            for(int i = 10; i < r; i++) pseudo_generators[choices[i]].multiply(op,coefficients[i]);
-                        case 10:
-                            pseudo_generators[choices[9]].multiply(op,coefficients[9]);
-                        case 9:
-                            pseudo_generators[choices[8]].multiply(op,coefficients[8]);
-                        case 8:
-                            pseudo_generators[choices[7]].multiply(op,coefficients[7]);
-                        case 7:
-                            pseudo_generators[choices[6]].multiply(op,coefficients[6]);
-                        case 6:
-                            pseudo_generators[choices[5]].multiply(op,coefficients[5]);
-                        case 5:
-                            pseudo_generators[choices[4]].multiply(op,coefficients[4]);
-                        case 4:
-                            pseudo_generators[choices[3]].multiply(op,coefficients[3]);
-                        case 3:
-                            pseudo_generators[choices[2]].multiply(op,coefficients[2]);
-                        case 2:
-                            pseudo_generators[choices[1]].multiply(op,coefficients[1]);
-                        case 1:
-                            break;
-                    }
+                    for(int i = 1; i < r; i++) pseudo_generators[choices[i]].multiply(op,coefficients[i]);
 
                     bits = op.X;
                     bits |= op.Z;
                     size_t weight = bits.count();
 
-                    if(
-                        (weight < minimum_weight_found) and
-                        (weight >= r) and
-                        ((force_anticommutation == NULL) or not ((*force_anticommutation)||op))
-                    ) {
-                        for(qubitref=logical_qubits_begin; qubitref!=logical_qubits_end; qubitref++) {
-                            bits = (qubitref->X.X);
-                            bits &= op.Z;
-                            int match_count = bits.count();
-                            bits = (qubitref->X.Z);
-                            bits &= op.X;
-                            if((match_count + bits.count()) % 2 == 1) {
-                                minimum_weight_found = weight;
-                                minimum_weight_operator = op;
-                                if(weight == r) return minimum_weight_operator;
-                            }
-                            bits = (qubitref->Z.X);
-                            bits &= op.Z;
-                            match_count = bits.count();
-                            bits = (qubitref->Z.Z);
-                            bits &= op.X;
-                            if((match_count + bits.count()) % 2 == 1) {
-                                minimum_weight_found = weight;
-                                minimum_weight_operator = op;
-                                if(weight == r) return minimum_weight_operator;
-                            }
-                        }
+                    int index = 0;
+                    int case_ = 1;
+
+                    if (weight >= minimum_weight_found) goto next_candidate;
+                    if (weight < r) goto next_candidate;
+
+                    for(qubitref=logical_qubits_begin; qubitref!=logical_qubits_end_of_optimized; ++qubitref) {
+                        if(marked_as_eligible_to_fix_an_error[index] && (op && qubitref->Z)) goto found_a_candidate;
+                        ++index;
                     }
 
-                    coefficients++;
+                    case_ = 2;
+                    for(; qubitref!=logical_qubits_end; ++qubitref)
+                        if((op && qubitref->X) || (op && qubitref->Z)) goto found_a_candidate;
+
+                    goto next_candidate;
+
+                    found_a_candidate:
+
+                        error_case = case_;
+                        error_index = qubitref - logical_qubits_begin;
+                        minimum_weight_found = weight;
+                        minimum_weight_operator = op;
+                        if(weight == r) return minimum_weight_operator;
+
+                    next_candidate:
+
+                        ++coefficients;
                 }
 
-                choices++;
+                ++choices;
 
             }
         }
@@ -956,7 +886,98 @@ template<
         //@nl
         return minimum_weight_operator;
     }
-    //@-node:gmc.20080910123558.11:compute_minimum_weight_operator
+    //@-node:gmc.20080910123558.11:compute_minimum_weight_unaccounted_undetectable_error
+    //@+node:gcross.20081119221421.3:optimize_logical_qubits
+    void optimize_logical_qubits(bool verbose=true) {
+
+        using namespace std;
+
+        size_t number_of_logical_qubits = logical_qubits.size();
+
+        if(number_of_logical_qubits == 0) return;
+
+        while (number_of_optimized_logical_qubits < number_of_logical_qubits) {
+
+            int error_case, error_index;
+            quantum_operator error = compute_minimum_weight_unaccounted_undetectable_error(error_case,error_index,verbose);
+            qubit_iterator logical_qubits_begin = logical_qubits.begin(),
+                           logical_qubits_end_of_optimized = logical_qubits_begin + number_of_optimized_logical_qubits,
+                           logical_qubits_end   = logical_qubits.end(),
+                           qubit_fixing_the_error_ref = logical_qubits_begin + error_index;
+
+            assert(1 == error_case || 2 == error_case);
+            int index = 3453456;
+            switch(error_case) {
+                case 1:
+                    //@                << Case 1 >>
+                    //@+node:gcross.20100208221030.1400:<< Case 1 >>
+                    marked_as_eligible_to_fix_an_error[error_index] = false;
+                    assert(error && qubit_fixing_the_error_ref->Z);
+                    index = error_index+1;
+                    for(qubit_iterator qubit_to_fix_ref = qubit_fixing_the_error_ref+1; qubit_to_fix_ref != logical_qubits_end_of_optimized; ++qubit_to_fix_ref) {
+                        if(marked_as_eligible_to_fix_an_error[index] && (error && qubit_to_fix_ref->Z)) {
+                            qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
+                            qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
+                        }
+                        ++index;
+                    }
+                    for(qubit_iterator qubit_to_fix_ref = logical_qubits_end_of_optimized; qubit_to_fix_ref != logical_qubits_end; ++qubit_to_fix_ref) {
+                        if(error && qubit_to_fix_ref->Z) {
+                            if(error && qubit_to_fix_ref->X) {
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->Z;
+                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
+                                qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->Z;
+                            } else {
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
+                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
+                            }
+                        }
+                    }
+                    //@-node:gcross.20100208221030.1400:<< Case 1 >>
+                    //@nl
+                    break;
+                case 2:
+                    //@                << Case 2 >>
+                    //@+node:gcross.20100208221030.1401:<< Case 2 >>
+                    assert((error && qubit_fixing_the_error_ref->X) || (error && qubit_fixing_the_error_ref->Z));
+                    if(error && qubit_fixing_the_error_ref->Z) {
+                        if(error && qubit_fixing_the_error_ref->X) {
+                            qubit_fixing_the_error_ref->Z *= qubit_fixing_the_error_ref->X;
+                        } else  {
+                            swap(qubit_fixing_the_error_ref->X,qubit_fixing_the_error_ref->Z);
+                        }
+                    }
+
+                    iter_swap(qubit_fixing_the_error_ref,logical_qubits_end_of_optimized);
+                    qubit_fixing_the_error_ref = logical_qubits_end_of_optimized;
+
+                    ++number_of_optimized_logical_qubits;
+                    ++logical_qubits_end_of_optimized;
+
+                    for(qubit_iterator qubit_to_fix_ref = logical_qubits_end_of_optimized; qubit_to_fix_ref != logical_qubits_end; ++qubit_to_fix_ref) {
+                        if(error && qubit_to_fix_ref->Z) {
+                            if(error && qubit_to_fix_ref->X) {
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->Z;
+                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
+                                qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->Z;
+                            } else {
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
+                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
+                            }
+                        }
+                    }    
+                    logical_qubit_error_distances.push_back(error.weight());
+                    logical_qubit_errors.push_back(error);
+                    //@-node:gcross.20100208221030.1401:<< Case 2 >>
+                    //@nl
+            }
+
+        }
+
+    }
+    //@-node:gcross.20081119221421.3:optimize_logical_qubits
     //@+node:gcross.20081203190837.3:number_of_logical_qubits
     size_t number_of_logical_qubits() {
         return number_of_physical_qubits - stabilizers.size() - gauge_qubits.size();
@@ -1087,6 +1108,10 @@ template<class quantum_operator, class B, class operator_vector_type, class D> s
         out << "\tLogical X: " << code.logical_qubits[i].X << endl;
         out << "\tLogical Y: " << code.logical_qubits[i].Y << endl;
         out << "\tLogical Z: " << code.logical_qubits[i].Z << endl;
+        if(i < code.number_of_optimized_logical_qubits) {
+            cout << "\tDistance: " << code.logical_qubit_error_distances[i] << endl;
+            cout << "\tMinimum weight error: " << code.logical_qubit_errors[i];
+        }
     }
 
     out << endl << endl;

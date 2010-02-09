@@ -133,24 +133,12 @@ int main_dense_1d(string filename, bool compute_weights_flag) {
     cout << endl;
 
     qec code(operators);
+    if(compute_weights_flag) code.optimize_logical_qubits();
 
     cout << code;
 
     cout << endl;
 
-    if(compute_weights_flag and code.logical_qubits.size() > 0) {
-
-        quantum_operator minimum_weight_operator = code.compute_minimum_weight_operator();
-
-        cout << endl;
-
-        cout << "Minimum weight error is: " << endl << "\t" << minimum_weight_operator << endl;
-        cout << endl;
-
-        cout << "Code has distance " << minimum_weight_operator.weight() << "." << endl;
-        cout << endl;
-
-    }
 }
 //@-node:gmc.20080824181205.29:main_dense_1d
 //@-others

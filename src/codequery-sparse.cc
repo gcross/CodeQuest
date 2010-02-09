@@ -373,11 +373,8 @@ int main_sparse(string filename, bool compute_weights_flag) {
     //times(&after);
     cout << "done!" << endl; //  Took " << (((after.tms_utime+after.tms_stime)-(before.tms_utime+before.tms_stime)) * CLK_TCK) << " seconds." << endl << endl;
 
-    vector<size_t> minimum_weights;
-    vector<quantum_operator> minimum_weight_operators;
-
     if(compute_weights_flag)
-        code.compute_weights(minimum_weights,minimum_weight_operators);
+        code.optimize_logical_qubits();
     //@-node:gmc.20080916172520.8:<< Compute code >>
     //@nl
 
@@ -415,9 +412,10 @@ int main_sparse(string filename, bool compute_weights_flag) {
         print_op("\t|||||||||||||    ",width,height,qubit_coordinates,code.logical_qubits[i].Y,true);
         cout <<  "\t| Logical Z |    ";
         print_op("\t|||||||||||||    ",width,height,qubit_coordinates,code.logical_qubits[i].Z,true);
-        if(compute_weights_flag) {
+        if(i < code.number_of_optimized_logical_qubits) {
+            cout << "\t Distance: " << code.logical_qubit_error_distances[i] << endl;
             cout << "\t Minimum weight error:" << endl;
-            print_op("\t       ",width,height,qubit_coordinates,minimum_weight_operators[i],false);
+            print_op("\t       ",width,height,qubit_coordinates,code.logical_qubit_errors[i],false);
         }
     }
 
@@ -445,8 +443,8 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     if(compute_weights_flag and code.logical_qubits.size()>0) {
         cout << " with weights: ";
-        for(int i = 0; i < code.logical_qubits.size()-1; i++) cout << minimum_weights[i] << ", ";
-        cout << minimum_weights[code.logical_qubits.size()-1] << endl;
+        for(int i = 0; i < code.logical_qubits.size()-1; i++) cout << code.logical_qubit_error_distances[i] << ", ";
+        cout << code.logical_qubit_error_distances[code.logical_qubits.size()-1] << endl;
     } else cout << endl;
 
     //@-node:gmc.20080826191619.31:<< Print out results >>
