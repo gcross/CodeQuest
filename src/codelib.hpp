@@ -647,7 +647,7 @@ template<
     typedef Index_vector index_vector;
 
     typedef typename quantum_operator::bitset_type bitset;
-    typedef qubit<quantum_operator> qubit;
+    typedef qubit<quantum_operator> qubit_type;
     typedef typename qubit_vector::iterator qubit_iterator;
     typedef typename qubit_vector::const_iterator const_qubit_iterator;
     typedef typename operator_vector::iterator operator_iterator;
@@ -694,7 +694,7 @@ template<
         // operators.
         //@-at
         //@@c
-            BOOST_FOREACH(qubit& gauge_qubit, gauge_qubits) {
+            BOOST_FOREACH(qubit_type& gauge_qubit, gauge_qubits) {
                 if(!(op||gauge_qubit.Z)) op *= gauge_qubit.X;
                 if(!(op||gauge_qubit.X)) op *= gauge_qubit.Z;
             }
@@ -725,7 +725,7 @@ template<
         // operators.
         //@-at
         //@@c
-            qubit gauge_qubit(*first_found_conjugal_partner,op);
+            qubit_type gauge_qubit(*first_found_conjugal_partner,op);
             gauge_qubits.push_back(gauge_qubit);
         //@+at
         // We now need to make sure that all of the stabilizers commute with 
@@ -998,7 +998,7 @@ template<
 
         operator_vector generators(stabilizers);
         generators.reserve(number_of_generators);
-        BOOST_FOREACH(qubit& qubit, gauge_qubits) { generators.push_back(qubit.X); }
+        BOOST_FOREACH(qubit_type& qubit, gauge_qubits) { generators.push_back(qubit.X); }
 
         //@+at
         // Run the Gaussian elimination.
@@ -1024,7 +1024,7 @@ template<
         // qubit.
         //@-at
         //@@c
-            qubit logical_qubit(number_of_physical_qubits);
+            qubit_type logical_qubit(number_of_physical_qubits);
             logical_qubit.X.X.set(current_qubit_index);
             logical_qubit.Z.Z.set(current_qubit_index);
         //@+at
@@ -1056,7 +1056,7 @@ template<
         // our list of generators.
         //@-at
         //@@c
-            BOOST_FOREACH(qubit& q, gauge_qubits) {
+            BOOST_FOREACH(qubit_type& q, gauge_qubits) {
                 if(!(logical_qubit.X||q.Z)) logical_qubit.X *= q.X;
                 if(!(logical_qubit.Z||q.Z)) logical_qubit.Z *= q.X;
             }
