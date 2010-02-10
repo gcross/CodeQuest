@@ -3,7 +3,7 @@
 #@@language Python
 
 env = Environment(
-            CCFLAGS="-O3"
+            CCFLAGS="-O3 -funroll-loops"
         )
 import os
 for varname in ["CPATH","CPP_INCLUDE_PATH"]:
