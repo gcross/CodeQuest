@@ -919,6 +919,7 @@ template<
                             qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
                             qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
                         }
+                        assert((!marked_as_eligible_to_fix_an_error[index]) || (error || qubit_to_fix_ref->Z));
                         ++index;
                     }
                     for(qubit_iterator qubit_to_fix_ref = logical_qubits_end_of_optimized; qubit_to_fix_ref != logical_qubits_end; ++qubit_to_fix_ref) {
@@ -932,7 +933,11 @@ template<
                                 qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
                                 qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
                             }
+                        } else if(error && qubit_to_fix_ref->X) {
+                            qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->Z;
+                            qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->Z;
                         }
+                        assert((error || qubit_to_fix_ref->X) && (error || qubit_to_fix_ref->Z));
                     }
                     //@-node:gcross.20100208221030.1400:<< Case 1 >>
                     //@nl
@@ -941,13 +946,9 @@ template<
                     //@                << Case 2 >>
                     //@+node:gcross.20100208221030.1401:<< Case 2 >>
                     assert((error && qubit_fixing_the_error_ref->X) || (error && qubit_fixing_the_error_ref->Z));
-                    if(error && qubit_fixing_the_error_ref->Z) {
-                        if(error && qubit_fixing_the_error_ref->X) {
-                            qubit_fixing_the_error_ref->Z *= qubit_fixing_the_error_ref->X;
-                        } else  {
-                            swap(qubit_fixing_the_error_ref->X,qubit_fixing_the_error_ref->Z);
-                        }
-                    }
+                    if(error || qubit_fixing_the_error_ref->X)
+                        swap(qubit_fixing_the_error_ref->X,qubit_fixing_the_error_ref->Z);
+                    assert(error && qubit_fixing_the_error_ref->X);
 
                     iter_swap(qubit_fixing_the_error_ref,logical_qubits_end_of_optimized);
                     qubit_fixing_the_error_ref = logical_qubits_end_of_optimized;
@@ -958,16 +959,24 @@ template<
                     for(qubit_iterator qubit_to_fix_ref = logical_qubits_end_of_optimized; qubit_to_fix_ref != logical_qubits_end; ++qubit_to_fix_ref) {
                         if(error && qubit_to_fix_ref->Z) {
                             if(error && qubit_to_fix_ref->X) {
-                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
-                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->Z;
-                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
-                                qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->Z;
+                                qubit_fixing_the_error_ref->Z *= qubit_to_fix_ref->X;
+                                qubit_fixing_the_error_ref->Z *= qubit_to_fix_ref->Z;
+                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->X;
+                                qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->X;
                             } else {
-                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
-                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
+                                qubit_fixing_the_error_ref->Z *= qubit_to_fix_ref->X;
+                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->X;
                             }
+                        } else if(error && qubit_to_fix_ref->X) {
+                            qubit_fixing_the_error_ref->Z *= qubit_to_fix_ref->Z;
+                            qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->X;
                         }
-                    }    
+                        assert((error || qubit_to_fix_ref->X) && (error || qubit_to_fix_ref->Z));
+                    }
+                    if(error && qubit_fixing_the_error_ref->Z)
+                        qubit_fixing_the_error_ref->Z *= qubit_fixing_the_error_ref->X;
+                    assert((error && qubit_fixing_the_error_ref->X) && (error || qubit_fixing_the_error_ref->Z));
+
                     logical_qubit_error_distances.push_back(error.weight());
                     logical_qubit_errors.push_back(error);
                     //@-node:gcross.20100208221030.1401:<< Case 2 >>
@@ -976,6 +985,9 @@ template<
 
         }
 
+        BOOST_FOREACH(qubit_type& q, logical_qubits) {
+            q.Y = q.Z*q.X;
+        }
     }
     //@-node:gcross.20081119221421.3:optimize_logical_qubits
     //@+node:gcross.20081203190837.3:number_of_logical_qubits
