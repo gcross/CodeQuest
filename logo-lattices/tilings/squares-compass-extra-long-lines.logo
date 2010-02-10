@@ -1,0 +1,45 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080916172520.18:@thin squares-compass-extra-long-lines.logo
+;@@language logo
+;@@comment ;
+
+prologue
+
+to line :length
+    repeat :length [ fd 50 ]
+end
+
+make "rotation 90
+
+to lines :number :length
+
+    line (sum :length 1) pu lt :rotation fd 50 lt :rotation pd
+    make "rotation minus :rotation
+
+    repeat (difference :number 2) [
+        line (sum :length 2)
+        pu lt :rotation fd 50 lt :rotation pd
+        make "rotation minus :rotation
+    ]
+
+    line (sum :length 1) pu lt :rotation fd 50 lt :rotation pd
+    make "rotation minus :rotation
+
+end
+
+penwidth 5
+pencolor "blue"
+
+lines :height difference :width 1
+
+pu
+rt :rotation
+fd 50
+pencolor "red"
+pd
+
+lines :width difference :height 1
+
+epilogue
+;@-node:gmc.20080916172520.18:@thin squares-compass-extra-long-lines.logo
+;@-leo

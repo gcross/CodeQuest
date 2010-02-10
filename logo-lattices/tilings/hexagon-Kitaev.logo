@@ -1,0 +1,64 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080914232002.13:@thin hexagon-Kitaev.logo
+;@@language logo
+;@@comment ;
+
+prologue
+
+
+to hex :hexcolor
+    pu
+    startfill
+    repeat 6 [fd 50 rt 60]
+    pc :hexcolor
+    pd
+    endfill
+    repeat 6 [ pd pc first :edgecolors pd fd 50 rt 60 make "edgecolors rotate :edgecolors ]
+end
+
+to link
+    pu rt 120 fd 50 lt 60 fd 50 lt 60 pd
+end
+
+to return
+    pu lt 120
+    repeat :height [fd 50 rt 60 fd 50 lt 60]
+    fd 50 lt 60 fd 50 rt 180 pd
+end
+
+
+to row :colors
+    repeat :height [
+           hex first :colors
+           link
+           localmake "colors rotate :colors
+    ]
+end
+
+make "starting_edgecolors (list "red "green "blue "red "blue "green )
+make "starting_colors (list "lightcyan "lightyellow "mistyrose)
+
+to row1
+    make "edgecolors :starting_edgecolors
+    row :starting_colors
+end
+
+to row2
+    make "edgecolors rotate rotate rotate :starting_edgecolors
+    row rotate :starting_colors
+end
+
+
+penwidth 5
+repeat quotient :width 2  [ row1 return row2 return pu rt 120 fd 50 lt 60 fd 50 lt 60 pd ]
+repeat remainder :width 2 [ row1 return 0 ]
+
+pu
+fd 50
+lt 90
+fd product 50 cos 30
+
+epilogue
+
+;@-node:gmc.20080914232002.13:@thin hexagon-Kitaev.logo
+;@-leo

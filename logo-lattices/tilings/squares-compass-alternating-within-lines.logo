@@ -1,0 +1,56 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080916172520.16:@thin squares-compass-alternating-within-lines.logo
+;@@language logo
+;@@comment ;
+
+prologue
+
+to line :length :addremainder
+    test :addremainder
+    ift [ localmake :halflength (sum (quotient :length 2) (remainder :length 2) ) ]
+    iff [ localmake :halflength (quotient :length 2) ]
+    pc first :colorcycle
+    repeat :halflength [ fd 50 ]
+    make :colorcycle rotate :colorcycle
+    pc first :colorcycle
+    repeat (difference :length :halflength) [ fd 50 ]
+end
+
+make "rotation 90
+
+to lines :number :length
+
+    localmake :addremainder true
+
+    repeat :number [
+        line :length :addremainder
+        lt :rotation
+        pu
+        fd 50
+        pd
+        lt :rotation
+
+        make :rotation minus :rotation
+        localmake :addremainder not :addremainder
+    ]
+
+end
+
+penwidth 5
+;pencolor "blue"
+
+make :colorcycle  (list "blue )
+lines :height difference :width 1
+
+pu
+rt :rotation
+fd 50
+;pencolor "red"
+pd
+
+make :colorcycle (list "red "green )
+lines :width difference :height 1
+
+epilogue
+;@-node:gmc.20080916172520.16:@thin squares-compass-alternating-within-lines.logo
+;@-leo

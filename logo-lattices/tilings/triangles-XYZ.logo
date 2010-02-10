@@ -1,0 +1,53 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080914232002.12:@thin triangles-XYZ.logo
+;@@language logo
+;@@comment ;
+
+prologue
+
+to tri
+    pu rt 30
+    startfill
+    pu
+    repeat 3 [ fd 75 rt 120 ]
+    pd
+    bluefill
+    pd
+    pencolor "red" pd fd 75 rt 120
+    pencolor "blue" pd fd 75 rt 120
+    pencolor "green" pd fd 75 rt 120
+    lt 30 pu fd 20 rt 90 fd 40 rt 90 fd 20 lt 90 fd 35 lt 90
+end
+
+
+to trireturn1
+    pu lt 90 fd :height * 75 lt 60 fd 75 rt 150 pd
+end
+
+to trireturn2
+    pu rt 30 fd 75 bk 75 lt 30 lt 90 fd :height * 75
+    pd pencolor "blue" pd lt 120 fd 75 lt 150
+end
+
+to trirow
+    repeat :height [tri]
+end
+
+penwidth 5
+
+test less? :width 2
+iff [ repeat quotient :width 2 [ trirow trireturn1 trirow trireturn2 ] ]
+test equal? 1 remainder :width 2
+ift [ trirow trireturn1 ]
+
+pencolor "white"
+pd
+rt 150
+bk 75
+rt 30
+lt 180
+
+epilogue
+
+;@-node:gmc.20080914232002.12:@thin triangles-XYZ.logo
+;@-leo

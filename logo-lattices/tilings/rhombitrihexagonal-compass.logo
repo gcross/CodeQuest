@@ -1,0 +1,78 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080916172520.5:@thin rhombitrihexagonal-compass.logo
+;@@language logo
+
+prologue
+
+make :lengthscale 30
+
+to trace :number :angle :colorcycle :gonext
+    pd
+    repeat :number [
+        pc first :colorcycle
+        fd :lengthscale
+        rt :angle
+        localmake :colorcycle rotate :colorcycle
+    ]
+    pu
+    test :gonext ift [ fd :lengthscale ] iff [ lt :angle ]
+end
+
+to square
+    trace 4 90 (list "red "blue ) true
+    rt 30
+end
+
+to downtriangle
+    trace 3 120 (list "red "blue "blue ) true
+    rt 30
+end
+
+to uptriangle
+    trace 3 120 (list "blue "red "blue ) false
+    rt 30
+end
+
+to wiggly
+    rt 60
+    uptriangle
+    repeat :width [
+        square
+        downtriangle
+        square
+        uptriangle
+    ]
+end
+
+repeat :height [
+    wiggly
+    pu rt 90 repeat 3 [ fd :lengthscale rt 30 ] rt 30 pd
+    wiggly
+    pu repeat 3 [ fd :lengthscale lt 60 ] rt 30 pd
+]
+
+to horizontal_lines :width
+    repeat sum 1 :width [
+        pd fd :lengthscale lt 90 pu fd :lengthscale pd lt 90 fd :lengthscale
+        pu rt 60 repeat 2 [ fd :lengthscale rt 60 ]
+    ]
+    ;pd
+    ;pc "black
+    rt 90
+    repeat (sum 1 :width) [ rt 30 fd :lengthscale lt 60 fd :lengthscale rt 30 fd :lengthscale ]
+    lt 90
+    fd (product :lengthscale (sum 2 (product 2 cos 30) (product 2 cos 60) ) )
+end
+
+pu home rt 120 fd :lengthscale lt 30
+pc "blue
+
+repeat :height [ horizontal_lines :width ]
+
+home rt 60 fd :lengthscale rt 30 fd :lengthscale lt 60 fd :lengthscale rt 90 fd :lengthscale lt 30
+
+repeat (difference :height 1) [ horizontal_lines (difference :width 1) ]
+
+epilogue
+;@-node:gmc.20080916172520.5:@thin rhombitrihexagonal-compass.logo
+;@-leo

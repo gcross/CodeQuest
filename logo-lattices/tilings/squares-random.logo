@@ -1,0 +1,44 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080916172520.2:@thin squares-random.logo
+;@@language logo
+;@@comment ;
+
+prologue
+
+make "colors (list "red "green "blue)
+
+to line :length
+    repeat :length [ pc pick :colors fd 50 ]
+end
+
+make "rotation 90
+
+to lines :number :length
+
+    repeat :number [
+        line :length
+        lt :rotation
+        pu
+        fd 50
+        pd
+        lt :rotation
+
+        make "rotation minus :rotation
+    ]
+
+end
+
+penwidth 5
+
+lines :height difference :width 1
+
+pu
+rt :rotation
+fd 50
+pd
+
+lines :width difference :height 1
+
+epilogue
+;@-node:gmc.20080916172520.2:@thin squares-random.logo
+;@-leo

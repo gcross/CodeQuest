@@ -1,0 +1,83 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080915140059.4:@thin pentagons-XYZ.logo
+;@@language logo
+;@@comment ;
+
+prologue
+
+;@<< individual hexagon drawers >>
+;@+node:gmc.20080915140059.5:<< individual hexagon drawers >>
+to drawhex
+    localmake "colors :starting_colors
+    pd
+    repeat 5 [
+        pencolor first :colors
+        localmake "colors rotate :colors
+        fd :sidelength
+        rt 72
+    ]
+end
+
+to prefill
+    pu
+    startfill
+    repeat 5 [fd :sidelength rt 72]
+end    
+
+to pentb
+    prefill
+    bluefill
+    drawhex
+end
+
+to pentg
+    prefill
+    greenfill
+    drawhex
+end
+
+to penty
+    prefill
+    yellowfill
+    drawhex
+end
+;@-node:gmc.20080915140059.5:<< individual hexagon drawers >>
+;@nl
+
+;make "starting_colors (list "blue "blue "green "green "blue )
+;make "starting_colors (list "red "blue "green "green "blue )
+make "starting_colors (list "red "blue "green  )
+make "cycle (list "pentb "penty "pentg )
+make "sidelength 75
+
+to pentrow
+    repeat :height [
+        call first :cycle
+        make :cycle rotate :cycle
+        pu repeat 2[lt 72 bk :sidelength] lt 36 fd :sidelength rt 180 pd
+    ]
+end
+
+penwidth 5
+
+test less? :width 2
+iff [
+    repeat quotient :width 2 [
+        pentrow
+        make "cycle swap_last_two :cycle
+        print
+        pu fd :sidelength rt 36 bk :sidelength lt 216 pd
+        pentrow
+        make "cycle swap_last_two :cycle
+        pu fd :sidelength lt 36 fd :sidelength rt 36 fd :sidelength rt 180 pd
+    ]
+]
+
+
+test equal? 1 remainder :width 2
+ift [ pentrow ]
+
+epilogue
+;@nonl
+;@-node:gmc.20080915140059.4:@thin pentagons-XYZ.logo
+;@-leo

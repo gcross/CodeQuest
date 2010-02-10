@@ -1,0 +1,47 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080916172520.3:@thin squares-compass-triangleworld.logo
+;@@language logo
+;@@comment ;
+
+prologue
+
+to line :length
+    repeat :length [ fd 50 ]
+end
+
+to lines :number :length :rotation
+
+    localmake "nowlength :length
+
+    repeat :number [
+        line :nowlength
+        pu
+        bk product 50 :nowlength
+        localmake "nowlength difference :nowlength 1
+        lt :rotation
+        fd 50
+        pd
+        rt :rotation
+    ]
+
+    pu
+    lt :rotation
+    bk product 50 :number
+    rt :rotation
+    pd
+
+end
+
+penwidth 5
+pc "blue"
+
+lines :height difference :width 1 90
+
+lt 90
+pc "red"
+
+lines :width difference :height 1 -90
+
+epilogue
+;@-node:gmc.20080916172520.3:@thin squares-compass-triangleworld.logo
+;@-leo

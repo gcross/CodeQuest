@@ -1,0 +1,46 @@
+;@+leo-ver=4-thin
+;@+node:gmc.20080916172520.14:@thin squares-compass-alternating-between-lines.logo
+;@@language logo
+;@@comment ;
+
+prologue
+
+to line :length
+    repeat :length [ fd 50 ]
+end
+
+make "rotation 90
+
+to lines :number :length :colorcycle
+
+    repeat :number [
+        pc first :colorcycle
+        line :length
+        lt :rotation
+        pu
+        fd 50
+        pd
+        lt :rotation
+
+        make :rotation minus :rotation
+        localmake :colorcycle rotate :colorcycle
+    ]
+
+end
+
+penwidth 5
+;pencolor "blue"
+
+lines :height difference :width 1 (list "blue )
+
+pu
+rt :rotation
+fd 50
+;pencolor "red"
+pd
+
+lines :width difference :height 1 (list "red "green )
+
+epilogue
+;@-node:gmc.20080916172520.14:@thin squares-compass-alternating-between-lines.logo
+;@-leo
