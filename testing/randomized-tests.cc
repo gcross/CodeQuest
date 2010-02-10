@@ -112,7 +112,7 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     size_t number_of_physical_qubits = code.number_of_physical_qubits;
 
     typedef typename qec_type::quantum_operator quantum_operator;
-    typedef typename qec_type::qubit qubit;
+    typedef typename qec_type::qubit_type qubit_type;
     typedef typename qec_type::qubit_vector qubit_vector;
     typedef typename qec_type::operator_vector operator_vector;
     typedef typename qec_type::index_vector index_vector;
@@ -128,12 +128,12 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
         append_error("Stabilizers are not independent!  Before reduced row escehlon there were " << code_stabilizers_original_size << " operators, and after there were " << code.stabilizers.size() << "operators!");
 
     operator_vector code_operators = code.stabilizers;
-    BOOST_FOREACH(qubit& q, code.gauge_qubits) {
+    BOOST_FOREACH(qubit_type& q, code.gauge_qubits) {
         code_operators.push_back(q.X);
         code_operators.push_back(q.Z);
     }
     operator_vector sg_operators = code_operators;
-    BOOST_FOREACH(qubit& q, code.logical_qubits) {
+    BOOST_FOREACH(qubit_type& q, code.logical_qubits) {
         code_operators.push_back(q.X);
         code_operators.push_back(q.Z);
     }
@@ -263,6 +263,7 @@ template<class qec_type> double generate_and_test_code_using_dynamic(
 
     timer T;
     qec_type code(operators);
+    code.optimize_logical_qubits(false);
     double elapsed_time = T.elapsed();
 
     vector<string> errors = check_for_problems_in_code(operators,code);
