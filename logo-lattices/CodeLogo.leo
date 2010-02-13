@@ -9,7 +9,8 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="gcross.20080916115936.2" str_leo_pos="1"><vh>@settings</vh>
+<v t="gcross.20100212163821.1333" str_leo_pos="2"><vh>@chapters</vh></v>
+<v t="gcross.20080916115936.2"><vh>@settings</vh>
 <v t="gcross.20080916121254.2"><vh>@color logo_keyword1_color = black</vh></v>
 <v t="gcross.20080916121254.3"><vh>@color logo_keyword2_color = blue</vh></v>
 <v t="gcross.20080916121817.8"><vh>@color logo_keyword3_color = goldenrod</vh></v>
@@ -24,12 +25,12 @@
 <v t="gcross.20080916121817.10"><vh>@font logo literal3</vh></v>
 <v t="gcross.20080916121817.9"><vh>@font logo operator</vh></v>
 </v>
-<v t="gmc.20080914232002.19"><vh>@thin logo</vh></v>
+<v t="gmc.20080914232002.19"><vh>@thin logo.py</vh></v>
 <v t="gmc.20080914232002.18"><vh>@path tilings_interpreter</vh>
 <v t="gmc.20080914232002.3"><vh>@thin __init__.py</vh></v>
 <v t="gmc.20080914232002.10"><vh>@thin arguments.py</vh></v>
-<v t="gmc.20080914232002.4" a="E"><vh>@thin quantum_turtle.py</vh></v>
-<v t="gmc.20080914232002.14" a="E"><vh>@thin tilings_library.logo</vh></v>
+<v t="gmc.20080914232002.4"><vh>@thin quantum_turtle.py</vh></v>
+<v t="gmc.20080914232002.14"><vh>@thin tilings_library.logo</vh></v>
 </v>
 <v t="gmc.20080914232002.11"><vh>@path tilings</vh>
 <v t="gcross.20080916133341.4"><vh>Octogons</vh>
