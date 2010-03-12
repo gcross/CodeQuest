@@ -676,7 +676,7 @@ template<
 
     //@    @+others
     //@+node:gmc.20080824181205.26:constructor
-    qec(operator_vector operators, bool compute_logicals=true) :
+    qec(const operator_vector operators, bool compute_logicals=true) :
         number_of_physical_qubits(operators[0].length()),
         post_stabilizer_elimination_state(operators[0].length()),
         number_of_optimized_logical_qubits(0)
@@ -688,7 +688,9 @@ template<
 
         //@    << Build table of stabilizers and gauge qubits >>
         //@+node:gmc.20080824181205.34:<< Build table of stabilizers and gauge qubits >>
-        BOOST_FOREACH(quantum_operator& op, operators) {
+        BOOST_FOREACH(const quantum_operator& op_, operators) {
+        quantum_operator op = op_;
+
         //@+at
         // Make sure that this operator commutes with all of the gauge qubit 
         // operators.
