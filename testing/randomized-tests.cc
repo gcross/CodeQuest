@@ -355,7 +355,7 @@ template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int bat
 }
 //@-node:gcross.20090522205550.8:run_test_batch_with_fixed_number_of_qubits
 //@+node:gcross.20090521215822.27:main
-int main(int argc, char* argv) {
+int main(int argc, char** argv) {
 
     {
         cout << "TESTING ALGORITHM USING DYNAMIC VECTORS:" << endl << endl;
