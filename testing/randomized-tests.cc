@@ -109,7 +109,11 @@ template<class quantum_operator,class operator_vector> bool contained_in(const q
 //@+node:gcross.20090521215822.24:check_for_problems_in_code
 template<class qec_type> vector<string> check_for_problems_in_code(const typename qec_type::operator_vector& operators, qec_type& code) {
     vector<string> errors;
-    size_t number_of_physical_qubits = code.number_of_physical_qubits;
+
+    const size_t number_of_physical_qubits = code.number_of_physical_qubits,
+                 number_of_stabilizers = code.stabilizers.size(),
+                 number_of_gauge_qubits = code.gauge_qubits.size(),
+                 number_of_logical_qubits = code.logical_qubits.size();
 
     typedef typename qec_type::quantum_operator quantum_operator;
     typedef typename qec_type::qubit_type qubit_type;
@@ -237,6 +241,106 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     }
     //@-node:gcross.20090521215822.26:<< Check commutators >>
     //@nl
+
+    if ((number_of_logical_qubits > 0) &&
+        (number_of_stabilizers+2*number_of_gauge_qubits+2*number_of_logical_qubits <= 20)
+    ) {
+        //@        << Check distances >>
+        //@+node:gcross.20100318131715.1383:<< Check distances >>
+        vector<unsigned int> observed_distances(number_of_logical_qubits,number_of_physical_qubits);
+
+        for(int chosen_stabilizers = 0;
+            chosen_stabilizers < (1 << number_of_stabilizers);
+            ++chosen_stabilizers
+        ) {
+            unsigned int mask = 1;
+            quantum_operator product_of_stabilizers(number_of_physical_qubits);
+            BOOST_FOREACH(const quantum_operator& op, code.stabilizers) {
+                if(mask & chosen_stabilizers)
+                    product_of_stabilizers *= op;
+                mask <<= 1;
+            }
+            for(int chosen_gauge_qubit_X_operators = 0;
+                    chosen_gauge_qubit_X_operators < (1 << number_of_gauge_qubits);
+                    ++chosen_gauge_qubit_X_operators
+            ) {
+                unsigned int mask = 1;
+                quantum_operator product_of_gauge_X_operators(number_of_physical_qubits);
+                BOOST_FOREACH(const qubit_type& qubit, code.gauge_qubits) {
+                    if(mask & chosen_gauge_qubit_X_operators)
+                        product_of_gauge_X_operators *= qubit.X;
+                    mask <<= 1;
+                }
+                for(int chosen_gauge_qubit_Z_operators = 0;
+                        chosen_gauge_qubit_Z_operators < (1 << number_of_gauge_qubits);
+                        ++chosen_gauge_qubit_Z_operators
+                ) {
+                    unsigned int mask = 1;
+                    quantum_operator product_of_gauge_Z_operators(number_of_physical_qubits);
+                    BOOST_FOREACH(const qubit_type& qubit, code.gauge_qubits) {
+                        if(mask & chosen_gauge_qubit_Z_operators)
+                            product_of_gauge_Z_operators *= qubit.Z;
+                        mask <<= 1;
+                    }
+                    for(int chosen_logical_qubit_X_operators = 0;
+                            chosen_logical_qubit_X_operators < (1 << number_of_logical_qubits);
+                            ++chosen_logical_qubit_X_operators
+                    ) {
+                        unsigned int mask = 1;
+                        quantum_operator product_of_logical_X_operators(number_of_physical_qubits);
+                        BOOST_FOREACH(const qubit_type& qubit, code.logical_qubits) {
+                            if(mask & chosen_logical_qubit_X_operators)
+                                product_of_logical_X_operators *= qubit.X;
+                            mask <<= 1;
+                        }
+                        for(int chosen_logical_qubit_Z_operators = (chosen_logical_qubit_X_operators == 0 ? 1 : 0);
+                                chosen_logical_qubit_Z_operators < (1 << number_of_logical_qubits);
+                                ++chosen_logical_qubit_Z_operators
+                        ) {
+                            unsigned int mask = 1;
+                            quantum_operator product_of_logical_Z_operators(number_of_physical_qubits);
+                            BOOST_FOREACH(const qubit_type& qubit, code.logical_qubits) {
+                                if(mask & chosen_logical_qubit_Z_operators)
+                                    product_of_logical_Z_operators *= qubit.Z;
+                                mask <<= 1;
+                            }
+                            const int distance = (
+                                product_of_stabilizers *
+                                product_of_gauge_X_operators *
+                                product_of_gauge_Z_operators *
+                                product_of_logical_X_operators *
+                                product_of_logical_Z_operators
+                            ).weight();
+                            mask = 1;
+                            BOOST_FOREACH(unsigned int& observed_distance, observed_distances) {
+                                if(((mask & chosen_logical_qubit_X_operators) || (mask & chosen_logical_qubit_Z_operators))
+                                   && distance < observed_distance
+                                  ) observed_distance = distance;
+                                mask <<= 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i = 0; i < number_of_logical_qubits; ++i) {
+            if(observed_distances[i] != code.logical_qubit_error_distances[i]) {
+                ostringstream error;
+                error << "The computed distances for the logical qubits were [";
+                for(int j = 0; j < number_of_logical_qubits-1; ++j)
+                    error << code.logical_qubit_error_distances[j] << ",";
+                error << code.logical_qubit_error_distances[number_of_logical_qubits-1] << "]";
+                error << ", but the observed distances were [";
+                for(int j = 0; j < number_of_logical_qubits-1; ++j)
+                    error << observed_distances[j] << ",";
+                error << observed_distances[number_of_logical_qubits-1] << "].";
+                errors.push_back(error.str());
+            }
+        }
+        //@-node:gcross.20100318131715.1383:<< Check distances >>
+        //@nl
+    }
 
     return errors;
 }

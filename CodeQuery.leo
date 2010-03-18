@@ -2,26 +2,24 @@
 <?xml-stylesheet ekr_test?>
 <leo_file>
 <leo_header file_format="2" tnodes="0" max_tnode_index="0" clone_windows="0"/>
-<globals body_outline_ratio="0.5" body_secondary_ratio="0.5">
-	<global_window_position top="50" left="50" height="500" width="700"/>
+<globals body_outline_ratio="0.5">
+	<global_window_position top="25" left="981" height="1123" width="935"/>
 	<global_log_window_position top="0" left="0" height="0" width="0"/>
 </globals>
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="gcross.20090221232044.2"><vh>@chapters</vh></v>
-<v t="gmc.20080824181205.12" a="E"><vh>Algorithm</vh>
+<v t="gcross.20090221232044.2" str_leo_pos="4"><vh>@chapters</vh></v>
+<v t="gmc.20080824181205.12"><vh>Algorithm</vh>
 <v t="gcross.20090221223144.1"><vh>@path src</vh>
-<v t="gmc.20080824181205.14" a="E"
-expanded="gmc.20080824181205.16,gmc.20080824181205.19,gmc.20080910123558.11,gcross.20081119221421.3,"><vh>@thin codelib.hpp</vh></v>
+<v t="gmc.20080824181205.14"><vh>@thin codelib.hpp</vh></v>
 <v t="gmc.20080824181205.21"><vh>@thin codelib.cc</vh></v>
 </v>
 </v>
-<v t="gcross.20090526153741.2" a="E"><vh>Front end</vh>
-<v t="gcross.20090221223144.3" a="E"><vh>@path src</vh>
-<v t="gmc.20080826191619.3" a="E"><vh>@thin codequery-dense-1d.cc</vh></v>
-<v t="gmc.20080826191619.10" a="E"
-expanded="gmc.20080826191619.13,"><vh>@thin codequery-sparse.cc</vh></v>
+<v t="gcross.20090526153741.2"><vh>Front end</vh>
+<v t="gcross.20090221223144.3"><vh>@path src</vh>
+<v t="gmc.20080826191619.3"><vh>@thin codequery-dense-1d.cc</vh></v>
+<v t="gmc.20080826191619.10"><vh>@thin codequery-sparse.cc</vh></v>
 <v t="gcross.20081119221421.5"><vh>@thin codequery.cc</vh></v>
 </v>
 </v>
@@ -49,10 +47,9 @@ expanded="gmc.20080826191619.13,"><vh>@thin codequery-sparse.cc</vh></v>
 </v>
 </v>
 </v>
-<v t="gcross.20090521215822.28" a="E"><vh>Testing</vh>
-<v t="gcross.20090521215822.29" a="E"><vh>@path testing</vh>
-<v t="gcross.20090521215822.19" a="E"
-expanded="gcross.20090521215822.24,"><vh>@thin randomized-tests.cc</vh></v>
+<v t="gcross.20090521215822.28"><vh>Testing</vh>
+<v t="gcross.20090521215822.29"><vh>@path testing</vh>
+<v t="gcross.20090521215822.19"><vh>@thin randomized-tests.cc</vh></v>
 </v>
 </v>
 <v t="gcross.20090221223144.2"><vh>@thin SConstruct</vh></v>
@@ -60,14 +57,14 @@ expanded="gcross.20090521215822.24,"><vh>@thin randomized-tests.cc</vh></v>
 <tnodes>
 <t tx="gcross.20090221223144.1"></t>
 <t tx="gcross.20090221223144.3"></t>
-<t tx="gcross.20090221232044.2"></t>
+<t tx="gcross.20090221232044.2" str_leo_pos="4"></t>
 <t tx="gcross.20090521215822.28"></t>
 <t tx="gcross.20090521215822.29"></t>
 <t tx="gcross.20090526153741.2"></t>
 <t tx="gmc.20080824181205.12"></t>
-<t tx="gmc.20080911170647.10"></t>
 <t tx="gmc.20080911170647.4">@others
 </t>
+<t tx="gmc.20080911170647.10"></t>
 <t tx="gmc.20080912133652.6"></t>
 <t tx="gmc.20080912133652.7"></t>
 </tnodes>
