@@ -300,6 +300,113 @@ template<class quantum_operator> inline char pauli_char_from_op(const quantum_op
 }
 
 //@-node:gcross.20081124154529.2:pauli_char_from_op
+//@+node:gcross.20100318202249.1411:compute_minimum_weight_operator
+template<class quantum_operator> class pseudo_generator;
+
+template<
+    class quantum_operator,
+    class operator_vector,
+    class query_function_type,
+    class query_result_type
+    >
+inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
+        operator_vector & restrict operators,
+        const query_function_type & restrict query_function,
+        bool verbose = false
+) {
+    typedef typename quantum_operator::bitset_type bitset;
+    typedef typename operator_vector::iterator operator_iterator;
+
+    using namespace std;
+
+    //@    << Construct pseudo-generator matrix >>
+    //@+node:gcross.20100318202249.1412:<< Construct pseudo-generator matrix >>
+    reduce_row_echelon_block_representation<quantum_operator,operator_vector>(operators);
+
+    operator_iterator rowref = operators.begin();
+    int column = 0;
+
+    vector<pseudo_generator<quantum_operator> > pseudo_generators;
+    while(rowref != operators.end()) {
+        if(not (*rowref)[column]) {
+            column++;
+        } else if((rowref+1) != operators.end() and (*(rowref+1))[column]) {
+            pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref,*(rowref+1)));
+            rowref += 2;
+            column++;
+        } else {
+            pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref));
+            rowref += 1;
+            column++;
+        }
+    }
+    //@-node:gcross.20100318202249.1412:<< Construct pseudo-generator matrix >>
+    //@nl
+    //@    << Main iteration >>
+    //@+node:gcross.20100318202249.1413:<< Main iteration >>
+    int r = 0;
+
+    const size_t number_of_physical_qubits = operators[0].length(); 
+    int minimum_weight_found = number_of_physical_qubits+1;
+    quantum_operator minimum_weight_operator(number_of_physical_qubits);
+    query_result_type minimum_weight_query_result;
+
+    quantum_operator op(number_of_physical_qubits);
+
+    bitset bits;
+    quantum_operator::resize_bitset(bits,number_of_physical_qubits);
+    bits.reset();
+
+    while(minimum_weight_found > (r+1)) {
+        r += 1;
+
+        if(verbose)
+            cout << "\tSearching for errors with weight <= " << (r+1) << " ..." << endl;
+
+        ChoiceIterator choices(pseudo_generators.size(),r);
+
+        while(choices.valid) {
+
+            vector<int> field_sizes(r);
+            for(int i = 0; i < r; i++)
+                field_sizes[i] = pseudo_generators[choices[i]].field_size;
+
+            CoefficientIterator coefficients(field_sizes);
+
+            while(coefficients.valid) {
+                pseudo_generators[choices[0]].set(op,coefficients[0]);
+                for(int i = 1; i < r; i++) pseudo_generators[choices[i]].multiply(op,coefficients[i]);
+
+                bits = op.X;
+                bits |= op.Z;
+                size_t weight = bits.count();
+
+                if (weight < minimum_weight_found && weight >= r) {
+
+                    pair<bool,query_result_type> test_result = query_function(op);
+                    if(test_result.first) {
+                        minimum_weight_found = weight;
+                        minimum_weight_operator = op;
+                        minimum_weight_query_result = test_result.second;
+                        if(weight == r) goto return_found_operator;
+                    }
+                }
+
+                ++coefficients;
+            }
+
+            ++choices;
+
+        }
+    }
+
+    return_found_operator:
+
+    return make_pair(minimum_weight_operator,minimum_weight_query_result);
+    //@-node:gcross.20100318202249.1413:<< Main iteration >>
+    //@nl
+}
+//@-node:gcross.20100318202249.1411:compute_minimum_weight_operator
 //@-others
 //@-node:gmc.20080824181205.27:<< Functions >>
 //@nl
@@ -808,106 +915,6 @@ template<
     }
 
     //@-node:gmc.20080824181205.26:constructor
-    //@+node:gcross.20100318162833.1396:compute_minimum_weight_operator
-    template<
-        class query_function_type,
-        class query_result_type
-        >
-    static inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
-            operator_vector & restrict operators,
-            const query_function_type & restrict query_function,
-            bool verbose = false
-    ) {
-        using namespace std;
-
-        //@    << Construct pseudo-generator matrix >>
-        //@+node:gcross.20100318162833.1397:<< Construct pseudo-generator matrix >>
-        reduce_row_echelon_block_representation<quantum_operator,operator_vector>(operators);
-
-        operator_iterator rowref = operators.begin();
-        int column = 0;
-
-        vector<pseudo_generator<quantum_operator> > pseudo_generators;
-        while(rowref != operators.end()) {
-            if(not (*rowref)[column]) {
-                column++;
-            } else if((rowref+1) != operators.end() and (*(rowref+1))[column]) {
-                pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref,*(rowref+1)));
-                rowref += 2;
-                column++;
-            } else {
-                pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref));
-                rowref += 1;
-                column++;
-            }
-        }
-        //@-node:gcross.20100318162833.1397:<< Construct pseudo-generator matrix >>
-        //@nl
-        //@    << Main iteration >>
-        //@+node:gcross.20100318162833.1398:<< Main iteration >>
-        int r = 0;
-
-        const size_t number_of_physical_qubits = operators[0].length(); 
-        int minimum_weight_found = number_of_physical_qubits+1;
-        quantum_operator minimum_weight_operator(number_of_physical_qubits);
-        query_result_type minimum_weight_query_result;
-
-        quantum_operator op(number_of_physical_qubits);
-
-        bitset bits;
-        quantum_operator::resize_bitset(bits,number_of_physical_qubits);
-        bits.reset();
-
-        while(minimum_weight_found > (r+1)) {
-            r += 1;
-
-            if(verbose)
-                cout << "\tSearching for errors with weight <= " << (r+1) << " ..." << endl;
-
-            ChoiceIterator choices(pseudo_generators.size(),r);
-
-            while(choices.valid) {
-
-                vector<int> field_sizes(r);
-                for(int i = 0; i < r; i++)
-                    field_sizes[i] = pseudo_generators[choices[i]].field_size;
-
-                CoefficientIterator coefficients(field_sizes);
-
-                while(coefficients.valid) {
-                    pseudo_generators[choices[0]].set(op,coefficients[0]);
-                    for(int i = 1; i < r; i++) pseudo_generators[choices[i]].multiply(op,coefficients[i]);
-
-                    bits = op.X;
-                    bits |= op.Z;
-                    size_t weight = bits.count();
-
-                    if (weight < minimum_weight_found && weight >= r) {
-
-                        pair<bool,query_result_type> test_result = query_function(op);
-                        if(test_result.first) {
-                            minimum_weight_found = weight;
-                            minimum_weight_operator = op;
-                            minimum_weight_query_result = test_result.second;
-                            if(weight == r) goto return_found_operator;
-                        }
-                    }
-
-                    ++coefficients;
-                }
-
-                ++choices;
-
-            }
-        }
-
-        return_found_operator:
-
-        return make_pair(minimum_weight_operator,minimum_weight_query_result);
-        //@-node:gcross.20100318162833.1398:<< Main iteration >>
-        //@nl
-    }
-    //@-node:gcross.20100318162833.1396:compute_minimum_weight_operator
     //@+node:gcross.20081119221421.3:optimize_logical_qubits
     void optimize_logical_qubits(bool verbose=true) {
 
@@ -943,6 +950,8 @@ template<
 
             pair<quantum_operator,pair<int,int> > error_information = 
                 compute_minimum_weight_operator <
+                    quantum_operator,
+                    operator_vector,
                     anti_commutes_with_some_logical,
                     pair<int,int>
                 > (
