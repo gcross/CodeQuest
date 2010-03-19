@@ -1188,7 +1188,7 @@ template<class quantum_operator, class B, class operator_vector_type, class D> s
         out << "\tLogical Z: " << code.logical_qubits[i].Z << endl;
         if(i < code.number_of_optimized_logical_qubits) {
             cout << "\tDistance: " << code.logical_qubit_error_distances[i] << endl;
-            cout << "\tMinimum weight error: " << code.logical_qubit_errors[i];
+            cout << "\tMinimum weight error: " << code.logical_qubit_errors[i] << endl;
         }
     }
 
