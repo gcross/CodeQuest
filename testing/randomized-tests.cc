@@ -345,13 +345,14 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     return errors;
 }
 //@-node:gcross.20090521215822.24:check_for_problems_in_code
-//@+node:gcross.20090522205550.4:generate_and_test_code
-template<class qec_type> double generate_and_test_code(
+//@+node:gcross.20100318202249.1389:generate_random_operators
+template<class qec_type> typename qec_type::operator_vector generate_random_operators(
         int number_of_physical_qubits,
         int number_of_operators,
         float bernoulli_trial_probability
 ) {
     typename qec_type::operator_vector operators;
+    operators.reserve(number_of_operators);
     for(int i = 0; i < number_of_operators; ++i) {
         typename qec_type::quantum_operator op(number_of_physical_qubits);
         while(op.weight() == 0) {
@@ -364,6 +365,21 @@ template<class qec_type> double generate_and_test_code(
             operators.push_back(op);
         }
     }
+    return operators;
+}
+//@-node:gcross.20100318202249.1389:generate_random_operators
+//@+node:gcross.20090522205550.4:generate_and_test_code
+template<class qec_type> double generate_and_test_code(
+        int number_of_physical_qubits,
+        int number_of_operators,
+        float bernoulli_trial_probability
+) {
+    typename qec_type::operator_vector operators =
+        generate_random_operators<qec_type>(
+            number_of_physical_qubits,
+            number_of_operators,
+            bernoulli_trial_probability
+        );
 
     timer T;
     qec_type code(operators);
