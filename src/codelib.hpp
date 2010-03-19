@@ -422,7 +422,7 @@ template<class bitset> struct quantum_operator {
     bitset X, Z;
 
     inline quantum_operator() { }
-    quantum_operator(const bitset& X_, const bitset& Z_) : X(X_), Z(Z_) { }
+    inline quantum_operator(const bitset& X_, const bitset& Z_) : X(X_), Z(Z_) { }
 
     bool inline is_identity() const {
         return (X.none()) && (Z.none());
