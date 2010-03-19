@@ -188,7 +188,7 @@ template<class quantum_operator> void dump_bits(const std::string message, const
 //@nonl
 //@-node:gmc.20080826191619.20:dump_bits
 //@+node:gmc.20080907163416.84:reduce_row_echelon_block_representation
-template<class quantum_operator, class operator_vector> void reduce_row_echelon_block_representation(operator_vector& rows, bool zero_upper=true) {
+template<class operator_vector> void reduce_row_echelon_block_representation(operator_vector& rows, bool zero_upper=true) {
     using namespace std;
     if(rows.size()==0) return;
     typename operator_vector::iterator rref, rowref = rows.begin();
@@ -322,7 +322,7 @@ inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_oper
 
     //@    << Construct pseudo-generator matrix >>
     //@+node:gcross.20100318202249.1412:<< Construct pseudo-generator matrix >>
-    reduce_row_echelon_block_representation<quantum_operator,operator_vector>(operators);
+    reduce_row_echelon_block_representation<operator_vector>(operators);
 
     operator_iterator rowref = operators.begin();
     int column = 0;
