@@ -80,6 +80,7 @@ public:
     bool valid;
 
     ChoiceIterator(int n_,int k_) : std::vector<int>(k_), n(n_), k(k_), valid(true) {
+        assert(k_ <= n_);
         for(int i = 0; i < k; i++) (*this)[i] = k-1-i;
     }
 
@@ -346,7 +347,8 @@ inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_oper
     //@+node:gcross.20100318202249.1413:<< Main iteration >>
     int r = 0;
 
-    const size_t number_of_physical_qubits = operators[0].length(); 
+    const size_t number_of_physical_qubits = operators[0].length(),
+                 number_of_pseudo_generators = pseudo_generators.size();
     int minimum_weight_found = number_of_physical_qubits+1;
     quantum_operator minimum_weight_operator(number_of_physical_qubits);
     query_result_type minimum_weight_query_result;
@@ -357,13 +359,13 @@ inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_oper
     quantum_operator::resize_bitset(bits,number_of_physical_qubits);
     bits.reset();
 
-    while(minimum_weight_found > (r+1)) {
+    while(minimum_weight_found > (r+1) && r < number_of_pseudo_generators) {
         r += 1;
 
         if(verbose)
             cout << "\tSearching for errors with weight <= " << (r+1) << " ..." << endl;
 
-        ChoiceIterator choices(pseudo_generators.size(),r);
+        ChoiceIterator choices(number_of_pseudo_generators,r);
 
         while(choices.valid) {
 
