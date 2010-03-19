@@ -242,11 +242,21 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     //@-node:gcross.20090521215822.26:<< Check commutators >>
     //@nl
 
+
+    //@    << Check distances >>
+    //@+node:gcross.20100318131715.1383:<< Check distances >>
+    if (number_of_logical_qubits > 1) {
+        for(int i = 0; i < number_of_logical_qubits-1; ++i) {
+            if(code.logical_qubit_error_distances[i] > code.logical_qubit_error_distances[i+1]) {
+                append_error("The computed distances for the logical qubits are not in ascending order!");
+                break;
+            }
+        }
+    }
+
     if ((number_of_logical_qubits > 0) &&
         (number_of_stabilizers+2*number_of_gauge_qubits+2*number_of_logical_qubits <= 20)
     ) {
-        //@        << Check distances >>
-        //@+node:gcross.20100318131715.1383:<< Check distances >>
         vector<unsigned int> observed_distances(number_of_logical_qubits,number_of_physical_qubits);
 
         for(int chosen_stabilizers = 0;
@@ -327,20 +337,17 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
         for(int i = 0; i < number_of_logical_qubits; ++i) {
             if(observed_distances[i] != code.logical_qubit_error_distances[i]) {
                 ostringstream error;
-                error << "The computed distances for the logical qubits were [";
-                for(int j = 0; j < number_of_logical_qubits-1; ++j)
-                    error << code.logical_qubit_error_distances[j] << ",";
-                error << code.logical_qubit_error_distances[number_of_logical_qubits-1] << "]";
-                error << ", but the observed distances were [";
+                error << "The computed distances disagree with the observed distances, which are [";
                 for(int j = 0; j < number_of_logical_qubits-1; ++j)
                     error << observed_distances[j] << ",";
                 error << observed_distances[number_of_logical_qubits-1] << "].";
                 errors.push_back(error.str());
+                break;
             }
         }
-        //@-node:gcross.20100318131715.1383:<< Check distances >>
-        //@nl
     }
+    //@-node:gcross.20100318131715.1383:<< Check distances >>
+    //@nl
 
     return errors;
 }
