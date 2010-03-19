@@ -349,14 +349,14 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
 template<class qec_type> double generate_and_test_code(
         int number_of_physical_qubits,
         int number_of_operators,
-        float bit_threshold
+        float bernoulli_trial_probability
 ) {
     typename qec_type::operator_vector operators;
     for(int i = 0; i < number_of_operators; ++i) {
         typename qec_type::quantum_operator op(number_of_physical_qubits);
         while(op.weight() == 0) {
             for(int j = 0; j < number_of_physical_qubits; ++j) {
-                if(random_real() > 0.5)
+                if(random_real() > bernoulli_trial_probability)
                     op.set(j,random_pauli());
                 else
                     op.set(j,0);
