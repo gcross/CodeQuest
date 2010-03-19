@@ -422,9 +422,9 @@ template<class qec_type> bool run_test_batch(int batch_number, int number_of_cas
     variate_generator<mt19937&, uniform_smallint<> > random_number_of_operators(rng, small_operator_range);
 
     timer T;
-    progress_display show_progress( 10000 );
+    progress_display show_progress( number_of_cases );
     double total_time = 0;
-    for(int i = 0; i < 10000; ++i) {
+    for(int i = 0; i < number_of_cases; ++i) {
         total_time += generate_and_test_code<qec_type>(
             random_number_of_physical_qubits(),
             random_number_of_operators(),
@@ -453,9 +453,9 @@ template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int bat
     variate_generator<mt19937&, uniform_smallint<> > random_number_of_operators(rng, small_operator_range);
 
     timer T;
-    progress_display show_progress( 10000 );
+    progress_display show_progress( number_of_cases );
     double total_time = 0;
-    for(int i = 0; i < 10000; ++i) {
+    for(int i = 0; i < number_of_cases; ++i) {
         total_time += generate_and_test_code<qec_type>(
             number_of_qubits,
             random_number_of_operators(),
