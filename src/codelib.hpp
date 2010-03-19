@@ -18,7 +18,7 @@
 #include <bitset>
 #include <string>
 #include <functional>
-//@nonl
+#include <utility>
 //@-node:gmc.20080824181205.15:<< Headers >>
 //@nl
 
@@ -66,6 +66,87 @@ template<class bitset> struct get_Z {
     inline bitset& restrict operator()(quantum_operator<bitset>& op) { return op.Z; }
 };
 //@-node:gmc.20080824181205.20:<< Struct Functions >>
+//@nl
+
+//@<< Combinatorics Iterators >>
+//@+node:gmc.20080910123558.2:<< Combinatorics Iterators >>
+//@<< Choice Iterator >>
+//@+node:gmc.20080910123558.3:<< Choice Iterator >>
+class ChoiceIterator : public std::vector<int> {
+
+public:
+
+    int n, k;
+    bool valid;
+
+    ChoiceIterator(int n_,int k_) : std::vector<int>(k_), n(n_), k(k_), valid(true) {
+        for(int i = 0; i < k; i++) (*this)[i] = k-1-i;
+    }
+
+
+    operator bool() { return valid; }
+
+    int increment(int pivot_index) {
+        int& pivot = (*this)[pivot_index];
+        pivot++;
+        if(pivot == n-pivot_index) {
+            if(pivot_index == k-1) {
+                valid = false;
+                return -2;
+            } else { 
+                pivot = increment(pivot_index+1)+1;
+                if(pivot<0) return -2;
+                if(pivot==n) {
+                    valid = false;
+                    return -2;
+                }
+            }
+        }
+
+        return pivot;
+
+    }
+
+    void operator ++() { increment(0); }
+
+};
+//@-node:gmc.20080910123558.3:<< Choice Iterator >>
+//@nl
+
+//@<< Coefficient Iterator >>
+//@+node:gmc.20080910123558.4:<< Coefficient Iterator >>
+class CoefficientIterator : public std::vector<int> {
+
+public:
+
+    std::vector<int> maxes;
+    bool valid;
+
+    CoefficientIterator(std::vector<int>& maxes_) : std::vector<int>(maxes_.size(),1), maxes(maxes_), valid(true) { }
+
+
+    operator bool() { return valid; }
+
+    void increment(int index) {
+        int& coefficient = (*this)[index];
+        coefficient++;
+        if(coefficient == maxes[index]) {
+            if(index == 0) {
+                valid = false;
+            } else { 
+                coefficient = 1;
+                increment(index-1);
+            }
+        }
+    }
+
+    void operator ++() { increment(size()-1); }
+
+};
+//@-node:gmc.20080910123558.4:<< Coefficient Iterator >>
+//@nl
+//@nonl
+//@-node:gmc.20080910123558.2:<< Combinatorics Iterators >>
 //@nl
 
 //@<< Functions >>
@@ -223,87 +304,6 @@ template<class quantum_operator> inline char pauli_char_from_op(const quantum_op
 //@-node:gmc.20080824181205.27:<< Functions >>
 //@nl
 
-//@<< Combinatorics Iterators >>
-//@+node:gmc.20080910123558.2:<< Combinatorics Iterators >>
-//@<< Choice Iterator >>
-//@+node:gmc.20080910123558.3:<< Choice Iterator >>
-class ChoiceIterator : public std::vector<int> {
-
-public:
-
-    int n, k;
-    bool valid;
-
-    ChoiceIterator(int n_,int k_) : std::vector<int>(k_), n(n_), k(k_), valid(true) {
-        for(int i = 0; i < k; i++) (*this)[i] = k-1-i;
-    }
-
-
-    operator bool() { return valid; }
-
-    int increment(int pivot_index) {
-        int& pivot = (*this)[pivot_index];
-        pivot++;
-        if(pivot == n-pivot_index) {
-            if(pivot_index == k-1) {
-                valid = false;
-                return -2;
-            } else { 
-                pivot = increment(pivot_index+1)+1;
-                if(pivot<0) return -2;
-                if(pivot==n) {
-                    valid = false;
-                    return -2;
-                }
-            }
-        }
-
-        return pivot;
-
-    }
-
-    void operator ++() { increment(0); }
-
-};
-//@-node:gmc.20080910123558.3:<< Choice Iterator >>
-//@nl
-
-//@<< Coefficient Iterator >>
-//@+node:gmc.20080910123558.4:<< Coefficient Iterator >>
-class CoefficientIterator : public std::vector<int> {
-
-public:
-
-    std::vector<int> maxes;
-    bool valid;
-
-    CoefficientIterator(std::vector<int>& maxes_) : std::vector<int>(maxes_.size(),1), maxes(maxes_), valid(true) { }
-
-
-    operator bool() { return valid; }
-
-    void increment(int index) {
-        int& coefficient = (*this)[index];
-        coefficient++;
-        if(coefficient == maxes[index]) {
-            if(index == 0) {
-                valid = false;
-            } else { 
-                coefficient = 1;
-                increment(index-1);
-            }
-        }
-    }
-
-    void operator ++() { increment(size()-1); }
-
-};
-//@-node:gmc.20080910123558.4:<< Coefficient Iterator >>
-//@nl
-//@nonl
-//@-node:gmc.20080910123558.2:<< Combinatorics Iterators >>
-//@nl
-
 //@<< Data structures >>
 //@+node:gmc.20080824181205.16:<< Data structures >>
 //@+others
@@ -343,7 +343,7 @@ template<class bitset> struct quantum_operator {
         Z.set(index,new_value & 2);
     }
 
-    size_t inline weight() { return (X|Z).count(); }
+    size_t inline weight() const { return (X|Z).count(); }
 
     void inline reset() { X.reset(); Z.reset(); }
 
@@ -675,6 +675,50 @@ template<
     //@nl
 
     //@    @+others
+    //@+node:gcross.20100318162833.1399:Nested classes
+    //@+node:gcross.20100318162833.1391:anti_commutes_with_some_logical
+    struct anti_commutes_with_some_logical {
+
+        const bitset & restrict marked_as_eligible_to_fix_an_error;
+        const_qubit_iterator logical_qubits_begin,
+                             logical_qubits_end_of_optimized,
+                             logical_qubits_end;
+
+        inline anti_commutes_with_some_logical(
+                const qubit_vector & logical_qubits,
+                int number_of_optimized_logical_qubits,
+                const bitset & restrict marked_as_eligible_to_fix_an_error_
+        ) : logical_qubits_begin(logical_qubits.begin()),
+            logical_qubits_end_of_optimized(logical_qubits.begin() + number_of_optimized_logical_qubits),
+            logical_qubits_end(logical_qubits.end()),
+            marked_as_eligible_to_fix_an_error(marked_as_eligible_to_fix_an_error_)
+            { }
+
+        inline std::pair<bool,std::pair<int,int> > operator() (const quantum_operator & restrict op) const {
+            const_qubit_iterator qubitref = logical_qubits_begin;
+
+            // Case 1
+            int index = 0;
+            for(; qubitref!=logical_qubits_end_of_optimized; ++qubitref) {
+                if(marked_as_eligible_to_fix_an_error[index] && (op && qubitref->Z)) {
+                    return std::make_pair(true,std::make_pair(1,index));
+                }
+                ++index;
+            }
+
+            // Case 2
+            for(; qubitref!=logical_qubits_end; ++qubitref) {
+                if((op && qubitref->X) || (op && qubitref->Z)) {
+                    return std::make_pair(true,std::make_pair(2,qubitref - logical_qubits_begin));
+                }
+            }
+
+            return std::make_pair(false,std::make_pair(0,-1));
+        }
+
+    };
+    //@-node:gcross.20100318162833.1391:anti_commutes_with_some_logical
+    //@-node:gcross.20100318162833.1399:Nested classes
     //@+node:gmc.20080824181205.26:constructor
     qec(const operator_vector operators, bool compute_logicals=true) :
         number_of_physical_qubits(operators[0].length()),
@@ -764,37 +808,30 @@ template<
     }
 
     //@-node:gmc.20080824181205.26:constructor
-    //@+node:gmc.20080910123558.11:compute_minimum_weight_unaccounted_undetectable_error
-    quantum_operator compute_minimum_weight_unaccounted_undetectable_error(int& error_case, int& error_index, bool verbose=false) {
-
+    //@+node:gcross.20100318162833.1396:compute_minimum_weight_operator
+    template<
+        class query_function_type,
+        class query_result_type
+        >
+    static inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
+            operator_vector & restrict operators,
+            const query_function_type & restrict query_function,
+            bool verbose = false
+    ) {
         using namespace std;
 
-        assert(number_of_logical_qubits()>0);
-
-        vector<pseudo_generator<quantum_operator> > pseudo_generators;
         //@    << Construct pseudo-generator matrix >>
-        //@+node:gmc.20080910123558.12:<< Construct pseudo-generator matrix >>
-        operator_vector S_perp = stabilizers;
+        //@+node:gcross.20100318162833.1397:<< Construct pseudo-generator matrix >>
+        reduce_row_echelon_block_representation<quantum_operator,operator_vector>(operators);
 
-        for(const_qubit_iterator qubitref = gauge_qubits.begin();  qubitref != gauge_qubits.end();  qubitref++) {
-            S_perp.push_back(qubitref->X);
-            S_perp.push_back(qubitref->Z);
-        }
-
-        for(const_qubit_iterator qubitref = logical_qubits.begin();  qubitref != logical_qubits.end();  qubitref++) {
-            S_perp.push_back(qubitref->X);
-            S_perp.push_back(qubitref->Z);
-        }
-
-        reduce_row_echelon_block_representation<quantum_operator,operator_vector>(S_perp);
-
-        operator_iterator rowref = S_perp.begin();
+        operator_iterator rowref = operators.begin();
         int column = 0;
 
-        while(rowref != S_perp.end()) {
+        vector<pseudo_generator<quantum_operator> > pseudo_generators;
+        while(rowref != operators.end()) {
             if(not (*rowref)[column]) {
                 column++;
-            } else if((rowref+1) != S_perp.end() and (*(rowref+1))[column]) {
+            } else if((rowref+1) != operators.end() and (*(rowref+1))[column]) {
                 pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref,*(rowref+1)));
                 rowref += 2;
                 column++;
@@ -804,26 +841,22 @@ template<
                 column++;
             }
         }
-        //@-node:gmc.20080910123558.12:<< Construct pseudo-generator matrix >>
+        //@-node:gcross.20100318162833.1397:<< Construct pseudo-generator matrix >>
         //@nl
         //@    << Main iteration >>
-        //@+node:gmc.20080910123558.13:<< Main iteration >>
+        //@+node:gcross.20100318162833.1398:<< Main iteration >>
         int r = 0;
 
+        const size_t number_of_physical_qubits = operators[0].length(); 
         int minimum_weight_found = number_of_physical_qubits+1;
-
         quantum_operator minimum_weight_operator(number_of_physical_qubits);
+        query_result_type minimum_weight_query_result;
 
         quantum_operator op(number_of_physical_qubits);
 
         bitset bits;
         quantum_operator::resize_bitset(bits,number_of_physical_qubits);
         bits.reset();
-
-        qubit_iterator logical_qubits_begin = logical_qubits.begin(),
-                       logical_qubits_end_of_optimized = logical_qubits_begin + number_of_optimized_logical_qubits,
-                       logical_qubits_end   = logical_qubits.end(),
-                       qubitref;
 
         while(minimum_weight_found > (r+1)) {
             r += 1;
@@ -849,34 +882,18 @@ template<
                     bits |= op.Z;
                     size_t weight = bits.count();
 
-                    int index = 0;
-                    int case_ = 1;
+                    if (weight < minimum_weight_found && weight >= r) {
 
-                    if (weight >= minimum_weight_found) goto next_candidate;
-                    if (weight < r) goto next_candidate;
-
-                    for(qubitref=logical_qubits_begin; qubitref!=logical_qubits_end_of_optimized; ++qubitref) {
-                        if(marked_as_eligible_to_fix_an_error[index] && (op && qubitref->Z)) goto found_a_candidate;
-                        ++index;
+                        pair<bool,query_result_type> test_result = query_function(op);
+                        if(test_result.first) {
+                            minimum_weight_found = weight;
+                            minimum_weight_operator = op;
+                            minimum_weight_query_result = test_result.second;
+                            if(weight == r) goto return_found_operator;
+                        }
                     }
 
-                    case_ = 2;
-                    for(; qubitref!=logical_qubits_end; ++qubitref)
-                        if((op && qubitref->X) || (op && qubitref->Z)) goto found_a_candidate;
-
-                    goto next_candidate;
-
-                    found_a_candidate:
-
-                        error_case = case_;
-                        error_index = qubitref - logical_qubits_begin;
-                        minimum_weight_found = weight;
-                        minimum_weight_operator = op;
-                        if(weight == r) return minimum_weight_operator;
-
-                    next_candidate:
-
-                        ++coefficients;
+                    ++coefficients;
                 }
 
                 ++choices;
@@ -884,24 +901,60 @@ template<
             }
         }
 
-        //@-node:gmc.20080910123558.13:<< Main iteration >>
+        return_found_operator:
+
+        return make_pair(minimum_weight_operator,minimum_weight_query_result);
+        //@-node:gcross.20100318162833.1398:<< Main iteration >>
         //@nl
-        return minimum_weight_operator;
     }
-    //@-node:gmc.20080910123558.11:compute_minimum_weight_unaccounted_undetectable_error
+    //@-node:gcross.20100318162833.1396:compute_minimum_weight_operator
     //@+node:gcross.20081119221421.3:optimize_logical_qubits
     void optimize_logical_qubits(bool verbose=true) {
 
         using namespace std;
 
-        size_t number_of_logical_qubits = logical_qubits.size();
+        const size_t number_of_logical_qubits = logical_qubits.size();
 
         if(number_of_logical_qubits == 0) return;
 
         while (number_of_optimized_logical_qubits < number_of_logical_qubits) {
 
-            int error_case, error_index;
-            quantum_operator error = compute_minimum_weight_unaccounted_undetectable_error(error_case,error_index,verbose);
+            anti_commutes_with_some_logical test_function(
+                logical_qubits,
+                number_of_optimized_logical_qubits,
+                marked_as_eligible_to_fix_an_error
+            );
+
+            //@        << Construct list of operators that commute with all stabilizers >>
+            //@+node:gcross.20100318162833.1392:<< Construct list of operators that commute with all stabilizers >>
+            operator_vector list_of_operators_that_commute_with_all_stabilizers = stabilizers;
+
+            for(const_qubit_iterator qubitref = gauge_qubits.begin();  qubitref != gauge_qubits.end();  qubitref++) {
+                list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->X);
+                list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->Z);
+            }
+
+            for(const_qubit_iterator qubitref = logical_qubits.begin();  qubitref != logical_qubits.end();  qubitref++) {
+                list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->X);
+                list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->Z);
+            }
+            //@-node:gcross.20100318162833.1392:<< Construct list of operators that commute with all stabilizers >>
+            //@nl
+
+            pair<quantum_operator,pair<int,int> > error_information = 
+                compute_minimum_weight_operator <
+                    anti_commutes_with_some_logical,
+                    pair<int,int>
+                > (
+                    list_of_operators_that_commute_with_all_stabilizers,
+                    test_function,
+                    verbose
+                );
+
+            const quantum_operator & restrict error = error_information.first;
+            int & restrict error_case = error_information.second.first,
+                & restrict error_index = error_information.second.second;
+
             qubit_iterator logical_qubits_begin = logical_qubits.begin(),
                            logical_qubits_end_of_optimized = logical_qubits_begin + number_of_optimized_logical_qubits,
                            logical_qubits_end   = logical_qubits.end(),
