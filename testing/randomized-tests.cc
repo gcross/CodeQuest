@@ -362,8 +362,8 @@ template<class qec_type> typename qec_type::operator_vector generate_random_oper
                 else
                     op.set(j,0);
             }
-            operators.push_back(op);
         }
+        operators.push_back(op);
     }
     return operators;
 }
