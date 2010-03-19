@@ -346,7 +346,7 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
 }
 //@-node:gcross.20090521215822.24:check_for_problems_in_code
 //@+node:gcross.20090522205550.4:generate_and_test_code
-template<class qec_type> double generate_and_test_code_using_dynamic(
+template<class qec_type> double generate_and_test_code(
         int number_of_physical_qubits,
         int number_of_operators,
         float bit_threshold
@@ -409,7 +409,7 @@ template<class qec_type> bool run_test_batch(int batch_number, int number_of_cas
     progress_display show_progress( 10000 );
     double total_time = 0;
     for(int i = 0; i < 10000; ++i) {
-        total_time += generate_and_test_code_using_dynamic<qec_type>(
+        total_time += generate_and_test_code<qec_type>(
             random_number_of_physical_qubits(),
             random_number_of_operators(),
             random_real()
@@ -440,7 +440,7 @@ template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int bat
     progress_display show_progress( 10000 );
     double total_time = 0;
     for(int i = 0; i < 10000; ++i) {
-        total_time += generate_and_test_code_using_dynamic<qec_type>(
+        total_time += generate_and_test_code<qec_type>(
             number_of_qubits,
             random_number_of_operators(),
             random_real()
