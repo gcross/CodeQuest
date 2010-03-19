@@ -417,7 +417,94 @@ template<class qec_type> double generate_and_test_code(
     } else return elapsed_time;
 }
 //@-node:gcross.20090522205550.4:generate_and_test_code
-//@+node:gcross.20090522205550.5:run_test_batch
+//@+node:gcross.20100318202249.1391:generate_and_test_weight_minimization_problem
+template<class quantum_operator> struct always_true {
+    inline pair<bool,int> operator() (const quantum_operator & restrict op) const {
+        return make_pair(true,42);
+    }
+};
+
+template<class qec_type> void generate_and_test_weight_minimization_problem(
+        int number_of_physical_qubits,
+        int number_of_operators,
+        float bernoulli_trial_probability
+) {
+    typedef typename qec_type::quantum_operator quantum_operator;
+    typedef typename qec_type::operator_vector operator_vector;
+
+    operator_vector operators =
+        generate_random_operators<qec_type>(
+            number_of_physical_qubits,
+            number_of_operators,
+            bernoulli_trial_probability
+        );
+    reduce_row_echelon_split_representation<operator_vector>(operators);
+    number_of_operators = operators.size();
+    operator_vector copy_of_operators_that_can_be_destroyed = operators;
+
+    pair<quantum_operator,int> error_information = 
+        compute_minimum_weight_operator<
+            quantum_operator,
+            operator_vector,
+            always_true<quantum_operator>,
+            int
+        >(
+            copy_of_operators_that_can_be_destroyed,
+            always_true<quantum_operator>(),
+            false
+        );
+
+    const quantum_operator & restrict minimum_weight_operator = error_information.first;
+    bool minimum_weight_operator_has_been_observed = false;
+    int minimum_weight_observed = number_of_physical_qubits+1;
+
+    for(unsigned int chosen_operators = 1;
+        chosen_operators < (1 << number_of_operators);
+        ++chosen_operators
+    ) {
+        unsigned int mask = 1;
+        quantum_operator product_of_operators(number_of_physical_qubits);
+        BOOST_FOREACH(const quantum_operator& op, operators) {
+            if(mask & chosen_operators)
+                product_of_operators *= op;
+            mask <<= 1;
+        }
+        const int weight = product_of_operators.weight();
+        if(weight < minimum_weight_observed) minimum_weight_observed = weight;
+        if(product_of_operators == minimum_weight_operator) minimum_weight_operator_has_been_observed = true;
+    }
+
+    vector<string> errors;
+
+    if(!minimum_weight_operator_has_been_observed)
+        append_error("The claimed minimal weight operator could not be obtained from a product of the operators!")
+    if(minimum_weight_observed != minimum_weight_operator.weight())
+        append_error("The minimal weight found by the algorithm was " << minimum_weight_operator.weight() << ", but the observed minimum weight was " << minimum_weight_observed << "!");
+
+    if(errors.size() > 0) {
+
+        cout << "Operators are:" << endl;
+
+        BOOST_FOREACH(typename qec_type::quantum_operator& op, operators) {
+            cout << "\t" << op << endl;
+        }
+
+        cout << endl;
+
+
+        cout << "Minimum weight operator (with weight " << minimum_weight_operator.weight() << ") is:" << endl
+             << "\t" << minimum_weight_operator << endl;
+
+
+        cout << "Errors are:" << endl;
+
+        BOOST_FOREACH(string& error, errors) { cout << error << endl; }
+
+        throw exception();
+    }
+}
+//@-node:gcross.20100318202249.1391:generate_and_test_weight_minimization_problem
+//@+node:gcross.20100318202249.1393:run_test_batch
 template<class qec_type> bool run_test_batch(int batch_number, int number_of_cases, pair<int,int> qubit_range, pair<int,int> operator_range) {
     cout << "Test batch " << batch_number << ":" << endl;
     cout << "\tNumber of qubits: " << qubit_range.first << "-" << qubit_range.second << endl;
@@ -449,7 +536,33 @@ template<class qec_type> bool run_test_batch(int batch_number, int number_of_cas
     cout << " codes/second." << endl;
     cout << endl;
 }
-//@-node:gcross.20090522205550.5:run_test_batch
+//@-node:gcross.20100318202249.1393:run_test_batch
+//@+node:gcross.20090522205550.5:run_weight_minimization_test_batch
+template<class qec_type> bool run_weight_minimization_test_batch(int batch_number, int number_of_cases, pair<int,int> qubit_range, pair<int,int> operator_range) {
+    cout << "Test batch " << batch_number << ":" << endl;
+    cout << "\tNumber of qubits: " << qubit_range.first << "-" << qubit_range.second << endl;
+    cout << "\tNumber of operators: " << operator_range.first << "-" << operator_range.second << endl;
+    cout << "Generating " << number_of_cases << " random test cases:";
+    uniform_smallint<> small_qubit_range(qubit_range.first,qubit_range.second);
+    variate_generator<mt19937&, uniform_smallint<> > random_number_of_physical_qubits(rng, small_qubit_range);
+    uniform_smallint<> small_operator_range(operator_range.first,operator_range.second);
+    variate_generator<mt19937&, uniform_smallint<> > random_number_of_operators(rng, small_operator_range);
+
+    timer T;
+    progress_display show_progress( number_of_cases );
+    for(int i = 0; i < number_of_cases; ++i) {
+        generate_and_test_weight_minimization_problem<qec_type>(
+            random_number_of_physical_qubits(),
+            random_number_of_operators(),
+            random_real()
+        );
+        ++show_progress;
+    }
+    cout << endl;
+    cout << "All test cases completed successfully.  Took " << T.elapsed() << " seconds." << endl;
+    cout << endl;
+}
+//@-node:gcross.20090522205550.5:run_weight_minimization_test_batch
 //@+node:gcross.20090522205550.8:run_test_batch_with_fixed_number_of_qubits
 template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int batch_number, int number_of_cases, int number_of_qubits, pair<int,int> operator_range) {
     cout << "Test batch " << batch_number << ":" << endl;
@@ -481,8 +594,84 @@ template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int bat
     cout << endl;
 }
 //@-node:gcross.20090522205550.8:run_test_batch_with_fixed_number_of_qubits
+//@+node:gcross.20100318202249.1395:run_weight_minimization_test_batch_with_fixed_number_of_qubits
+template<class qec_type> bool run_weight_minimization_test_batch_with_fixed_number_of_qubits(int batch_number, int number_of_cases, int number_of_qubits, pair<int,int> operator_range) {
+    cout << "Test batch " << batch_number << ":" << endl;
+    cout << "\tNumber of qubits: " << number_of_qubits << endl;
+    cout << "\tNumber of operators: " << operator_range.first << "-" << operator_range.second << endl;
+    cout << "Generating " << number_of_cases << " random test cases:";
+    uniform_smallint<> small_operator_range(operator_range.first,operator_range.second);
+    variate_generator<mt19937&, uniform_smallint<> > random_number_of_operators(rng, small_operator_range);
+
+    timer T;
+    progress_display show_progress( number_of_cases );
+    for(int i = 0; i < number_of_cases; ++i) {
+        generate_and_test_weight_minimization_problem<qec_type>(
+            number_of_qubits,
+            random_number_of_operators(),
+            random_real()
+        );
+        ++show_progress;
+    }
+    cout << endl;
+    cout << "All test cases completed successfully.  Took " << T.elapsed() << " seconds." << endl;
+    cout << endl;
+}
+//@-node:gcross.20100318202249.1395:run_weight_minimization_test_batch_with_fixed_number_of_qubits
 //@+node:gcross.20090521215822.27:main
 int main(int argc, char** argv) {
+
+    {
+        cout << "TESTING WEIGHT MINIMIZER USING DYNAMIC VECTORS:" << endl << endl;
+        typedef boost::tuple<int,pair<int,int>,pair<int,int> > test_parameters;
+        const vector<test_parameters> tests = tuple_list_of
+            (10000, make_pair(1,5), make_pair(1,3))
+            (10000, make_pair(1,8), make_pair(1,8))
+            ;
+        for(int i = 0; i < tests.size(); ++i) {
+            run_weight_minimization_test_batch<dynamic_qec_type>
+                (i+1,tests[i].get<0>(),tests[i].get<1>(),tests[i].get<2>());
+        }
+    }
+
+    {
+        cout << "TESTING WEIGHT MINIMIZER USING STATIC VECTORS FOR 4 QUBITS:" << endl << endl;
+        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        const vector<test_parameters> tests = tuple_list_of
+            (10000, make_pair(1,3))
+            (10000, make_pair(1,8))
+            ;
+        for(int i = 0; i < tests.size(); ++i) {
+            run_weight_minimization_test_batch_with_fixed_number_of_qubits<static_qec<4>::type>
+                (i+1,tests[i].get<0>(),4,tests[i].get<1>());
+        }
+    }
+
+    {
+        cout << "TESTING WEIGHT MINIMIZER USING STATIC VECTORS FOR 8 QUBITS:" << endl << endl;
+        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        const vector<test_parameters> tests = tuple_list_of
+            (10000, make_pair(1,8))
+            (10000, make_pair(1,16))
+            ;
+        for(int i = 0; i < tests.size(); ++i) {
+            run_weight_minimization_test_batch_with_fixed_number_of_qubits<static_qec<8>::type>
+                (i+1,tests[i].get<0>(),8,tests[i].get<1>());
+        }
+    }
+
+    {
+        cout << "TESTING WEIGHT MINIMIZER USING STATIC VECTORS FOR 64 QUBITS:" << endl << endl;
+        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        const vector<test_parameters> tests = tuple_list_of
+            (10000, make_pair(1,8))
+            (10000, make_pair(1,16))
+            ;
+        for(int i = 0; i < tests.size(); ++i) {
+            run_weight_minimization_test_batch_with_fixed_number_of_qubits<static_qec<64>::type>
+                (i+1,tests[i].get<0>(),64,tests[i].get<1>());
+        }
+    }
 
     {
         cout << "TESTING ALGORITHM USING DYNAMIC VECTORS:" << endl << endl;
