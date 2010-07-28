@@ -489,6 +489,10 @@ template<int number_of_bits> struct static_quantum_operator : public quantum_ope
 
     inline size_t length() const { return number_of_bits; };
 
+    void inline resize(size_t newlen, bool value = false) {
+        assert(newlen<=number_of_bits);
+    }
+
     static void inline resize_bitset(std::bitset<number_of_bits>& bitset, size_t newlen, bool value = false) {
         assert(newlen<=number_of_bits);
     }
