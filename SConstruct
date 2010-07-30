@@ -10,22 +10,23 @@ for varname in ["CPATH","CPP_INCLUDE_PATH"]:
     if varname in os.environ:
         env.AppendENVPath(varname,os.environ[varname])
 env.PrependENVPath("CPATH","src")
-env.PrependENVPath("CPATH","include")
 
 #@+at
 # Check to make sure that Boost is present.
 #@-at
 #@@c
+errors = []
 conf = Configure(env)
 if not conf.CheckCXXHeader('boost/dynamic_bitset.hpp'):
-   print 'You need to download and install the Boost C++ library to use this code.'
-   Exit(1) 
+   errors.append('You need to download and install the Boost C++ library to use this code.')
 if not conf.CheckCXXHeader('blitz/array.h'):
-   print 'You need to download and install the Blitz++ library to use this code.'
-   Exit(1) 
+   errors.append('You need to download and install the Blitz++ library to use this code.')
 if not conf.CheckCXXHeader('tclap/CmdLine.h'):
-   print 'You need to download and install the TCLAP library to use this code.'
-   Exit(1) 
+   errors.append('You need to download and install the TCLAP library to use this code.')
+if errors:
+    for error in errors:
+        print error
+    Exit(1)
 
 #@+at
 # Get our configuration options:
