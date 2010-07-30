@@ -33,11 +33,12 @@ public:
     std::string operator_string;
     size_t column;
 
-    invalid_pauli(std::string &s, size_t column) throw();
+    invalid_pauli(std::string &operator_string_, size_t column_) throw() 
+        : operator_string(operator_string_), column(column_) { }
 
-    ~invalid_pauli() throw();
+    ~invalid_pauli() throw() {}
 
-    const char* what() throw();
+    const char* what() throw() { return "invalid pauli operator specificed"; }
 
 };
 //@-node:gmc.20080826115908.2:invalid_pauli
@@ -287,20 +288,6 @@ template<class operator_vector> void reduce_row_echelon_split_representation(ope
 template<typename T> void Println(const T& value) { std::cout << value << std::endl; }
 template<typename T> void Print(const T& value) { std::cout << value << " "; }
 //@-node:gcross.20081122135542.13:Print/Println
-//@+node:gcross.20081124154529.2:pauli_char_from_op
-template<class quantum_operator> inline char pauli_char_from_op(const quantum_operator& op, const size_t qubit_number) {
-    if(op.X.test(qubit_number)) {
-        if(op.Z.test(qubit_number))
-            return 'Y';
-        else
-            return 'X';
-    } else if(op.Z.test(qubit_number))
-        return 'Z';
-    else
-        return '.';
-}
-
-//@-node:gcross.20081124154529.2:pauli_char_from_op
 //@+node:gcross.20100318202249.1411:compute_minimum_weight_operator
 template<class quantum_operator> class pseudo_generator;
 
@@ -456,6 +443,27 @@ template<class bitset> struct quantum_operator {
 
     void inline reset() { X.reset(); Z.reset(); }
 
+    inline char pauli_char_at(const size_t qubit_number) const {
+        if(X.test(qubit_number)) {
+            if(Z.test(qubit_number))
+                return 'Y';
+            else
+                return 'X';
+        } else if(Z.test(qubit_number))
+            return 'Z';
+        else
+            return '.';
+    }
+
+    std::string to_string() const {
+        std::string pauli_string;
+        size_t length = X.size();
+        pauli_string.reserve(length);
+        for(int i = 0; i < length; ++i)
+            pauli_string.push_back(pauli_char_at(i));
+        return pauli_string;
+    }
+
 };
 
 struct dynamic_quantum_operator : public quantum_operator<boost::dynamic_bitset<unsigned int> > {
@@ -502,14 +510,6 @@ template<class quantum_operator> quantum_operator inline operator*(const quantum
     quantum_operator op(A);
     op *= B;
     return op;
-}
-
-std::ostream& operator<<(std::ostream& out, const dynamic_quantum_operator& op);
-
-template<int number_of_bits> std::ostream& operator<<(std::ostream& out, const static_quantum_operator<number_of_bits>& op) {
-    for(int i = 0; i < number_of_bits; i++)
-        out.put(pauli_char_from_op(op,i));
-	return out;
 }
 //@-node:gmc.20080824181205.17:quantum_operator
 //@+node:gmc.20080824181205.18:qubit
@@ -1162,9 +1162,36 @@ template<
     //@-node:gmc.20080916172520.9:recompute_logical_qubits
     //@-others
 };
+//@-node:gmc.20080824181205.19:qec
+//@-others
+
+template<class A, class B> class anti_commute_test {
+
+public:
+
+    anti_commute_test(const A& a_) : a(a_) { }
+
+    bool operator()(const B& b) const { return not (a||b); }
+
+protected:
+
+    const A& a;
+
+};
+
+//@-node:gmc.20080824181205.16:<< Data structures >>
+//@nl
 
 //@<< I/O >>
-//@+node:gmc.20080826191619.8:<< I/O >>
+//@+node:gcross.20100729174950.1416:<< I/O >>
+//@+others
+//@+node:gcross.20100729174950.1417:quantum_operator
+template<class bitset> std::ostream& operator<<(std::ostream& out, const quantum_operator<bitset>& op) {
+    out << op.to_string();
+    return out;
+}
+//@-node:gcross.20100729174950.1417:quantum_operator
+//@+node:gmc.20080826191619.8:qec
 template<class quantum_operator, class B, class operator_vector_type, class D> std::ostream& operator<<(std::ostream& out, qec<quantum_operator,B,operator_vector_type,D>& code) {
 
     using namespace std;
@@ -1217,26 +1244,9 @@ template<class quantum_operator, class B, class operator_vector_type, class D> s
 
     return out;
 }
-//@-node:gmc.20080826191619.8:<< I/O >>
-//@nl
-//@-node:gmc.20080824181205.19:qec
+//@-node:gmc.20080826191619.8:qec
 //@-others
-
-template<class A, class B> class anti_commute_test {
-
-public:
-
-    anti_commute_test(const A& a_) : a(a_) { }
-
-    bool operator()(const B& b) const { return not (a||b); }
-
-protected:
-
-    const A& a;
-
-};
-
-//@-node:gmc.20080824181205.16:<< Data structures >>
+//@-node:gcross.20100729174950.1416:<< I/O >>
 //@nl
 
 

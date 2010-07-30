@@ -42,11 +42,11 @@ Help(opts.GenerateHelpText(env))
 # Build the program:
 #@-at
 #@@c
-source_file_names = ['codelib.cc'] + ['codequery%s.cc' % suffix for suffix in ['','-sparse','-dense-1d']]
+source_file_names = ['codequery%s.cc' % suffix for suffix in ['','-sparse','-dense-1d']]
 codequery = env.Program('bin/codequery',['src/%s' % filename for filename in source_file_names])
 Default(codequery)
 
-p1 = env.Program('testing/randomized-tests',['src/codelib.cc','testing/randomized-tests.cc'])
+p1 = env.Program('testing/randomized-tests',['testing/randomized-tests.cc'])
 env.Alias('test',p1)
 
 #@+at

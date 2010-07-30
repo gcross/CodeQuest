@@ -177,7 +177,7 @@ void print_op(const char* prefix, const int width, const int height, const vecto
     ) {
         assert((*coordref)[0]>=0);
         assert((*coordref)[1]>=0);
-        grid(*coordref) = pauli_char_from_op(op,i);
+        grid(*coordref) = op.pauli_char_at(i);
     }
     for(int y = height-1; y >= 0; y--) {
         if((not skip_first_prefix) or (y < (height-1)))
@@ -195,7 +195,7 @@ void print_op(const char* prefix, const int width, const int height, const vecto
 void print_op_sparse(const vector<string>& qubit_labels, const quantum_operator& op) {
 
     for(int i = 0; i < op.length(); i++) {
-        char c = pauli_char_from_op(op,i);
+        char c = op.pauli_char_at(i);
         if(c != '.')
             cout << "(" << qubit_labels[i] << ") " << c << " ";       
     }

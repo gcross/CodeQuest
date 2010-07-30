@@ -9,11 +9,10 @@
 <preferences/>
 <find_panel_settings/>
 <vnodes>
-<v t="gcross.20090221232044.2" str_leo_pos="4"><vh>@chapters</vh></v>
+<v t="gcross.20090221232044.2"><vh>@chapters</vh></v>
 <v t="gmc.20080824181205.12"><vh>Algorithm</vh>
 <v t="gcross.20090221223144.1"><vh>@path src</vh>
 <v t="gmc.20080824181205.14"><vh>@thin codelib.hpp</vh></v>
-<v t="gmc.20080824181205.21"><vh>@thin codelib.cc</vh></v>
 </v>
 </v>
 <v t="gcross.20090526153741.2"><vh>Front end</vh>
@@ -57,14 +56,14 @@
 <tnodes>
 <t tx="gcross.20090221223144.1"></t>
 <t tx="gcross.20090221223144.3"></t>
-<t tx="gcross.20090221232044.2" str_leo_pos="4"></t>
+<t tx="gcross.20090221232044.2"></t>
 <t tx="gcross.20090521215822.28"></t>
 <t tx="gcross.20090521215822.29"></t>
 <t tx="gcross.20090526153741.2"></t>
 <t tx="gmc.20080824181205.12"></t>
+<t tx="gmc.20080911170647.10"></t>
 <t tx="gmc.20080911170647.4">@others
 </t>
-<t tx="gmc.20080911170647.10"></t>
 <t tx="gmc.20080912133652.6"></t>
 <t tx="gmc.20080912133652.7"></t>
 </tnodes>
