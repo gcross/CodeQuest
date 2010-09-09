@@ -1,0 +1,17 @@
+To install this package, you will need
+
+   *) the SCons build system (http://www.scons.org/);
+   *) the Boost C++ utility library (http://www.boost.org/); and
+   *) the TCLAP C++ command line parser library (http://tclap.sourceforge.net/).
+
+To build the package, type
+
+   scons
+
+To install the package (by default into /usr/local), type
+
+   scons install
+
+If you want to build the randomized test suite, type
+
+   scons test
