@@ -85,7 +85,7 @@ int read_in_operators(vector<dynamic_quantum_operator>& operators, vector<string
                     default:
                         string message("'");
                         message.push_back(*charref);
-                        message += "' is not a valid Pauli operator.";
+                        message += "' is not a valid Pauli operator.  Valid Pauli operators are X, Y, and Z, case insensitive.";
                         throw message;
                 }
                 charref++;
@@ -219,6 +219,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     int result;
     if(filename.empty()) {
+        cout << "CodeQuest version 1.0.  Run with --help for usage information." << endl;
         cout << "Input quantum operators:  (Ctrl-D when finished)" << endl;
         result = read_in_operators(operators,qubit_labels);
     } else {

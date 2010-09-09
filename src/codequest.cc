@@ -25,7 +25,7 @@ try {
     ValuesConstraint<string> allowedVals( allowed_formats );
     ValueArg<string> formatArg("f","format","Input and output format of quantum operators;  if no format is specified, then defaults to dense.",false,"dense",&allowedVals,cmd);
 
-	SwitchArg weightsSwitch("w","weights","Compute the optimal minimum distances for the logical qubits (very expensive!).  Note that this will result in a different (but equivalent) set of logical operators.", false);
+	SwitchArg weightsSwitch("o","optimize","Optimize the subsytem code (very expensive!) and output the optimal logical qubit distances.  Note that this will result in a different set of logical operators compared to running codequest without this option.", false);
     cmd.add(weightsSwitch);
 
     UnlabeledValueArg<string> filenameArg("filename","Input file with quantum operators;  if no file is specified, then defaults to standard input.",false,"","filename",cmd);

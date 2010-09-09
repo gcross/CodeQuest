@@ -57,10 +57,12 @@ idir_lib    = '$PREFIX/lib'
 idir_bin    = '$PREFIX/bin'
 idir_inc    = '$PREFIX/include'
 idir_data   = '$PREFIX/share'
+idir_man1   = '$PREFIX/share/man/man1'
 Export('env idir_prefix idir_lib idir_bin idir_inc idir_data')
 
 env.Install(idir_bin, codequest)
 env.Install(idir_inc, ['src/codequest.hpp'])
+env.Install(idir_man1, ['man/codequest.1'])
 env.Alias('install', idir_prefix)
 #@nonl
 #@-node:gcross.20090221223144.2:@thin SConstruct

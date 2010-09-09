@@ -110,6 +110,7 @@ int main_dense_1d(string filename, bool compute_weights_flag) {
 
     int result;
     if(filename.empty()) {
+        cout << "CodeQuest version 1.0.  Run with --help for usage information." << endl;
         cout << "Input quantum operators:  (Ctrl-D when finished)" << endl;
         result = read_in_operators(operators);
     } else {
