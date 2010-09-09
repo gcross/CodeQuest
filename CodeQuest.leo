@@ -2,8 +2,8 @@
 <?xml-stylesheet ekr_test?>
 <leo_file>
 <leo_header file_format="2" tnodes="0" max_tnode_index="0" clone_windows="0"/>
-<globals body_outline_ratio="0.5">
-	<global_window_position top="25" left="981" height="1123" width="935"/>
+<globals body_outline_ratio="0.5" body_secondary_ratio="0.5">
+	<global_window_position top="50" left="50" height="500" width="700"/>
 	<global_log_window_position top="0" left="0" height="0" width="0"/>
 </globals>
 <preferences/>
@@ -12,14 +12,14 @@
 <v t="gcross.20090221232044.2"><vh>@chapters</vh></v>
 <v t="gmc.20080824181205.12"><vh>Algorithm</vh>
 <v t="gcross.20090221223144.1"><vh>@path src</vh>
-<v t="gmc.20080824181205.14"><vh>@thin codelib.hpp</vh></v>
+<v t="gmc.20080824181205.14"><vh>@thin codequest.hpp</vh></v>
 </v>
 </v>
 <v t="gcross.20090526153741.2"><vh>Front end</vh>
 <v t="gcross.20090221223144.3"><vh>@path src</vh>
-<v t="gmc.20080826191619.3"><vh>@thin codequery-dense-1d.cc</vh></v>
-<v t="gmc.20080826191619.10"><vh>@thin codequery-sparse.cc</vh></v>
-<v t="gcross.20081119221421.5"><vh>@thin codequery.cc</vh></v>
+<v t="gmc.20080826191619.3"><vh>@thin codequest-dense-1d.cc</vh></v>
+<v t="gmc.20080826191619.10"><vh>@thin codequest-sparse.cc</vh></v>
+<v t="gcross.20081119221421.5"><vh>@thin codequest.cc</vh></v>
 </v>
 </v>
 <v t="gmc.20080911170647.10"><vh>Examples</vh>

@@ -1,26 +1,27 @@
 //@+leo-ver=4-thin
-//@+node:gmc.20080826191619.10:@thin codequery-sparse.cc
-//@@language cplusplus
+//@+node:gmc.20080826191619.10:@thin codequest-sparse.cc
+//@@language c
 
 //@<< Headers >>
 //@+node:gmc.20080826191619.11:<< Headers >>
 #include <boost/algorithm/string.hpp>
+#include <boost/array.hpp>
 #include <iostream>
 #include <fstream>
-#include <blitz/array.h>
+#include <sstream>
 #include <map>
 #include <iomanip>
 #include <string>
 #include <cctype>
 #include <sys/times.h>
 
-#include "codelib.hpp"
+#include "codequest.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace boost::algorithm;
-using namespace blitz;
 using namespace __gnu_cxx;
+//@nonl
 //@-node:gmc.20080826191619.11:<< Headers >>
 //@nl
 
@@ -34,7 +35,7 @@ istream& operator>>(istream& in, quantum_operator& op);
 
 ostream& operator<<(ostream& out, qec& code);
 
-typedef TinyVector<int,2> CoordinateVector;
+typedef array<int,2> CoordinateVector;
 //@-node:gmc.20080826191619.12:<< Declarations >>
 //@nl
 
@@ -168,22 +169,26 @@ int count_coordinates_in(const string &s) {
 //@-node:gmc.20080826191619.25:count_coordinates_in
 //@+node:gmc.20080826191619.32:print_op
 void print_op(const char* prefix, const int width, const int height, const vector<CoordinateVector>& qubit_coordinates, const quantum_operator& op, const bool skip_first_prefix=false) {
-    Array<char,2> grid(width,height);
-    grid = ' ';
+    char grid[width][height];
+    for (int x = 0; x < width; ++x)
+        for (int y = 0; y < height; ++y)
+            grid[x][y] = ' ';
     int i = 0;
     for(vector<CoordinateVector>::const_iterator coordref = qubit_coordinates.begin();
         coordref != qubit_coordinates.end();
         i++, coordref++
     ) {
-        assert((*coordref)[0]>=0);
-        assert((*coordref)[1]>=0);
-        grid(*coordref) = op.pauli_char_at(i);
+        int x = (*coordref)[0];
+        int y = (*coordref)[1];
+        assert(x>=0); assert(x<width);
+        assert(y>=0); assert(y<height);
+        grid[x][y] = op.pauli_char_at(i);
     }
     for(int y = height-1; y >= 0; y--) {
         if((not skip_first_prefix) or (y < (height-1)))
             cout << prefix;
         for(int x = 0; x < width; x++) {
-            cout << grid(x,y);
+            cout << grid[x][y];
         }
         cout << endl;
     }
@@ -255,10 +260,10 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     vector<CoordinateVector> qubit_coordinates;
 
-    TinyVector<int,2> mins(0,0);
-    TinyVector<int,2> maxes(0,0);
+    array<int,2> mins;  mins.assign(0);
+    array<int,2> maxes;  maxes.assign(0);
 
-    CoordinateVector coordinate(0,0);
+    CoordinateVector coordinate;  coordinate.assign(0);
 
     switch(number_of_coordinates) {
         case 1:
@@ -454,5 +459,5 @@ int main_sparse(string filename, bool compute_weights_flag) {
 //@-node:gmc.20080826191619.13:main_sparse
 //@-others
 
-//@-node:gmc.20080826191619.10:@thin codequery-sparse.cc
+//@-node:gmc.20080826191619.10:@thin codequest-sparse.cc
 //@-leo

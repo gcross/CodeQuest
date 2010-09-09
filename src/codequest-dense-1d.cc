@@ -1,16 +1,15 @@
 //@+leo-ver=4-thin
-//@+node:gmc.20080826191619.3:@thin codequery-dense-1d.cc
-//@@language cplusplus
+//@+node:gmc.20080826191619.3:@thin codequest-dense-1d.cc
+//@@language c
 
 //@<< Headers >>
 //@+node:gmc.20080826191619.4:<< Headers >>
 #include <fstream>
 
-#include "codelib.hpp"
+#include "codequest.hpp"
 
 using namespace std;
 using namespace boost;
-
 //@-node:gmc.20080826191619.4:<< Headers >>
 //@nl
 
@@ -142,5 +141,5 @@ int main_dense_1d(string filename, bool compute_weights_flag) {
 }
 //@-node:gmc.20080824181205.29:main_dense_1d
 //@-others
-//@-node:gmc.20080826191619.3:@thin codequery-dense-1d.cc
+//@-node:gmc.20080826191619.3:@thin codequest-dense-1d.cc
 //@-leo

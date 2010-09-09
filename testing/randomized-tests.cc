@@ -1,6 +1,6 @@
 //@+leo-ver=4-thin
 //@+node:gcross.20090521215822.19:@thin randomized-tests.cc
-//@@language cplusplus
+//@@language c
 
 //@<< Headers >>
 //@+node:gcross.20090521215822.20:<< Headers >>
@@ -22,7 +22,8 @@
 #include <boost/timer.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "codelib.hpp"
+#include "codequest.hpp"
+//@nonl
 //@-node:gcross.20090521215822.20:<< Headers >>
 //@nl
 

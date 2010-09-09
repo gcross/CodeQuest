@@ -1,9 +1,9 @@
 //@+leo-ver=4-thin
-//@+node:gmc.20080824181205.14:@thin codelib.hpp
-//@@language cplusplus
+//@+node:gmc.20080824181205.14:@thin codequest.hpp
+//@@language c
 
-#ifndef CODELIB_H
-#define CODELIB_H
+#ifndef codequest_H
+#define codequest_H
 
 #define restrict __restrict__
 
@@ -1251,5 +1251,6 @@ template<class quantum_operator, class B, class operator_vector_type, class D> s
 
 
 #endif // CODESEARCH_H
-//@-node:gmc.20080824181205.14:@thin codelib.hpp
+//@nonl
+//@-node:gmc.20080824181205.14:@thin codequest.hpp
 //@-leo

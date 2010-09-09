@@ -1,6 +1,6 @@
 //@+leo-ver=4-thin
-//@+node:gcross.20081119221421.5:@thin codequery.cc
-//@@language cplusplus
+//@+node:gcross.20081119221421.5:@thin codequest.cc
+//@@language c
 
 #include <string>
 #include <iostream>
@@ -17,7 +17,7 @@ extern int main_sparse(string filename, bool compute_weights_flag);
 int main(int argc, char** argv) {
 
 try {
-	CmdLine cmd("codequery description message", ' ', "1.0");
+	CmdLine cmd("codequest description message", ' ', "1.0");
 
     vector<string> allowed_formats;
     allowed_formats.push_back("dense");
@@ -40,5 +40,6 @@ try {
 } catch (ArgException &e)  // catch any exceptions
 	{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; }
 }
-//@-node:gcross.20081119221421.5:@thin codequery.cc
+//@nonl
+//@-node:gcross.20081119221421.5:@thin codequest.cc
 //@-leo
