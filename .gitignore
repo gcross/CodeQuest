@@ -3,3 +3,5 @@
 bin
 .scon*
 testing/randomized-tests
+codequest.conf
+config.log
