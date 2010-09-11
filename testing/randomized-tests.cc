@@ -243,7 +243,6 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     //@-node:gcross.20090521215822.26:<< Check commutators >>
     //@nl
 
-
     //@    << Check distances >>
     //@+node:gcross.20100318131715.1383:<< Check distances >>
     if (number_of_logical_qubits > 1) {
@@ -443,14 +442,16 @@ template<class qec_type> void generate_and_test_weight_minimization_problem(
     number_of_operators = operators.size();
     operator_vector copy_of_operators_that_can_be_destroyed = operators;
 
+    vector<pseudo_generator<quantum_operator> > pseudo_generators =
+        compute_pseudo_generators<quantum_operator,operator_vector>(copy_of_operators_that_can_be_destroyed);
+
     pair<quantum_operator,int> error_information = 
         compute_minimum_weight_operator<
             quantum_operator,
-            operator_vector,
             always_true<quantum_operator>,
             int
         >(
-            copy_of_operators_that_can_be_destroyed,
+            pseudo_generators,
             always_true<quantum_operator>(),
             false
         );

@@ -130,12 +130,14 @@ public:
     operator bool() { return valid; }
 
     void increment(int index) {
-        int& coefficient = (*this)[index];
-        coefficient++;
-        if(coefficient == maxes[index]) {
-            if(index == 0) {
-                valid = false;
-            } else { 
+        if(index == -1) {
+            valid = false;
+        } else if (maxes[index] == 2) {
+            increment(index-1);
+        } else {
+            int& coefficient = (*this)[index];
+            ++coefficient;
+            if(coefficient == maxes[index]) {
                 coefficient = 1;
                 increment(index-1);
             }
@@ -293,48 +295,21 @@ template<class quantum_operator> class pseudo_generator;
 
 template<
     class quantum_operator,
-    class operator_vector,
     class query_function_type,
     class query_result_type
     >
 inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
-        operator_vector & restrict operators,
+        std::vector<pseudo_generator<quantum_operator> > & restrict pseudo_generators,
         const query_function_type & restrict query_function,
         bool verbose = false
 ) {
     typedef typename quantum_operator::bitset_type bitset;
-    typedef typename operator_vector::iterator operator_iterator;
 
     using namespace std;
 
-    //@    << Construct pseudo-generator matrix >>
-    //@+node:gcross.20100318202249.1412:<< Construct pseudo-generator matrix >>
-    reduce_row_echelon_block_representation<operator_vector>(operators);
-
-    operator_iterator rowref = operators.begin();
-    int column = 0;
-
-    vector<pseudo_generator<quantum_operator> > pseudo_generators;
-    while(rowref != operators.end()) {
-        if(not (*rowref)[column]) {
-            column++;
-        } else if((rowref+1) != operators.end() and (*(rowref+1))[column]) {
-            pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref,*(rowref+1)));
-            rowref += 2;
-            column++;
-        } else {
-            pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref));
-            rowref += 1;
-            column++;
-        }
-    }
-    //@-node:gcross.20100318202249.1412:<< Construct pseudo-generator matrix >>
-    //@nl
-    //@    << Main iteration >>
-    //@+node:gcross.20100318202249.1413:<< Main iteration >>
     int r = 0;
 
-    const size_t number_of_physical_qubits = operators[0].length(),
+    const size_t number_of_physical_qubits = pseudo_generators[0].number_of_qubits(),
                  number_of_pseudo_generators = pseudo_generators.size();
     int minimum_weight_found = number_of_physical_qubits+1;
     quantum_operator minimum_weight_operator(number_of_physical_qubits);
@@ -370,7 +345,7 @@ inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_oper
                 bits |= op.Z;
                 size_t weight = bits.count();
 
-                if (weight < minimum_weight_found && weight >= r) {
+                if (weight < minimum_weight_found) {
 
                     pair<bool,query_result_type> test_result = query_function(op);
                     if(test_result.first) {
@@ -392,10 +367,40 @@ inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_oper
     return_found_operator:
 
     return make_pair(minimum_weight_operator,minimum_weight_query_result);
-    //@-node:gcross.20100318202249.1413:<< Main iteration >>
-    //@nl
+
 }
 //@-node:gcross.20100318202249.1411:compute_minimum_weight_operator
+//@+node:gcross.20100910154654.1413:compute_pseudo_generators
+template<
+    class quantum_operator,
+    class operator_vector
+    >
+inline std::vector<pseudo_generator<quantum_operator> > compute_pseudo_generators(operator_vector & restrict operators) {
+    typedef typename operator_vector::iterator operator_iterator;
+
+    reduce_row_echelon_block_representation<operator_vector>(operators);
+
+    operator_iterator rowref = operators.begin();
+    int column = 0;
+
+    std::vector<pseudo_generator<quantum_operator> > pseudo_generators;
+    while(rowref != operators.end()) {
+        if(not (*rowref)[column]) {
+            column++;
+        } else if((rowref+1) != operators.end() and (*(rowref+1))[column]) {
+            pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref,*(rowref+1)));
+            rowref += 2;
+            column++;
+        } else {
+            pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref));
+            rowref += 1;
+            column++;
+        }
+    }
+
+    return pseudo_generators;
+}
+//@-node:gcross.20100910154654.1413:compute_pseudo_generators
 //@-others
 //@-node:gmc.20080824181205.27:<< Functions >>
 //@nl
@@ -526,7 +531,7 @@ template<class quantum_operator> struct qubit {
 
 template<class quantum_operator> inline bool operator||(const quantum_operator& restrict op, const qubit<quantum_operator>& restrict q) { return q||op; }
 //@-node:gmc.20080824181205.18:qubit
-//@+node:gmc.20080910123558.5:pseudo_generators
+//@+node:gmc.20080910123558.5:pseudo_generator
 template<class quantum_operator> class pseudo_generator {
 
 public:
@@ -543,7 +548,6 @@ public:
 
     inline void multiply(quantum_operator& restrict op, int coefficient) const {
         if(coefficient & 1) op *= op_1;
-        //if(coefficient & 2) { assert(field_size > 2); op *= op_2; }
         if(coefficient & 2) op *= op_2;
     }
 
@@ -553,8 +557,10 @@ public:
             if(coefficient & 2) op *= op_2;
         } else if (coefficient & 2) op = op_2;
     }
+
+    inline size_t number_of_qubits() const { return op_1.length(); }
 };
-//@-node:gmc.20080910123558.5:pseudo_generators
+//@-node:gmc.20080910123558.5:pseudo_generator
 //@+node:gcross.20081201142225.2:static_vector
 template<typename T,int buffer_size> class static_vector {
 
@@ -930,6 +936,21 @@ template<
 
         if(number_of_logical_qubits == 0) return;
 
+        operator_vector list_of_operators_that_commute_with_all_stabilizers = stabilizers;
+
+        for(const_qubit_iterator qubitref = gauge_qubits.begin();  qubitref != gauge_qubits.end();  qubitref++) {
+            list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->X);
+            list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->Z);
+        }
+
+        for(const_qubit_iterator qubitref = logical_qubits.begin();  qubitref != logical_qubits.end();  qubitref++) {
+            list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->X);
+            list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->Z);
+        }
+
+        vector<pseudo_generator<quantum_operator> > pseudo_generators =
+            compute_pseudo_generators<quantum_operator,operator_vector>(list_of_operators_that_commute_with_all_stabilizers);
+
         while (number_of_optimized_logical_qubits < number_of_logical_qubits) {
 
             anti_commutes_with_some_logical test_function(
@@ -938,30 +959,13 @@ template<
                 marked_as_eligible_to_fix_an_error
             );
 
-            //@        << Construct list of operators that commute with all stabilizers >>
-            //@+node:gcross.20100318162833.1392:<< Construct list of operators that commute with all stabilizers >>
-            operator_vector list_of_operators_that_commute_with_all_stabilizers = stabilizers;
-
-            for(const_qubit_iterator qubitref = gauge_qubits.begin();  qubitref != gauge_qubits.end();  qubitref++) {
-                list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->X);
-                list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->Z);
-            }
-
-            for(const_qubit_iterator qubitref = logical_qubits.begin();  qubitref != logical_qubits.end();  qubitref++) {
-                list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->X);
-                list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->Z);
-            }
-            //@-node:gcross.20100318162833.1392:<< Construct list of operators that commute with all stabilizers >>
-            //@nl
-
             pair<quantum_operator,pair<int,int> > error_information = 
                 compute_minimum_weight_operator <
                     quantum_operator,
-                    operator_vector,
                     anti_commutes_with_some_logical,
                     pair<int,int>
                 > (
-                    list_of_operators_that_commute_with_all_stabilizers,
+                    pseudo_generators,
                     test_function,
                     verbose
                 );
