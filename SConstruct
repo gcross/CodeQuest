@@ -62,7 +62,7 @@ Export('env idir_prefix idir_lib idir_bin idir_inc idir_data')
 
 env.Install(idir_bin, codequest)
 env.Install(idir_inc, ['src/codequest.hpp'])
-env.Install(idir_man1, ['man/codequest.1'])
+env.Install(idir_man1, ['doc/codequest.1'])
 env.Alias('install', idir_prefix)
 #@nonl
 #@-node:gcross.20090221223144.2:@thin SConstruct
