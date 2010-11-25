@@ -117,7 +117,7 @@ int main_dense_1d(string filename, bool compute_weights_flag, bool yaml_flag) {
         //@+node:gcross.20101123222425.2068: *3* << YAML output >>
         cout << "---" << endl;
 
-        cout << "operators:" << endl;
+        cout << "Measurement Operators:" << endl;
         for(vector<quantum_operator>::iterator opref = operators.begin(); opref != operators.end(); opref++)
             cout << "    - " << (*opref) << endl;
 

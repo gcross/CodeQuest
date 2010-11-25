@@ -1080,12 +1080,12 @@ template<
 
         using namespace std;
 
-        out << "stabilizers:" << endl;
+        out << "Stabilizers:" << endl;
 
         for(const_operator_iterator opref = stabilizers.begin(); opref != stabilizers.end(); opref++)
             out << "    - " << (*opref) << endl;
 
-        out << "gauge qubits:" << endl;
+        out << "Gauge Qubits:" << endl;
 
         for(int i = 0; i < gauge_qubits.size(); i++) {
             out << "    - X: " << gauge_qubits[i].X << endl;
@@ -1093,23 +1093,23 @@ template<
             out << "      Z: " << gauge_qubits[i].Z << endl;
         }
 
-        out << "logical qubits:" << endl;
+        out << "Logical Qubits:" << endl;
 
         for(int i = 0; i < logical_qubits.size(); i++) {
             out << "    - X: " << logical_qubits[i].X << endl;
             out << "      Y: " << logical_qubits[i].Y << endl;
             out << "      Z: " << logical_qubits[i].Z << endl;
             if(i < number_of_optimized_logical_qubits) {
-                out << "      distance: " << logical_qubit_error_distances[i] << endl;
-                out << "      minimum weight error: " << logical_qubit_errors[i] << endl;
+                out << "      Distance: " << logical_qubit_error_distances[i] << endl;
+                out << "      Minimum weight error: " << logical_qubit_errors[i] << endl;
             }
         }
 
-        out << "summary:" << endl;
-        out << "    number of physical qubits: " << number_of_physical_qubits << endl;
-        out << "    number of stabilizers: " << stabilizers.size() << endl;
-        out << "    number of gauge qubits: " << gauge_qubits.size() << endl;
-        out << "    number of logical qubits: " << logical_qubits.size() << endl;
+        out << "Summary:" << endl;
+        out << "    Number of physical qubits: " << number_of_physical_qubits << endl;
+        out << "    Number of stabilizers:     " << stabilizers.size() << endl;
+        out << "    Number of gauge qubits:    " << gauge_qubits.size() << endl;
+        out << "    Number of logical qubits:  " << logical_qubits.size() << endl;
 
     }
     //@-others
