@@ -1,9 +1,9 @@
-//@+leo-ver=4-thin
-//@+node:gmc.20080826191619.10:@thin codequest-sparse.cc
+//@+leo-ver=5-thin
+//@+node:gmc.20080826191619.10: * @thin codequest-sparse.cc
 //@@language c
 
-//@<< Headers >>
-//@+node:gmc.20080826191619.11:<< Headers >>
+//@+<< Headers >>
+//@+node:gmc.20080826191619.11: ** << Headers >>
 #include <boost/algorithm/string.hpp>
 #include <boost/array.hpp>
 #include <iostream>
@@ -21,27 +21,24 @@ using namespace std;
 using namespace boost;
 using namespace boost::algorithm;
 using namespace __gnu_cxx;
-//@nonl
-//@-node:gmc.20080826191619.11:<< Headers >>
-//@nl
+//@-<< Headers >>
 
 #define quantum_operator dynamic_quantum_operator
 #define qec qec<dynamic_quantum_operator>
 
-//@<< Declarations >>
-//@+node:gmc.20080826191619.12:<< Declarations >>
+//@+<< Declarations >>
+//@+node:gmc.20080826191619.12: ** << Declarations >>
 ostream& operator<<(ostream& out, const quantum_operator& op);
 istream& operator>>(istream& in, quantum_operator& op);
 
 ostream& operator<<(ostream& out, qec& code);
 
 typedef array<int,2> CoordinateVector;
-//@-node:gmc.20080826191619.12:<< Declarations >>
-//@nl
+//@-<< Declarations >>
 
 //@+others
-//@+node:gmc.20080826191619.14:Functions
-//@+node:gmc.20080826191619.15:read_in_operators
+//@+node:gmc.20080826191619.14: ** Functions
+//@+node:gmc.20080826191619.15: *3* read_in_operators
 typedef pair<bool,bool> pauli_pair;
 
 int read_in_operators(vector<dynamic_quantum_operator>& operators, vector<string>& qubit_labels, istream& in=cin) {
@@ -136,8 +133,7 @@ int read_in_operators(vector<dynamic_quantum_operator>& operators, vector<string
 
     return 0;
 }
-//@-node:gmc.20080826191619.15:read_in_operators
-//@+node:gmc.20080826191619.24:isntnumeric
+//@+node:gmc.20080826191619.24: *3* isntnumeric
 bool isntdigit(const char c) {
     return not (isdigit(c) or (c == '-') or (c == '+'));
 }
@@ -145,17 +141,14 @@ bool isntdigit(const char c) {
 bool isntnumeric(const string& s) {
     return find_if(s.begin(),s.end(),isntdigit) != s.end();
 }
-//@-node:gmc.20080826191619.24:isntnumeric
-//@+node:gmc.20080826191619.29:tonumeric
+//@+node:gmc.20080826191619.29: *3* tonumeric
 int tonumeric(const string &s) {
     istringstream ss(s);
     int i;
     ss >> i;
     return i;
 }
-//@nonl
-//@-node:gmc.20080826191619.29:tonumeric
-//@+node:gmc.20080826191619.25:count_coordinates_in
+//@+node:gmc.20080826191619.25: *3* count_coordinates_in
 int count_coordinates_in(const string &s) {
     vector<string> coordinates;
     split(coordinates,s,is_any_of(","));
@@ -166,8 +159,7 @@ int count_coordinates_in(const string &s) {
     }
     return coordinates.size();
 }
-//@-node:gmc.20080826191619.25:count_coordinates_in
-//@+node:gmc.20080826191619.32:print_op
+//@+node:gmc.20080826191619.32: *3* print_op
 void print_op(const char* prefix, const int width, const int height, const vector<CoordinateVector>& qubit_coordinates, const quantum_operator& op, const bool skip_first_prefix=false) {
     char grid[width][height];
     for (int x = 0; x < width; ++x)
@@ -195,8 +187,7 @@ void print_op(const char* prefix, const int width, const int height, const vecto
     if(height > 1)
         cout << endl;
 }
-//@-node:gmc.20080826191619.32:print_op
-//@+node:gmc.20080915140059.7:print_op_sparse
+//@+node:gmc.20080915140059.7: *3* print_op_sparse
 void print_op_sparse(const vector<string>& qubit_labels, const quantum_operator& op) {
 
     for(int i = 0; i < op.length(); i++) {
@@ -207,13 +198,11 @@ void print_op_sparse(const vector<string>& qubit_labels, const quantum_operator&
     cout << endl;
 
 }
-//@-node:gmc.20080915140059.7:print_op_sparse
-//@-node:gmc.20080826191619.14:Functions
-//@+node:gmc.20080826191619.13:main_sparse
+//@+node:gmc.20080826191619.13: ** main_sparse
 int main_sparse(string filename, bool compute_weights_flag) {
 
-    //@    << Read in the operators >>
-    //@+node:gmc.20080826191619.21:<< Read in the operators >>
+    //@+<< Read in the operators >>
+    //@+node:gmc.20080826191619.21: *3* << Read in the operators >>
     vector<quantum_operator> operators;
     vector<string> qubit_labels;
 
@@ -237,15 +226,14 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     int number_of_qubits = qubit_labels.size();
     int number_of_operators = operators.size();
-    //@-node:gmc.20080826191619.21:<< Read in the operators >>
-    //@nl
+    //@-<< Read in the operators >>
 
-    //@    << Process labels into coordinates >>
-    //@+node:gmc.20080826191619.22:<< Process labels into coordinates >>
+    //@+<< Process labels into coordinates >>
+    //@+node:gmc.20080826191619.22: *3* << Process labels into coordinates >>
     int number_of_coordinates;
 
-    //@<< Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
-    //@+node:gmc.20080826191619.26:<< Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
+    //@+<< Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
+    //@+node:gmc.20080826191619.26: *4* << Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
     vector<string>::const_iterator labelref = qubit_labels.begin();
 
     number_of_coordinates = count_coordinates_in(*labelref);
@@ -256,8 +244,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
                 number_of_coordinates = 0;
                 break;
             }
-    //@-node:gmc.20080826191619.26:<< Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
-    //@nl
+    //@-<< Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
 
     vector<CoordinateVector> qubit_coordinates;
 
@@ -268,8 +255,8 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     switch(number_of_coordinates) {
         case 1:
-            //@        << Process 1D coordinates >>
-            //@+node:gmc.20080826191619.28:<< Process 1D coordinates >>
+            //@+<< Process 1D coordinates >>
+            //@+node:gmc.20080826191619.28: *4* << Process 1D coordinates >>
             for(labelref = qubit_labels.begin(); labelref != qubit_labels.end(); labelref++) {
                 int x = tonumeric(*labelref);
                 if(x<mins[0])
@@ -280,12 +267,11 @@ int main_sparse(string filename, bool compute_weights_flag) {
                 qubit_coordinates.push_back(coordinate);
             }
 
-            //@-node:gmc.20080826191619.28:<< Process 1D coordinates >>
-            //@nl
+            //@-<< Process 1D coordinates >>
             break;
         case 2:
-            //@        << Process 2D coordinates >>
-            //@+node:gmc.20080826191619.30:<< Process 2D coordinates >>
+            //@+<< Process 2D coordinates >>
+            //@+node:gmc.20080826191619.30: *4* << Process 2D coordinates >>
             for(labelref = qubit_labels.begin(); labelref != qubit_labels.end(); labelref++) {
                 vector<string> coordinates;
                 split(coordinates,*labelref,is_any_of(","));
@@ -302,21 +288,19 @@ int main_sparse(string filename, bool compute_weights_flag) {
                 }
                 qubit_coordinates.push_back(coordinate);
             }
-            //@-node:gmc.20080826191619.30:<< Process 2D coordinates >>
-            //@nl
+            //@-<< Process 2D coordinates >>
             break;
         default:
             number_of_coordinates = 0;
-            //@        << Use existing ordering of qubits as the x coordinate >>
-            //@+node:gmc.20080826191619.27:<< Use existing ordering of qubits as the x coordinate >>
+            //@+<< Use existing ordering of qubits as the x coordinate >>
+            //@+node:gmc.20080826191619.27: *4* << Use existing ordering of qubits as the x coordinate >>
             for(int i = 0; i < number_of_qubits; i++) {
                 coordinate[0] = i;
                 qubit_coordinates.push_back(coordinate);
             }
 
             maxes[0] = number_of_qubits-1;
-            //@-node:gmc.20080826191619.27:<< Use existing ordering of qubits as the x coordinate >>
-            //@nl
+            //@-<< Use existing ordering of qubits as the x coordinate >>
             break;
     }
 
@@ -324,25 +308,21 @@ int main_sparse(string filename, bool compute_weights_flag) {
        height = maxes[1]-mins[1]+1;
 
     if(number_of_coordinates != 0) {
-        //@    << Post-process coordinates >>
-        //@+node:gmc.20080826191619.33:<< Post-process coordinates >>
+        //@+<< Post-process coordinates >>
+        //@+node:gmc.20080826191619.33: *4* << Post-process coordinates >>
         //@+at
         // We need to shift around the coordinates so that the min is zero.
-        //@-at
         //@@c
 
         for(vector<CoordinateVector>::iterator coordref = qubit_coordinates.begin(); coordref != qubit_coordinates.end();  coordref++)
             for(int i = 0; i < 2; i++)
                 (*coordref)[i] -= mins[i];
-        //@-node:gmc.20080826191619.33:<< Post-process coordinates >>
-        //@nl
+        //@-<< Post-process coordinates >>
     }
-    //@nonl
-    //@-node:gmc.20080826191619.22:<< Process labels into coordinates >>
-    //@nl
+    //@-<< Process labels into coordinates >>
 
-    //@    << Compute code >>
-    //@+node:gmc.20080916172520.8:<< Compute code >>
+    //@+<< Compute code >>
+    //@+node:gmc.20080916172520.8: *3* << Compute code >>
     switch(number_of_coordinates) {
         case 1:
             cout << "Labels imply 1D coordinate system of size " << width
@@ -381,11 +361,10 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     if(compute_weights_flag)
         code.optimize_logical_qubits();
-    //@-node:gmc.20080916172520.8:<< Compute code >>
-    //@nl
+    //@-<< Compute code >>
 
-    //@    << Print out results >>
-    //@+node:gmc.20080826191619.31:<< Print out results >>
+    //@+<< Print out results >>
+    //@+node:gmc.20080826191619.31: *3* << Print out results >>
 
 
     cout << "Stabilizers:" << endl;
@@ -453,12 +432,9 @@ int main_sparse(string filename, bool compute_weights_flag) {
         cout << code.logical_qubit_error_distances[code.logical_qubits.size()-1] << endl;
     } else cout << endl;
 
-    //@-node:gmc.20080826191619.31:<< Print out results >>
-    //@nl
+    //@-<< Print out results >>
 
 }
-//@-node:gmc.20080826191619.13:main_sparse
 //@-others
 
-//@-node:gmc.20080826191619.10:@thin codequest-sparse.cc
 //@-leo

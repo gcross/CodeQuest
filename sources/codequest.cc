@@ -1,5 +1,5 @@
-//@+leo-ver=4-thin
-//@+node:gcross.20081119221421.5:@thin codequest.cc
+//@+leo-ver=5-thin
+//@+node:gcross.20081119221421.5: * @thin codequest.cc
 //@@language c
 
 #include <string>
@@ -40,6 +40,4 @@ try {
 } catch (ArgException &e)  // catch any exceptions
 	{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; }
 }
-//@nonl
-//@-node:gcross.20081119221421.5:@thin codequest.cc
 //@-leo

@@ -1,7 +1,9 @@
 *.o
 *.pyc
-bin
-.scon*
-testing/randomized-tests
-codequest.conf
-config.log
+programs
+test
+CMakeFiles
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+install_manifest.txt
