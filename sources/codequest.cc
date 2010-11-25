@@ -11,7 +11,7 @@
 using namespace std;
 using namespace TCLAP;
 
-extern int main_dense_1d(string filename, bool compute_weights_flag);
+extern int main_dense_1d(string filename, bool compute_weights_flag, bool yaml_flag);
 extern int main_sparse(string filename, bool compute_weights_flag);
 
 int main(int argc, char** argv) {
@@ -25,8 +25,11 @@ try {
     ValuesConstraint<string> allowedVals( allowed_formats );
     ValueArg<string> formatArg("f","format","Input and output format of quantum operators;  if no format is specified, then defaults to dense.",false,"dense",&allowedVals,cmd);
 
-	SwitchArg weightsSwitch("o","optimize","Optimize the subsytem code (very expensive!) and output the optimal logical qubit distances.  Note that this will result in a different set of logical operators compared to running codequest without this option.", false);
+    SwitchArg weightsSwitch("o","optimize","Optimize the subsytem code (very expensive!) and output the optimal logical qubit distances.  Note that this will result in a different set of logical operators compared to running codequest without this option.", false);
     cmd.add(weightsSwitch);
+
+    SwitchArg yamlSwitch("y","yaml","Print the results in YAML format.  (Only takes effect when using dense input.)", false);
+    cmd.add(yamlSwitch);
 
     UnlabeledValueArg<string> filenameArg("filename","Input file with quantum operators;  if no file is specified, then defaults to standard input.",false,"","filename",cmd);
 
@@ -35,7 +38,7 @@ try {
     if(formatArg.getValue().compare("sparse") == 0) {
         return main_sparse(filenameArg.getValue(),weightsSwitch.getValue());
     } else {
-        return main_dense_1d(filenameArg.getValue(),weightsSwitch.getValue());
+        return main_dense_1d(filenameArg.getValue(),weightsSwitch.getValue(),yamlSwitch.getValue());
     }
 } catch (ArgException &e)  // catch any exceptions
 	{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; }

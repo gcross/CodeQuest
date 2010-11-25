@@ -1075,6 +1075,43 @@ template<
         assert(logical_qubits.size() == number_of_logical_qubits());
         //@-<< Compute logical qubits >>
     }
+    //@+node:gcross.20101123222425.2064: *4* writeYAML
+    void writeYAML(std::ostream& out) {
+
+        using namespace std;
+
+        out << "stabilizers:" << endl;
+
+        for(const_operator_iterator opref = stabilizers.begin(); opref != stabilizers.end(); opref++)
+            out << "    - " << (*opref) << endl;
+
+        out << "gauge qubits:" << endl;
+
+        for(int i = 0; i < gauge_qubits.size(); i++) {
+            out << "    - X: " << gauge_qubits[i].X << endl;
+            out << "      Y: " << gauge_qubits[i].Y << endl;
+            out << "      Z: " << gauge_qubits[i].Z << endl;
+        }
+
+        out << "logical qubits:" << endl;
+
+        for(int i = 0; i < logical_qubits.size(); i++) {
+            out << "    - X: " << logical_qubits[i].X << endl;
+            out << "      Y: " << logical_qubits[i].Y << endl;
+            out << "      Z: " << logical_qubits[i].Z << endl;
+            if(i < number_of_optimized_logical_qubits) {
+                out << "      distance: " << logical_qubit_error_distances[i] << endl;
+                out << "      minimum weight error: " << logical_qubit_errors[i] << endl;
+            }
+        }
+
+        out << "summary:" << endl;
+        out << "    number of physical qubits: " << number_of_physical_qubits << endl;
+        out << "    number of stabilizers: " << stabilizers.size() << endl;
+        out << "    number of gauge qubits: " << gauge_qubits.size() << endl;
+        out << "    number of logical qubits: " << logical_qubits.size() << endl;
+
+    }
     //@-others
 };
 //@-others

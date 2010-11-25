@@ -97,7 +97,7 @@ int read_in_operators(vector<quantum_operator>& operators, istream& in=cin) {
     return 0;
 }
 //@+node:gmc.20080824181205.29: ** main_dense_1d
-int main_dense_1d(string filename, bool compute_weights_flag) {
+int main_dense_1d(string filename, bool compute_weights_flag, bool yaml_flag) {
     vector<quantum_operator> operators;
 
     int result;
@@ -112,24 +112,44 @@ int main_dense_1d(string filename, bool compute_weights_flag) {
     if(result != 0)
         return result;
 
-    if(operators.size() == 0) {
-        cout << "No operators specified." << endl;
-        return 0;
+    if(yaml_flag) {
+        //@+<< YAML output >>
+        //@+node:gcross.20101123222425.2068: *3* << YAML output >>
+        cout << "---" << endl;
+
+        cout << "operators:" << endl;
+        for(vector<quantum_operator>::iterator opref = operators.begin(); opref != operators.end(); opref++)
+            cout << "    - " << (*opref) << endl;
+
+        if(operators.size() > 0) {
+            qec code(operators);
+            if(compute_weights_flag) code.optimize_logical_qubits(false);
+            code.writeYAML(cout);
+        }
+        //@-<< YAML output >>
+    } else {
+        //@+<< Verbose output >>
+        //@+node:gcross.20101123222425.2067: *3* << Verbose output >>
+        if(operators.size() == 0) {
+            cout << "No operators specified." << endl;
+            return 0;
+        }
+
+        cout << operators.size() << " operators specified:" << endl;
+
+        for(vector<quantum_operator>::iterator opref = operators.begin(); opref != operators.end(); opref++)
+            cout << "\t" << (*opref) << endl;
+
+        cout << endl;
+
+        qec code(operators);
+        if(compute_weights_flag) code.optimize_logical_qubits();
+
+        cout << code;
+
+        cout << endl;
+        //@-<< Verbose output >>
     }
-
-    cout << operators.size() << " operators specified:" << endl;
-
-    for(vector<quantum_operator>::iterator opref = operators.begin(); opref != operators.end(); opref++)
-        cout << "\t" << (*opref) << endl;
-
-    cout << endl;
-
-    qec code(operators);
-    if(compute_weights_flag) code.optimize_logical_qubits();
-
-    cout << code;
-
-    cout << endl;
 
 }
 //@-others
