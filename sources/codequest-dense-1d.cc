@@ -38,6 +38,8 @@ std::istream& operator>>(std::istream& in, quantum_operator& op) {
                 break;
             case '.':
             case ' ':
+            case 'i':
+            case 'I':
                 break;
             default:
                 throw invalid_pauli(s,i);
