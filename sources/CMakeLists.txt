@@ -10,5 +10,5 @@ add_executable(codequest
     codequest-dense-1d.cc
 )
 set_property(TARGET codequest PROPERTY RUNTIME_OUTPUT_DIRECTORY ../programs)
-install (FILES ../programs/codequest DESTINATION bin)
+install (TARGETS codequest RUNTIME DESTINATION bin)
 #@-leo
