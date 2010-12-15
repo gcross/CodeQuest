@@ -1084,25 +1084,25 @@ template<
         out << "Stabilizers:" << endl;
 
         for(const_operator_iterator opref = stabilizers.begin(); opref != stabilizers.end(); opref++)
-            out << "    - " << (*opref) << endl;
+            out << "    - " << opref->to_string() << endl;
 
         out << "Gauge Qubits:" << endl;
 
         for(int i = 0; i < gauge_qubits.size(); i++) {
-            out << "    - X: " << gauge_qubits[i].X << endl;
-            out << "      Y: " << gauge_qubits[i].Y << endl;
-            out << "      Z: " << gauge_qubits[i].Z << endl;
+            out << "    - X: " << gauge_qubits[i].X.to_string() << endl;
+            out << "      Y: " << gauge_qubits[i].Y.to_string() << endl;
+            out << "      Z: " << gauge_qubits[i].Z.to_string() << endl;
         }
 
         out << "Logical Qubits:" << endl;
 
         for(int i = 0; i < logical_qubits.size(); i++) {
-            out << "    - X: " << logical_qubits[i].X << endl;
-            out << "      Y: " << logical_qubits[i].Y << endl;
-            out << "      Z: " << logical_qubits[i].Z << endl;
+            out << "    - X: " << logical_qubits[i].X.to_string() << endl;
+            out << "      Y: " << logical_qubits[i].Y.to_string() << endl;
+            out << "      Z: " << logical_qubits[i].Z.to_string() << endl;
             if(i < number_of_optimized_logical_qubits) {
                 out << "      Distance: " << logical_qubit_error_distances[i] << endl;
-                out << "      Minimum weight error: " << logical_qubit_errors[i] << endl;
+                out << "      Minimum weight error: " << logical_qubit_errors[i].to_string() << endl;
             }
         }
 
