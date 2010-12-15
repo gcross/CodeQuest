@@ -1004,7 +1004,9 @@ template<
     }
     //@+node:gcross.20081203190837.3: *4* number_of_logical_qubits
     size_t number_of_logical_qubits() {
-        return number_of_physical_qubits - stabilizers.size() - gauge_qubits.size();
+        return (stabilizers.size() == 0 && gauge_qubits.size() == 0)
+             ? 0
+             : number_of_physical_qubits - stabilizers.size() - gauge_qubits.size();
     }
     //@+node:gmc.20080916172520.9: *4* recompute_logical_qubits
     void recompute_logical_qubits() {
