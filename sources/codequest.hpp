@@ -549,6 +549,7 @@ public:
 
     typedef T* iterator;
     typedef const T* const_iterator;
+    typedef T value_type;
 
     static_vector() : end_ptr(data), current_size(0) { }
     static_vector(size_t size) : end_ptr(data+size), current_size(size) { }
