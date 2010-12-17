@@ -43,28 +43,6 @@ public:
 //@-others
 //@-<< Exceptions >>
 
-//@+<< Struct Functions >>
-//@+node:gmc.20080824181205.20: ** << Struct Functions >>
-template<class bitset> class quantum_operator;
-
-template<class input,class output> struct generic_get_X {
-    inline output& restrict operator()(input& op) { return op.X; }
-};
-
-template<class input,class output> struct generic_get_Z {
-    inline output& restrict operator()(input& op) { return op.Z; }
-};
-
-
-template<class bitset> struct get_X {
-    inline bitset& restrict operator()(quantum_operator<bitset>& op) { return op.X; }
-};
-
-template<class bitset> struct get_Z {
-    inline bitset& restrict operator()(quantum_operator<bitset>& op) { return op.Z; }
-};
-//@-<< Struct Functions >>
-
 //@+<< Combinatorics Iterators >>
 //@+node:gmc.20080910123558.2: ** << Combinatorics Iterators >>
 //@+<< Choice Iterator >>
