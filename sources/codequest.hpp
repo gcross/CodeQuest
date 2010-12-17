@@ -7,8 +7,8 @@
 
 #define restrict __restrict__
 
-//@+<< Headers >>
-//@+node:gmc.20080824181205.15: ** << Headers >>
+//@+<< Includes >>
+//@+node:gmc.20080824181205.15: ** << Includes >>
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -19,7 +19,7 @@
 #include <string>
 #include <functional>
 #include <utility>
-//@-<< Headers >>
+//@-<< Includes >>
 
 //@+<< Exceptions >>
 //@+node:gmc.20080907163416.85: ** << Exceptions >>
