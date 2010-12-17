@@ -1,6 +1,6 @@
 //@+leo-ver=5-thin
 //@+node:gcross.20081119221421.5: * @thin codequest.cc
-//@@language c
+//@@language cplusplus
 
 #include <string>
 #include <iostream>

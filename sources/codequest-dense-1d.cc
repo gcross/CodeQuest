@@ -1,6 +1,6 @@
 //@+leo-ver=5-thin
 //@+node:gmc.20080826191619.3: * @thin codequest-dense-1d.cc
-//@@language c
+//@@language cplusplus
 
 //@+<< Headers >>
 //@+node:gmc.20080826191619.4: ** << Headers >>

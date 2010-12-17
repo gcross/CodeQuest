@@ -1,6 +1,6 @@
 //@+leo-ver=5-thin
 //@+node:gmc.20080824181205.14: * @thin codequest.hpp
-//@@language c
+//@@language cplusplus
 
 #ifndef CODEQUEST_H
 #define CODEQUEST_H

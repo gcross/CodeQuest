@@ -1,6 +1,6 @@
 //@+leo-ver=5-thin
 //@+node:gcross.20090521215822.19: * @thin randomized-tests.cc
-//@@language c
+//@@language cplusplus
 
 //@+<< Headers >>
 //@+node:gcross.20090521215822.20: ** << Headers >>
