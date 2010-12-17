@@ -2,8 +2,8 @@
 //@+node:gmc.20080824181205.14: * @thin codequest.hpp
 //@@language c
 
-#ifndef codequest_H
-#define codequest_H
+#ifndef CODEQUEST_H
+#define CODEQUEST_H
 
 #define restrict __restrict__
 
@@ -1200,5 +1200,5 @@ template<class quantum_operator, class B, class operator_vector_type, class D> s
 //@-<< I/O >>
 
 
-#endif // CODESEARCH_H
+#endif
 //@-leo
