@@ -18,8 +18,8 @@ using namespace boost;
 
 //@+<< I/O >>
 //@+node:gmc.20080824181205.25: ** << I/O >>
-std::istream& operator>>(std::istream& in, quantum_operator& op) {
-    std::string s;
+istream& operator>>(istream& in, quantum_operator& op) {
+    string s;
     getline(in,s);
     op.resize(s.length());
     for(int i = 0;  i < s.length(); i++) {
