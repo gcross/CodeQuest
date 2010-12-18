@@ -23,18 +23,31 @@
 
 namespace CodeQuest {
 
+//@+<< Usings >>
+//@+node:gcross.20101217153202.1438: ** << Usings >>
+using std::bitset;
+using std::cout;
+using std::endl;
+using std::exception;
+using std::make_pair;
+using std::ostream;
+using std::pair;
+using std::string;
+using std::vector;
+//@-<< Usings >>
+
 //@+<< Exceptions >>
 //@+node:gmc.20080907163416.85: ** << Exceptions >>
 //@+others
 //@+node:gmc.20080826115908.2: *3* invalid_pauli
-class invalid_pauli : private std::exception {
+class invalid_pauli : private exception {
 
 public:
 
-    std::string operator_string;
+    string operator_string;
     size_t column;
 
-    invalid_pauli(std::string &operator_string_, size_t column_) throw() 
+    invalid_pauli(string &operator_string_, size_t column_) throw() 
         : operator_string(operator_string_), column(column_) { }
 
     ~invalid_pauli() throw() {}
@@ -49,14 +62,14 @@ public:
 //@+node:gmc.20080910123558.2: ** << Combinatorics Iterators >>
 //@+<< Choice Iterator >>
 //@+node:gmc.20080910123558.3: *3* << Choice Iterator >>
-class ChoiceIterator : public std::vector<int> {
+class ChoiceIterator : public vector<int> {
 
 public:
 
     int n, k;
     bool valid;
 
-    ChoiceIterator(int n_,int k_) : std::vector<int>(k_), n(n_), k(k_), valid(true) {
+    ChoiceIterator(int n_,int k_) : vector<int>(k_), n(n_), k(k_), valid(true) {
         assert(k_ <= n_);
         for(int i = 0; i < k; i++) (*this)[i] = k-1-i;
     }
@@ -92,14 +105,14 @@ public:
 
 //@+<< Coefficient Iterator >>
 //@+node:gmc.20080910123558.4: *3* << Coefficient Iterator >>
-class CoefficientIterator : public std::vector<int> {
+class CoefficientIterator : public vector<int> {
 
 public:
 
-    std::vector<int> maxes;
+    vector<int> maxes;
     bool valid;
 
-    CoefficientIterator(std::vector<int>& maxes_) : std::vector<int>(maxes_.size(),1), maxes(maxes_), valid(true) { }
+    CoefficientIterator(vector<int>& maxes_) : vector<int>(maxes_.size(),1), maxes(maxes_), valid(true) { }
 
 
     operator bool() { return valid; }
@@ -129,8 +142,7 @@ public:
 //@+node:gmc.20080824181205.27: ** << Functions >>
 //@+others
 //@+node:gmc.20080826191619.20: *3* dump_bits
-template<class quantum_operator> void dump_bits(const std::string message, const std::vector<quantum_operator>& generators, const std::vector<size_t>& permutation) {
-    using namespace std;
+template<class quantum_operator> void dump_bits(const string message, const vector<quantum_operator>& generators, const vector<size_t>& permutation) {
     cout << message;
     for(vector<size_t>::const_iterator i = permutation.begin(); i != permutation.end(); i++)
             cout << " " << *i;
@@ -162,7 +174,6 @@ template<class quantum_operator> void dump_bits(const std::string message, const
 }
 //@+node:gmc.20080907163416.84: *3* reduce_row_echelon_block_representation
 template<class operator_vector> void reduce_row_echelon_block_representation(operator_vector& rows, bool zero_upper=true) {
-    using namespace std;
     if(rows.size()==0) return;
     typename operator_vector::iterator rref, rowref = rows.begin();
     size_t system_size = rowref->length();
@@ -216,7 +227,6 @@ template<class operator_vector> void reduce_row_echelon_block_representation(ope
 }
 //@+node:gcross.20090526153741.1: *3* reduce_row_echelon_split_representation
 template<class operator_vector> void reduce_row_echelon_split_representation(operator_vector& rows, bool zero_upper=false) {
-    using namespace std;
     if(rows.size()==0) return;
     typename operator_vector::iterator rref, rowref = rows.begin();
     size_t system_size = rowref->length();
@@ -255,8 +265,8 @@ template<class operator_vector> void reduce_row_echelon_split_representation(ope
     rows.erase(rowref,rows.end());
 }
 //@+node:gcross.20081122135542.13: *3* Print/Println
-template<typename T> void Println(const T& value) { std::cout << value << std::endl; }
-template<typename T> void Print(const T& value) { std::cout << value << " "; }
+template<typename T> void Println(const T& value) { cout << value << endl; }
+template<typename T> void Print(const T& value) { cout << value << " "; }
 //@+node:gcross.20100318202249.1411: *3* compute_minimum_weight_operator
 template<class quantum_operator> class pseudo_generator;
 
@@ -265,14 +275,12 @@ template<
     class query_function_type,
     class query_result_type
     >
-inline std::pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
-        std::vector<pseudo_generator<quantum_operator> > & restrict pseudo_generators,
+inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
+        vector<pseudo_generator<quantum_operator> > & restrict pseudo_generators,
         const query_function_type & restrict query_function,
         bool verbose = false
 ) {
     typedef typename quantum_operator::bitset_type bitset;
-
-    using namespace std;
 
     int r = 0;
 
@@ -341,7 +349,7 @@ template<
     class quantum_operator,
     class operator_vector
     >
-inline std::vector<pseudo_generator<quantum_operator> > compute_pseudo_generators(operator_vector & restrict operators) {
+inline vector<pseudo_generator<quantum_operator> > compute_pseudo_generators(operator_vector & restrict operators) {
     typedef typename operator_vector::iterator operator_iterator;
 
     reduce_row_echelon_block_representation<operator_vector>(operators);
@@ -349,7 +357,7 @@ inline std::vector<pseudo_generator<quantum_operator> > compute_pseudo_generator
     operator_iterator rowref = operators.begin();
     int column = 0;
 
-    std::vector<pseudo_generator<quantum_operator> > pseudo_generators;
+    vector<pseudo_generator<quantum_operator> > pseudo_generators;
     while(rowref != operators.end()) {
         if(not (*rowref)[column]) {
             column++;
@@ -424,8 +432,8 @@ template<class bitset> struct quantum_operator {
             return '.';
     }
 
-    std::string to_string() const {
-        std::string pauli_string;
+    string to_string() const {
+        string pauli_string;
         size_t length = X.size();
         pauli_string.reserve(length);
         for(int i = 0; i < length; ++i)
@@ -459,7 +467,7 @@ struct dynamic_quantum_operator : public quantum_operator<boost::dynamic_bitset<
 
 };
 
-template<int number_of_bits> struct static_quantum_operator : public quantum_operator<std::bitset<number_of_bits> >{
+template<int number_of_bits> struct static_quantum_operator : public quantum_operator<bitset<number_of_bits> >{
 
     inline static_quantum_operator() { }
     inline static_quantum_operator(size_t len) { assert(len==number_of_bits); }
@@ -470,7 +478,7 @@ template<int number_of_bits> struct static_quantum_operator : public quantum_ope
         assert(newlen<=number_of_bits);
     }
 
-    static void inline resize_bitset(std::bitset<number_of_bits>& bitset, size_t newlen, bool value = false) {
+    static void inline resize_bitset(bitset<number_of_bits>& bitset, size_t newlen, bool value = false) {
         assert(newlen<=number_of_bits);
     }
 };
@@ -637,7 +645,7 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
         //@@c
             typename index_vector::iterator qubit_index_chosen_iter = qubit_indices_chosen.begin();
             size_t op2_index = 0;
-            BOOST_FOREACH(quantum_operator& op2, std::make_pair(operators.begin(),op_overwrite_iter)) {
+            BOOST_FOREACH(quantum_operator& op2, make_pair(operators.begin(),op_overwrite_iter)) {
                 // Check whether op contains either X or Z, depending on pauli chosen,
                 // and if so multiply it by op_factor to get rid of the pauli.
                 if(paulis_chosen[op2_index] ? op.X.test(*qubit_index_chosen_iter) : op.Z.test(*qubit_index_chosen_iter)) op *= op2;
@@ -669,11 +677,11 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
         // Loop over the previous operators and make sure that operator is independent of them.
         //@@c
             if(pauli_chosen)
-                BOOST_FOREACH(quantum_operator& op2, std::make_pair(operators.begin(),op_overwrite_iter)) {
+                BOOST_FOREACH(quantum_operator& op2, make_pair(operators.begin(),op_overwrite_iter)) {
                     if(op2.X.test(qubit_index_chosen)) op2 *= op;
                 }
             else
-                BOOST_FOREACH(quantum_operator& op2, std::make_pair(operators.begin(),op_overwrite_iter)) {
+                BOOST_FOREACH(quantum_operator& op2, make_pair(operators.begin(),op_overwrite_iter)) {
                     if(op2.Z.test(qubit_index_chosen)) op2 *= op;
                 }
         //@+at
@@ -696,9 +704,9 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
 //@+node:gmc.20080824181205.19: *3* qec
 template<
     class Quantum_operator,
-    class Qubit_vector = typename std::vector<qubit<Quantum_operator> >,
-    class Operator_vector = typename std::vector<Quantum_operator>,
-    class Index_vector = typename std::vector<size_t>
+    class Qubit_vector = vector<qubit<Quantum_operator> >,
+    class Operator_vector = vector<Quantum_operator>,
+    class Index_vector = vector<size_t>
 > struct qec {
 
     //@+<< Typedefs >>
@@ -753,14 +761,14 @@ template<
             marked_as_eligible_to_fix_an_error(marked_as_eligible_to_fix_an_error_)
             { }
 
-        inline std::pair<bool,std::pair<int,int> > operator() (const quantum_operator & restrict op) const {
+        inline pair<bool,pair<int,int> > operator() (const quantum_operator & restrict op) const {
             const_qubit_iterator qubitref = logical_qubits_begin;
 
             // Case 1
             int index = 0;
             for(; qubitref!=logical_qubits_end_of_optimized; ++qubitref) {
                 if(marked_as_eligible_to_fix_an_error[index] && (op && qubitref->Z)) {
-                    return std::make_pair(true,std::make_pair(1,index));
+                    return make_pair(true,make_pair(1,index));
                 }
                 ++index;
             }
@@ -768,11 +776,11 @@ template<
             // Case 2
             for(; qubitref!=logical_qubits_end; ++qubitref) {
                 if((op && qubitref->X) || (op && qubitref->Z)) {
-                    return std::make_pair(true,std::make_pair(2,qubitref - logical_qubits_begin));
+                    return make_pair(true,make_pair(2,qubitref - logical_qubits_begin));
                 }
             }
 
-            return std::make_pair(false,std::make_pair(0,-1));
+            return make_pair(false,make_pair(0,-1));
         }
 
     };
@@ -782,8 +790,6 @@ template<
         post_stabilizer_elimination_state(operators[0].length()),
         number_of_optimized_logical_qubits(0)
     {
-
-        using namespace std;
 
         if(operators.size()==0) return;
 
@@ -850,8 +856,6 @@ template<
 
     //@+node:gcross.20081119221421.3: *4* optimize_logical_qubits
     void optimize_logical_qubits(bool verbose=true) {
-
-        using namespace std;
 
         const size_t number_of_logical_qubits = logical_qubits.size();
 
@@ -1059,7 +1063,7 @@ template<
         //@-<< Compute logical qubits >>
     }
     //@+node:gcross.20101123222425.2064: *4* writeYAML
-    void writeYAML(std::ostream& out) {
+    void writeYAML(ostream& out) {
 
         using namespace std;
 
@@ -1119,14 +1123,12 @@ protected:
 //@+node:gcross.20100729174950.1416: ** << I/O >>
 //@+others
 //@+node:gcross.20100729174950.1417: *3* quantum_operator
-template<class bitset> std::ostream& operator<<(std::ostream& out, const quantum_operator<bitset>& op) {
+template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<bitset>& op) {
     out << op.to_string();
     return out;
 }
 //@+node:gmc.20080826191619.8: *3* qec
-template<class quantum_operator, class B, class operator_vector_type, class D> std::ostream& operator<<(std::ostream& out, qec<quantum_operator,B,operator_vector_type,D>& code) {
-
-    using namespace std;
+template<class quantum_operator, class B, class operator_vector_type, class D> ostream& operator<<(ostream& out, qec<quantum_operator,B,operator_vector_type,D>& code) {
 
     out << endl << "Stabilizers:" << endl;
 
