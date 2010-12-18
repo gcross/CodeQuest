@@ -36,8 +36,8 @@ using std::string;
 using std::vector;
 //@-<< Usings >>
 
-//@+<< Exceptions >>
-//@+node:gmc.20080907163416.85: ** << Exceptions >>
+//@+others
+//@+node:gmc.20080907163416.85: ** Exceptions
 //@+others
 //@+node:gmc.20080826115908.2: *3* invalid_pauli
 class invalid_pauli : public exception {
@@ -56,10 +56,7 @@ public:
 
 };
 //@-others
-//@-<< Exceptions >>
-
-//@+<< Functions >>
-//@+node:gmc.20080824181205.27: ** << Functions >>
+//@+node:gmc.20080824181205.27: ** Functions
 //@+others
 //@+node:gmc.20080826191619.20: *3* dump_bits
 template<class quantum_operator> void dump_bits(const string message, const vector<quantum_operator>& generators, const vector<size_t>& permutation) {
@@ -361,10 +358,7 @@ inline vector<pseudo_generator<quantum_operator> > compute_pseudo_generators(ope
     return pseudo_generators;
 }
 //@-others
-//@-<< Functions >>
-
-//@+<< Data structures >>
-//@+node:gmc.20080824181205.16: ** << Data structures >>
+//@+node:gmc.20080824181205.16: ** Classes
 //@+others
 //@+node:gmc.20080824181205.17: *3* quantum_operator
 template<class bitset> struct quantum_operator {
@@ -1159,7 +1153,7 @@ protected:
 
 };
 
-//@-<< Data structures >>
+//@-others
 
 }
 
