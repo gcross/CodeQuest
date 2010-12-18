@@ -58,86 +58,6 @@ public:
 //@-others
 //@-<< Exceptions >>
 
-//@+<< Combinatorics Iterators >>
-//@+node:gmc.20080910123558.2: ** << Combinatorics Iterators >>
-//@+<< Choice Iterator >>
-//@+node:gmc.20080910123558.3: *3* << Choice Iterator >>
-class ChoiceIterator : public vector<int> {
-
-public:
-
-    int n, k;
-    bool valid;
-
-    ChoiceIterator(int n_,int k_) : vector<int>(k_), n(n_), k(k_), valid(true) {
-        assert(k_ <= n_);
-        for(int i = 0; i < k; i++) (*this)[i] = k-1-i;
-    }
-
-
-    operator bool() { return valid; }
-
-    int increment(int pivot_index) {
-        int& pivot = (*this)[pivot_index];
-        pivot++;
-        if(pivot == n-pivot_index) {
-            if(pivot_index == k-1) {
-                valid = false;
-                return -2;
-            } else { 
-                pivot = increment(pivot_index+1)+1;
-                if(pivot<0) return -2;
-                if(pivot==n) {
-                    valid = false;
-                    return -2;
-                }
-            }
-        }
-
-        return pivot;
-
-    }
-
-    void operator ++() { increment(0); }
-
-};
-//@-<< Choice Iterator >>
-
-//@+<< Coefficient Iterator >>
-//@+node:gmc.20080910123558.4: *3* << Coefficient Iterator >>
-class CoefficientIterator : public vector<int> {
-
-public:
-
-    vector<int> maxes;
-    bool valid;
-
-    CoefficientIterator(vector<int>& maxes_) : vector<int>(maxes_.size(),1), maxes(maxes_), valid(true) { }
-
-
-    operator bool() { return valid; }
-
-    void increment(int index) {
-        if(index == -1) {
-            valid = false;
-        } else if (maxes[index] == 2) {
-            increment(index-1);
-        } else {
-            int& coefficient = (*this)[index];
-            ++coefficient;
-            if(coefficient == maxes[index]) {
-                coefficient = 1;
-                increment(index-1);
-            }
-        }
-    }
-
-    void operator ++() { increment(size()-1); }
-
-};
-//@-<< Coefficient Iterator >>
-//@-<< Combinatorics Iterators >>
-
 //@+<< Functions >>
 //@+node:gmc.20080824181205.27: ** << Functions >>
 //@+others
@@ -281,6 +201,83 @@ inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
         bool verbose = false
 ) {
     typedef typename quantum_operator::bitset_type bitset;
+
+    //@+<< Nested classes >>
+    //@+node:gcross.20101217153202.1442: *4* << Nested classes >>
+    //@+others
+    //@+node:gcross.20101217153202.1443: *5* ChoiceIterator
+    class ChoiceIterator : public vector<int> {
+
+    public:
+
+        int n, k;
+        bool valid;
+
+        ChoiceIterator(int n_,int k_) : vector<int>(k_), n(n_), k(k_), valid(true) {
+            assert(k_ <= n_);
+            for(int i = 0; i < k; i++) (*this)[i] = k-1-i;
+        }
+
+
+        operator bool() { return valid; }
+
+        int increment(int pivot_index) {
+            int& pivot = (*this)[pivot_index];
+            pivot++;
+            if(pivot == n-pivot_index) {
+                if(pivot_index == k-1) {
+                    valid = false;
+                    return -2;
+                } else {
+                    pivot = increment(pivot_index+1)+1;
+                    if(pivot<0) return -2;
+                    if(pivot==n) {
+                        valid = false;
+                        return -2;
+                    }
+                }
+            }
+
+            return pivot;
+
+        }
+
+        void operator ++() { increment(0); }
+
+    };
+    //@+node:gcross.20101217153202.1444: *5* CoefficientIterator
+    class CoefficientIterator : public vector<int> {
+
+    public:
+
+        vector<int> maxes;
+        bool valid;
+
+        CoefficientIterator(vector<int>& maxes_) : vector<int>(maxes_.size(),1), maxes(maxes_), valid(true) { }
+
+
+        operator bool() { return valid; }
+
+        void increment(int index) {
+            if(index == -1) {
+                valid = false;
+            } else if (maxes[index] == 2) {
+                increment(index-1);
+            } else {
+                int& coefficient = (*this)[index];
+                ++coefficient;
+                if(coefficient == maxes[index]) {
+                    coefficient = 1;
+                    increment(index-1);
+                }
+            }
+        }
+
+        void operator ++() { increment(size()-1); }
+
+    };
+    //@-others
+    //@-<< Nested classes >>
 
     int r = 0;
 
