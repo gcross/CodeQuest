@@ -487,6 +487,11 @@ template<class quantum_operator> struct qubit {
 };
 
 template<class quantum_operator> inline bool operator||(const quantum_operator& restrict op, const qubit<quantum_operator>& restrict q) { return q||op; }
+
+template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<bitset>& op) {
+    out << op.to_string();
+    return out;
+}
 //@+node:gmc.20080910123558.5: *3* pseudo_generator
 template<class quantum_operator> class pseudo_generator {
 
@@ -1084,33 +1089,9 @@ template<
     }
     //@-others
 };
-//@-others
-
-template<class A, class B> class anti_commute_test {
-
-public:
-
-    anti_commute_test(const A& a_) : a(a_) { }
-
-    bool operator()(const B& b) const { return not (a||b); }
-
-protected:
-
-    const A& a;
-
-};
-
-//@-<< Data structures >>
 
 //@+<< I/O >>
-//@+node:gcross.20100729174950.1416: ** << I/O >>
-//@+others
-//@+node:gcross.20100729174950.1417: *3* quantum_operator
-template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<bitset>& op) {
-    out << op.to_string();
-    return out;
-}
-//@+node:gmc.20080826191619.8: *3* qec
+//@+node:gcross.20101217153202.1447: *4* << I/O >>
 template<class quantum_operator, class B, class operator_vector_type, class D> ostream& operator<<(ostream& out, qec<quantum_operator,B,operator_vector_type,D>& code) {
 
     out << endl << "Stabilizers:" << endl;
@@ -1161,8 +1142,24 @@ template<class quantum_operator, class B, class operator_vector_type, class D> o
 
     return out;
 }
-//@-others
 //@-<< I/O >>
+//@-others
+
+template<class A, class B> class anti_commute_test {
+
+public:
+
+    anti_commute_test(const A& a_) : a(a_) { }
+
+    bool operator()(const B& b) const { return not (a||b); }
+
+protected:
+
+    const A& a;
+
+};
+
+//@-<< Data structures >>
 
 }
 
