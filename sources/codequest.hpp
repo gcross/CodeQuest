@@ -492,9 +492,6 @@ template<class quantum_operator> class pseudo_generator {
 
 public:
 
-
-public:
-
     int field_size;
 
     quantum_operator op_1, op_2;
