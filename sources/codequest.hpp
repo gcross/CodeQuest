@@ -21,6 +21,8 @@
 #include <utility>
 //@-<< Includes >>
 
+namespace CodeQuest {
+
 //@+<< Exceptions >>
 //@+node:gmc.20080907163416.85: ** << Exceptions >>
 //@+others
@@ -1176,6 +1178,8 @@ template<class quantum_operator, class B, class operator_vector_type, class D> s
 }
 //@-others
 //@-<< I/O >>
+
+}
 
 
 #endif

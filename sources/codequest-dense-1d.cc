@@ -8,6 +8,7 @@
 
 #include "codequest.hpp"
 
+using namespace CodeQuest;
 using namespace std;
 using namespace boost;
 //@-<< Headers >>
