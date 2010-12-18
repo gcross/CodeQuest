@@ -100,8 +100,6 @@ template<class operator_vector> void reduce_row_echelon_block_representation(ope
     size_t column = 0;
     unsigned char op_mask = 1;
 
-    //int step_number = 0;
-
     while(rowref != rows.end() && column < system_size) {
         for(rref = rowref; rref != rows.end(); rref++) {
             if((*rref)[column] & op_mask)
@@ -135,12 +133,6 @@ template<class operator_vector> void reduce_row_echelon_block_representation(ope
             op_mask = 1;
             column++;
         }
-
-        //step_number++;
-        //cout << "STEP " << step_number << ":" << endl;
-        //cout << "------------" << endl;
-        //for_each(rows.begin(), rows.end(), Println<quantum_operator>);  cout << endl;
-
 
     }
     rows.erase(rowref,rows.end());
@@ -184,9 +176,6 @@ template<class operator_vector> void reduce_row_echelon_split_representation(ope
     }
     rows.erase(rowref,rows.end());
 }
-//@+node:gcross.20081122135542.13: *3* Print/Println
-template<typename T> void Println(const T& value) { cout << value << endl; }
-template<typename T> void Print(const T& value) { cout << value << " "; }
 //@+node:gcross.20100318202249.1411: *3* compute_minimum_weight_operator
 template<class quantum_operator> class pseudo_generator;
 
