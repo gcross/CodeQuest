@@ -40,7 +40,7 @@ using std::vector;
 //@+node:gmc.20080907163416.85: ** << Exceptions >>
 //@+others
 //@+node:gmc.20080826115908.2: *3* invalid_pauli
-class invalid_pauli : private exception {
+class invalid_pauli : public exception {
 
 public:
 
