@@ -22,7 +22,7 @@ istream& operator>>(istream& in, quantum_operator& op) {
     string s;
     getline(in,s);
     op.resize(s.length());
-    for(int i = 0;  i < s.length(); i++) {
+    for(unsigned int i = 0;  i < s.length(); i++) {
         switch(s[i]) {
             case 'x':
             case 'X':
@@ -53,11 +53,11 @@ istream& operator>>(istream& in, quantum_operator& op) {
 //@+others
 //@+node:gmc.20080826191619.5: ** Functions
 //@+node:gmc.20080824181205.30: *3* read_in_operators
-int read_in_operators(vector<quantum_operator>& operators, istream& in=cin) {
+unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=cin) {
 
     //@+<< Read in and parse each of the operator strings >>
     //@+node:gmc.20080826191619.2: *4* << Read in and parse each of the operator strings >>
-    int current_line_number = 0;
+    unsigned int current_line_number = 0;
 
     try {
 
@@ -75,7 +75,7 @@ int read_in_operators(vector<quantum_operator>& operators, istream& in=cin) {
             << endl
             << "\t" << e.operator_string << endl
             << "\t";
-        for(int j =  0; j < e.column; j++)
+        for(unsigned int j =  0; j < e.column; j++)
             cerr.put(' ');
         cerr
             << "^" << endl
@@ -100,10 +100,10 @@ int read_in_operators(vector<quantum_operator>& operators, istream& in=cin) {
     return 0;
 }
 //@+node:gmc.20080824181205.29: ** main_dense_1d
-int main_dense_1d(string filename, bool compute_weights_flag, bool yaml_flag) {
+unsigned int main_dense_1d(string filename, bool compute_weights_flag, bool yaml_flag) {
     vector<quantum_operator> operators;
 
-    int result;
+    unsigned int result;
     if(filename.empty()) {
         cout << "CodeQuest version 1.0.  Run with --help for usage information." << endl;
         cout << "Input quantum operators:  (Ctrl-D when finished)" << endl;

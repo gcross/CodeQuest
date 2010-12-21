@@ -45,7 +45,7 @@ variate_generator<mt19937&, uniform_01<> > random_real(rng, u01);
 //@+node:gcross.20090522205550.7: ** << Typedefs >>
 typedef qec<dynamic_quantum_operator> dynamic_qec_type;
 
-template<int nbits> struct static_qec {
+template<unsigned int nbits> struct static_qec {
     typedef qec<
         static_quantum_operator<nbits>,
         static_vector<qubit<static_quantum_operator<nbits> >,nbits>,
@@ -63,7 +63,7 @@ template<int nbits> struct static_qec {
     errors.push_back(error.str());  \
 }
 //@+node:gcross.20090521215822.22: ** compute_basis
-typedef vector<pair<size_t,int> > basis_information;
+typedef vector<pair<size_t,unsigned int> > basis_information;
 
 template<class operator_vector> basis_information compute_basis(operator_vector& operators, const char name[], vector<string>& errors, bool reduce_first=true) {
     basis_information operator_basis;
@@ -74,11 +74,11 @@ template<class operator_vector> basis_information compute_basis(operator_vector&
 
     if(reduce_first) reduce_row_echelon_split_representation(operators,true);
 
-    for(int i = 0; i < operators.size(); ++i) {
-        for(int mask = 1; mask <= 2; ++mask) {
-            for(int column = 0; column < number_of_physical_qubits; ++column) {
+    for(unsigned int i = 0; i < operators.size(); ++i) {
+        for(unsigned int mask = 1; mask <= 2; ++mask) {
+            for(unsigned int column = 0; column < number_of_physical_qubits; ++column) {
                 if(not (operators[i][column] & mask)) goto next_column;
-                for(int j = 0; j < operators.size(); ++j)
+                for(unsigned int j = 0; j < operators.size(); ++j)
                     if(i != j and (operators[j][column] & mask)) goto next_column;
                 operator_basis.push_back(make_pair<size_t,int>(column,mask));
                 goto next_operator;
@@ -94,7 +94,7 @@ template<class operator_vector> basis_information compute_basis(operator_vector&
 //@+node:gcross.20090521215822.23: ** contained_in
 template<class quantum_operator,class operator_vector> bool contained_in(const quantum_operator& operator_,const operator_vector& basis_operators, const basis_information& basis_info) {
     quantum_operator residual = operator_;
-    for(int i = 0; i < basis_operators.size() and not residual.is_identity(); ++i)
+    for(unsigned int i = 0; i < basis_operators.size() and not residual.is_identity(); ++i)
         if(residual[basis_info[i].first] & basis_info[i].second)
             residual *= basis_operators[i];
     return residual.is_identity();
@@ -155,14 +155,14 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
             goto skip_completeness_test;
         }
 
-        for(int i = 0; i < sg_operators.size(); ++i) {
+        for(unsigned int i = 0; i < sg_operators.size(); ++i) {
             if(not contained_in(sg_operators[i],input_operators,input_operators_basis)) {
                 append_error("There exists a stabilizer or gauge qubit operator is not producable from the input operators!");
                 break;
             }
         }
 
-        for(int i = 0; i < operators.size(); ++i) {
+        for(unsigned int i = 0; i < operators.size(); ++i) {
             if(not contained_in(operators[i],sg_operators,sg_operators_basis)) {
                 append_error("Input operator " << (i+1) << " is not producable from the stabilizer and gauge qubit operators!")
             }
@@ -192,28 +192,28 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
             }
 
 
-    for(int i = 0; i < code.stabilizers.size(); ++i) {
-        for(int j = i+1; j < code.stabilizers.size(); ++j)
+    for(unsigned int i = 0; i < code.stabilizers.size(); ++i) {
+        for(unsigned int j = i+1; j < code.stabilizers.size(); ++j)
             check_op_comm(i+1,code.stabilizers[i],"Stabilizer","",j+1,code.stabilizers[j],"Stabilizer","")
-        for(int j = 0; j < code.gauge_qubits.size(); ++j) {
+        for(unsigned int j = 0; j < code.gauge_qubits.size(); ++j) {
             check_op_comm(i+1,code.stabilizers[i],"Stabilizer","",j+1,code.gauge_qubits[j].X,"Gauge Qubit","'s X operator")
             check_op_comm(i+1,code.stabilizers[i],"Stabilizer","",j+1,code.gauge_qubits[j].Z,"Gauge Qubit","'s Z operator")
         }
-        for(int j = 0; j < code.logical_qubits.size(); ++j) {
+        for(unsigned int j = 0; j < code.logical_qubits.size(); ++j) {
             check_op_comm(i+1,code.stabilizers[i],"Stabilizer","",j+1,code.logical_qubits[j].X,"Logical Qubit","'s X operator")
             check_op_comm(i+1,code.stabilizers[i],"Stabilizer","",j+1,code.logical_qubits[j].Z,"Logical Qubit","'s Z operator")
         }
     }
 
-    for(int i = 0; i < code.gauge_qubits.size(); ++i) {
+    for(unsigned int i = 0; i < code.gauge_qubits.size(); ++i) {
         check_op_anticomm(i+1,code.gauge_qubits[i].X,"Gauge Qubit","'s X operator",i+1,code.gauge_qubits[i].Z,"Gauge Qubit","'s Z operator")
-        for(int j = i+1; j < code.gauge_qubits.size(); ++j) {
+        for(unsigned int j = i+1; j < code.gauge_qubits.size(); ++j) {
             check_op_comm(i+1,code.gauge_qubits[i].X,"Gauge Qubit","'s X operator",j+1,code.gauge_qubits[j].X,"Gauge Qubit","'s X operator")
             check_op_comm(i+1,code.gauge_qubits[i].X,"Gauge Qubit","'s X operator",j+1,code.gauge_qubits[j].Z,"Gauge Qubit","'s Z operator")
             check_op_comm(i+1,code.gauge_qubits[i].Z,"Gauge Qubit","'s Z operator",j+1,code.gauge_qubits[j].X,"Gauge Qubit","'s X operator")
             check_op_comm(i+1,code.gauge_qubits[i].Z,"Gauge Qubit","'s Z operator",j+1,code.gauge_qubits[j].Z,"Gauge Qubit","'s Z operator")
         }
-        for(int j = 0; j < code.logical_qubits.size(); ++j) {
+        for(unsigned int j = 0; j < code.logical_qubits.size(); ++j) {
             check_op_comm(i+1,code.gauge_qubits[i].X,"Gauge Qubit","'s X operator",j+1,code.logical_qubits[j].X,"Logical Qubit","'s X operator")
             check_op_comm(i+1,code.gauge_qubits[i].X,"Gauge Qubit","'s X operator",j+1,code.logical_qubits[j].Z,"Logical Qubit","'s Z operator")
             check_op_comm(i+1,code.gauge_qubits[i].Z,"Gauge Qubit","'s Z operator",j+1,code.logical_qubits[j].X,"Logical Qubit","'s X operator")
@@ -222,9 +222,9 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     }
 
 
-    for(int i = 0; i < code.logical_qubits.size(); ++i) {
+    for(unsigned int i = 0; i < code.logical_qubits.size(); ++i) {
         check_op_anticomm(i+1,code.logical_qubits[i].X,"Logical Qubit","'s X operator",i+1,code.logical_qubits[i].Z,"Logical Qubit","'s Z operator")
-        for(int j = i+1; j < code.logical_qubits.size(); ++j) {
+        for(unsigned int j = i+1; j < code.logical_qubits.size(); ++j) {
             check_op_comm(i+1,code.logical_qubits[i].X,"Logical Qubit","'s X operator",j+1,code.logical_qubits[j].X,"Logical Qubit","'s X operator")
             check_op_comm(i+1,code.logical_qubits[i].X,"Logical Qubit","'s X operator",j+1,code.logical_qubits[j].Z,"Logical Qubit","'s Z operator")
             check_op_comm(i+1,code.logical_qubits[i].Z,"Logical Qubit","'s Z operator",j+1,code.logical_qubits[j].X,"Logical Qubit","'s X operator")
@@ -236,7 +236,7 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     //@+<< Check distances >>
     //@+node:gcross.20100318131715.1383: *3* << Check distances >>
     if (number_of_logical_qubits > 1) {
-        for(int i = 0; i < number_of_logical_qubits-1; ++i) {
+        for(unsigned int i = 0; i < number_of_logical_qubits-1; ++i) {
             if(code.logical_qubit_error_distances[i] > code.logical_qubit_error_distances[i+1]) {
                 append_error("The computed distances for the logical qubits are not in ascending order!");
                 break;
@@ -249,7 +249,7 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     ) {
         vector<unsigned int> observed_distances(number_of_logical_qubits,number_of_physical_qubits);
 
-        for(int chosen_stabilizers = 0;
+        for(unsigned int chosen_stabilizers = 0;
             chosen_stabilizers < (1 << number_of_stabilizers);
             ++chosen_stabilizers
         ) {
@@ -260,9 +260,9 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
                     product_of_stabilizers *= op;
                 mask <<= 1;
             }
-            for(int chosen_gauge_qubit_X_operators = 0;
-                    chosen_gauge_qubit_X_operators < (1 << number_of_gauge_qubits);
-                    ++chosen_gauge_qubit_X_operators
+            for(unsigned int chosen_gauge_qubit_X_operators = 0;
+                             chosen_gauge_qubit_X_operators < (1 << number_of_gauge_qubits);
+                           ++chosen_gauge_qubit_X_operators
             ) {
                 unsigned int mask = 1;
                 quantum_operator product_of_gauge_X_operators(number_of_physical_qubits);
@@ -271,9 +271,9 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
                         product_of_gauge_X_operators *= qubit.X;
                     mask <<= 1;
                 }
-                for(int chosen_gauge_qubit_Z_operators = 0;
-                        chosen_gauge_qubit_Z_operators < (1 << number_of_gauge_qubits);
-                        ++chosen_gauge_qubit_Z_operators
+                for(unsigned int chosen_gauge_qubit_Z_operators = 0;
+                                 chosen_gauge_qubit_Z_operators < (1 << number_of_gauge_qubits);
+                               ++chosen_gauge_qubit_Z_operators
                 ) {
                     unsigned int mask = 1;
                     quantum_operator product_of_gauge_Z_operators(number_of_physical_qubits);
@@ -282,9 +282,9 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
                             product_of_gauge_Z_operators *= qubit.Z;
                         mask <<= 1;
                     }
-                    for(int chosen_logical_qubit_X_operators = 0;
-                            chosen_logical_qubit_X_operators < (1 << number_of_logical_qubits);
-                            ++chosen_logical_qubit_X_operators
+                    for(unsigned int chosen_logical_qubit_X_operators = 0;
+                                     chosen_logical_qubit_X_operators < (1 << number_of_logical_qubits);
+                                   ++chosen_logical_qubit_X_operators
                     ) {
                         unsigned int mask = 1;
                         quantum_operator product_of_logical_X_operators(number_of_physical_qubits);
@@ -293,7 +293,7 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
                                 product_of_logical_X_operators *= qubit.X;
                             mask <<= 1;
                         }
-                        for(int chosen_logical_qubit_Z_operators = (chosen_logical_qubit_X_operators == 0 ? 1 : 0);
+                        for(unsigned int chosen_logical_qubit_Z_operators = (chosen_logical_qubit_X_operators == 0 ? 1 : 0);
                                 chosen_logical_qubit_Z_operators < (1 << number_of_logical_qubits);
                                 ++chosen_logical_qubit_Z_operators
                         ) {
@@ -304,7 +304,7 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
                                     product_of_logical_Z_operators *= qubit.Z;
                                 mask <<= 1;
                             }
-                            const int distance = (
+                            const unsigned int distance = (
                                 product_of_stabilizers *
                                 product_of_gauge_X_operators *
                                 product_of_gauge_Z_operators *
@@ -324,11 +324,11 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
             }
         }
 
-        for(int i = 0; i < number_of_logical_qubits; ++i) {
+        for(unsigned int i = 0; i < number_of_logical_qubits; ++i) {
             if(observed_distances[i] != code.logical_qubit_error_distances[i]) {
                 ostringstream error;
                 error << "The computed distances disagree with the observed distances, which are [";
-                for(int j = 0; j < number_of_logical_qubits-1; ++j)
+                for(unsigned int j = 0; j < number_of_logical_qubits-1; ++j)
                     error << observed_distances[j] << ",";
                 error << observed_distances[number_of_logical_qubits-1] << "].";
                 errors.push_back(error.str());
@@ -342,16 +342,16 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
 }
 //@+node:gcross.20100318202249.1389: ** generate_random_operators
 template<class qec_type> typename qec_type::operator_vector generate_random_operators(
-        int number_of_physical_qubits,
-        int number_of_operators,
+        unsigned int number_of_physical_qubits,
+        unsigned int number_of_operators,
         float bernoulli_trial_probability
 ) {
     typename qec_type::operator_vector operators;
     operators.reserve(number_of_operators);
-    for(int i = 0; i < number_of_operators; ++i) {
+    for(unsigned int i = 0; i < number_of_operators; ++i) {
         typename qec_type::quantum_operator op(number_of_physical_qubits);
         while(op.weight() == 0) {
-            for(int j = 0; j < number_of_physical_qubits; ++j) {
+            for(unsigned int j = 0; j < number_of_physical_qubits; ++j) {
                 if(random_real() > bernoulli_trial_probability)
                     op.set(j,random_pauli());
                 else
@@ -364,8 +364,8 @@ template<class qec_type> typename qec_type::operator_vector generate_random_oper
 }
 //@+node:gcross.20090522205550.4: ** generate_and_test_code
 template<class qec_type> double generate_and_test_code(
-        int number_of_physical_qubits,
-        int number_of_operators,
+        unsigned int number_of_physical_qubits,
+        unsigned int number_of_operators,
         float bernoulli_trial_probability
 ) {
     typename qec_type::operator_vector operators =
@@ -405,14 +405,14 @@ template<class qec_type> double generate_and_test_code(
 }
 //@+node:gcross.20100318202249.1391: ** generate_and_test_weight_minimization_problem
 template<class quantum_operator> struct always_true {
-    inline pair<bool,int> operator() (const quantum_operator & restrict op) const {
+    inline pair<bool,unsigned int> operator() (const quantum_operator & restrict op) const {
         return make_pair(true,42);
     }
 };
 
 template<class qec_type> void generate_and_test_weight_minimization_problem(
-        int number_of_physical_qubits,
-        int number_of_operators,
+        unsigned int number_of_physical_qubits,
+        unsigned int number_of_operators,
         float bernoulli_trial_probability
 ) {
     typedef typename qec_type::quantum_operator quantum_operator;
@@ -431,11 +431,11 @@ template<class qec_type> void generate_and_test_weight_minimization_problem(
     vector<pseudo_generator<quantum_operator> > pseudo_generators =
         compute_pseudo_generators<quantum_operator,operator_vector>(copy_of_operators_that_can_be_destroyed);
 
-    pair<quantum_operator,int> error_information = 
+    pair<quantum_operator,unsigned int> error_information = 
         compute_minimum_weight_operator<
             quantum_operator,
             always_true<quantum_operator>,
-            int
+            unsigned int
         >(
             pseudo_generators,
             always_true<quantum_operator>(),
@@ -444,7 +444,7 @@ template<class qec_type> void generate_and_test_weight_minimization_problem(
 
     const quantum_operator & restrict minimum_weight_operator = error_information.first;
     bool minimum_weight_operator_has_been_observed = false;
-    int minimum_weight_observed = number_of_physical_qubits+1;
+    unsigned int minimum_weight_observed = number_of_physical_qubits+1;
 
     for(unsigned int chosen_operators = 1;
         chosen_operators < (1 << number_of_operators);
@@ -457,7 +457,7 @@ template<class qec_type> void generate_and_test_weight_minimization_problem(
                 product_of_operators *= op;
             mask <<= 1;
         }
-        const int weight = product_of_operators.weight();
+        const unsigned int weight = product_of_operators.weight();
         if(weight < minimum_weight_observed) minimum_weight_observed = weight;
         if(product_of_operators == minimum_weight_operator) minimum_weight_operator_has_been_observed = true;
     }
@@ -492,7 +492,12 @@ template<class qec_type> void generate_and_test_weight_minimization_problem(
     }
 }
 //@+node:gcross.20100318202249.1393: ** run_test_batch
-template<class qec_type> bool run_test_batch(int batch_number, int number_of_cases, pair<int,int> qubit_range, pair<int,int> operator_range) {
+template<class qec_type> bool run_test_batch(
+    unsigned int batch_number,
+    unsigned int number_of_cases,
+    pair<unsigned int,unsigned int> qubit_range,
+    pair<unsigned int,unsigned int> operator_range
+) {
     cout << "Test batch " << batch_number << ":" << endl;
     cout << "\tNumber of qubits: " << qubit_range.first << "-" << qubit_range.second << endl;
     cout << "\tNumber of operators: " << operator_range.first << "-" << operator_range.second << endl;
@@ -505,7 +510,7 @@ template<class qec_type> bool run_test_batch(int batch_number, int number_of_cas
     timer T;
     progress_display show_progress( number_of_cases );
     double total_time = 0;
-    for(int i = 0; i < number_of_cases; ++i) {
+    for(unsigned int i = 0; i < number_of_cases; ++i) {
         total_time += generate_and_test_code<qec_type>(
             random_number_of_physical_qubits(),
             random_number_of_operators(),
@@ -524,7 +529,12 @@ template<class qec_type> bool run_test_batch(int batch_number, int number_of_cas
     cout << endl;
 }
 //@+node:gcross.20090522205550.5: ** run_weight_minimization_test_batch
-template<class qec_type> bool run_weight_minimization_test_batch(int batch_number, int number_of_cases, pair<int,int> qubit_range, pair<int,int> operator_range) {
+template<class qec_type> bool run_weight_minimization_test_batch(
+    unsigned int batch_number,
+    unsigned int number_of_cases,
+    pair<unsigned int,unsigned int> qubit_range,
+    pair<unsigned int,unsigned int> operator_range
+) {
     cout << "Test batch " << batch_number << ":" << endl;
     cout << "\tNumber of qubits: " << qubit_range.first << "-" << qubit_range.second << endl;
     cout << "\tNumber of operators: " << operator_range.first << "-" << operator_range.second << endl;
@@ -536,7 +546,7 @@ template<class qec_type> bool run_weight_minimization_test_batch(int batch_numbe
 
     timer T;
     progress_display show_progress( number_of_cases );
-    for(int i = 0; i < number_of_cases; ++i) {
+    for(unsigned int i = 0; i < number_of_cases; ++i) {
         generate_and_test_weight_minimization_problem<qec_type>(
             random_number_of_physical_qubits(),
             random_number_of_operators(),
@@ -549,7 +559,12 @@ template<class qec_type> bool run_weight_minimization_test_batch(int batch_numbe
     cout << endl;
 }
 //@+node:gcross.20090522205550.8: ** run_test_batch_with_fixed_number_of_qubits
-template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int batch_number, int number_of_cases, int number_of_qubits, pair<int,int> operator_range) {
+template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(
+    unsigned int batch_number,
+    unsigned int number_of_cases,
+    unsigned int number_of_qubits,
+    pair<unsigned int,unsigned int> operator_range
+) {
     cout << "Test batch " << batch_number << ":" << endl;
     cout << "\tNumber of qubits: " << number_of_qubits << endl;
     cout << "\tNumber of operators: " << operator_range.first << "-" << operator_range.second << endl;
@@ -560,7 +575,7 @@ template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int bat
     timer T;
     progress_display show_progress( number_of_cases );
     double total_time = 0;
-    for(int i = 0; i < number_of_cases; ++i) {
+    for(unsigned int i = 0; i < number_of_cases; ++i) {
         total_time += generate_and_test_code<qec_type>(
             number_of_qubits,
             random_number_of_operators(),
@@ -579,7 +594,12 @@ template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(int bat
     cout << endl;
 }
 //@+node:gcross.20100318202249.1395: ** run_weight_minimization_test_batch_with_fixed_number_of_qubits
-template<class qec_type> bool run_weight_minimization_test_batch_with_fixed_number_of_qubits(int batch_number, int number_of_cases, int number_of_qubits, pair<int,int> operator_range) {
+template<class qec_type> bool run_weight_minimization_test_batch_with_fixed_number_of_qubits(
+    unsigned int batch_number,
+    unsigned int number_of_cases,
+    unsigned int number_of_qubits,
+    pair<unsigned int,unsigned int> operator_range
+) {
     cout << "Test batch " << batch_number << ":" << endl;
     cout << "\tNumber of qubits: " << number_of_qubits << endl;
     cout << "\tNumber of operators: " << operator_range.first << "-" << operator_range.second << endl;
@@ -589,7 +609,7 @@ template<class qec_type> bool run_weight_minimization_test_batch_with_fixed_numb
 
     timer T;
     progress_display show_progress( number_of_cases );
-    for(int i = 0; i < number_of_cases; ++i) {
+    for(unsigned int i = 0; i < number_of_cases; ++i) {
         generate_and_test_weight_minimization_problem<qec_type>(
             number_of_qubits,
             random_number_of_operators(),
@@ -606,7 +626,7 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING WEIGHT MINIMIZER USING DYNAMIC VECTORS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int>,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int>,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,5), make_pair(1,3))
             (10000, make_pair(1,8), make_pair(1,8))
@@ -619,12 +639,12 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING WEIGHT MINIMIZER USING STATIC VECTORS FOR 4 QUBITS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,3))
             (10000, make_pair(1,8))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_weight_minimization_test_batch_with_fixed_number_of_qubits<static_qec<4>::type>
                 (i+1,tests[i].get<0>(),4,tests[i].get<1>());
         }
@@ -632,12 +652,12 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING WEIGHT MINIMIZER USING STATIC VECTORS FOR 8 QUBITS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,8))
             (10000, make_pair(1,16))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_weight_minimization_test_batch_with_fixed_number_of_qubits<static_qec<8>::type>
                 (i+1,tests[i].get<0>(),8,tests[i].get<1>());
         }
@@ -645,12 +665,12 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING WEIGHT MINIMIZER USING STATIC VECTORS FOR 64 QUBITS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,8))
             (10000, make_pair(1,16))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_weight_minimization_test_batch_with_fixed_number_of_qubits<static_qec<64>::type>
                 (i+1,tests[i].get<0>(),64,tests[i].get<1>());
         }
@@ -658,7 +678,7 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING ALGORITHM USING DYNAMIC VECTORS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int>,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int>,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(2,5), make_pair(1,3))
             (10000, make_pair(2,8), make_pair(1,8))
@@ -666,7 +686,7 @@ int main(int argc, char** argv) {
             //(200, make_pair(50,100), make_pair(1,200))
             //(10, make_pair(100,200), make_pair(1,400))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_test_batch<dynamic_qec_type>
                 (i+1,tests[i].get<0>(),tests[i].get<1>(),tests[i].get<2>());
         }
@@ -674,12 +694,12 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING ALGORITHM USING STATIC VECTORS FOR 4 QUBITS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,3))
             (10000, make_pair(1,8))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_test_batch_with_fixed_number_of_qubits<static_qec<4>::type>
                 (i+1,tests[i].get<0>(),4,tests[i].get<1>());
         }
@@ -687,13 +707,13 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING ALGORITHM USING STATIC VECTORS FOR 8 QUBITS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,8))
             (10000, make_pair(8,16))
             (10000, make_pair(1,50))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_test_batch_with_fixed_number_of_qubits<static_qec<8>::type>
                 (i+1,tests[i].get<0>(),8,tests[i].get<1>());
         }
@@ -701,12 +721,12 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING ALGORITHM USING STATIC VECTORS FOR 16 QUBITS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,16))
             (10000, make_pair(16,64))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_test_batch_with_fixed_number_of_qubits<static_qec<16>::type>
                 (i+1,tests[i].get<0>(),16,tests[i].get<1>());
         }
@@ -714,12 +734,12 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING ALGORITHM USING STATIC VECTORS FOR 32 QUBITS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,64))
             (10000, make_pair(64,256))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_test_batch_with_fixed_number_of_qubits<static_qec<32>::type>
                 (i+1,tests[i].get<0>(),32,tests[i].get<1>());
         }
@@ -727,11 +747,11 @@ int main(int argc, char** argv) {
 
     {
         cout << "TESTING ALGORITHM USING STATIC VECTORS FOR 64 QUBITS:" << endl << endl;
-        typedef boost::tuple<int,pair<int,int> > test_parameters;
+        typedef boost::tuple<unsigned int,pair<unsigned int,unsigned int> > test_parameters;
         const vector<test_parameters> tests = tuple_list_of
             (10000, make_pair(1,256))
             ;
-        for(int i = 0; i < tests.size(); ++i) {
+        for(unsigned int i = 0; i < tests.size(); ++i) {
             run_test_batch_with_fixed_number_of_qubits<static_qec<64>::type>
                 (i+1,tests[i].get<0>(),64,tests[i].get<1>());
         }
