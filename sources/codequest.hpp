@@ -31,6 +31,7 @@ using std::bitset;
 using std::cout;
 using std::endl;
 using std::exception;
+using std::fill;
 using std::make_pair;
 using std::ostream;
 using std::pair;
@@ -515,7 +516,7 @@ public:
     }
 
     inline void resize(const size_t new_size, const T& new_value) {
-        for(iterator ptr = data+current_size; ptr < data+new_size; ++ptr) *ptr = new_value;
+        fill(data+current_size,data+new_size,new_value);
         resize(new_size);
     }
 
