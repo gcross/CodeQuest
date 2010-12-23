@@ -58,37 +58,6 @@ public:
 //@-others
 //@+node:gmc.20080824181205.27: ** Functions
 //@+others
-//@+node:gmc.20080826191619.20: *3* dump_bits
-template<class quantum_operator> void dump_bits(const string message, const vector<quantum_operator>& generators, const vector<size_t>& permutation) {
-    cout << message;
-    for(vector<size_t>::const_iterator i = permutation.begin(); i != permutation.end(); i++)
-            cout << " " << *i;
-    cout << endl;
-    for(typename vector<quantum_operator>::const_iterator genref = generators.begin(); genref != generators.end(); genref++) {
-        cout << "\t";
-        for(vector<size_t>::const_iterator i = permutation.begin(); i != permutation.end(); i++) {
-            cout << genref->Z[*i];
-        }
-        cout << "|";
-        for(vector<size_t>::const_iterator i = permutation.begin(); i != permutation.end(); i++) {
-            cout << genref->X[*i];
-        }
-        cout << " ";
-        for(vector<size_t>::const_iterator i = permutation.begin(); i != permutation.end(); i++) {
-            if(genref->X.test(*i)) {
-                if(genref->Z.test(*i))
-                    cout << "Y";
-                else
-                    cout << "X";
-            } else if(genref->Z.test(*i)) {
-                cout << "Z";
-            } else {
-                cout << ".";
-            }
-        }
-        cout << endl;
-    }
-}
 //@+node:gmc.20080907163416.84: *3* reduce_row_echelon_block_representation
 template<class operator_vector> void reduce_row_echelon_block_representation(operator_vector& rows, const bool zero_upper=true) {
     if(rows.size()==0) return;
