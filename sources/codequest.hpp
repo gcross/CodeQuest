@@ -784,7 +784,7 @@ template<
         // We now need to make sure that all of the stabilizers commute with op by multiplying those which done by op's conjugal partner.  While we are doing this, we simultaneously filter out all of the duplicates of the stabilizer we chose to be op's conjugal partner.
         //@@c
             operator_iterator next_stabilizer_to_overwrite = stabilizers.begin();
-            BOOST_FOREACH(quantum_operator& stabilizer, stabilizers) {
+            BOOST_FOREACH(const quantum_operator& stabilizer, stabilizers) {
                 if(stabilizer==gauge_qubit.X) continue;
                 *(next_stabilizer_to_overwrite++) = (stabilizer || op) ? stabilizer : stabilizer * gauge_qubit.X;
             }
