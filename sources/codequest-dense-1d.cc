@@ -4,6 +4,7 @@
 
 //@+<< Headers >>
 //@+node:gmc.20080826191619.4: ** << Headers >>
+#include <boost/range/irange.hpp>
 #include <fstream>
 
 #include "codequest.hpp"
@@ -22,7 +23,7 @@ istream& operator>>(istream& in, quantum_operator& op) {
     string s;
     getline(in,s);
     op.resize(s.length());
-    for(unsigned int i = 0;  i < s.length(); i++) {
+    BOOST_FOREACH(size_t i, irange((size_t)0, s.length())) {
         switch(s[i]) {
             case 'x':
             case 'X':
@@ -75,8 +76,7 @@ unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=
             << endl
             << "\t" << e.operator_string << endl
             << "\t";
-        for(unsigned int j =  0; j < e.column; j++)
-            cerr.put(' ');
+        BOOST_FOREACH(size_t j, irange((size_t)0, e.column)) { cerr.put(' '); }
         cerr
             << "^" << endl
             << endl
@@ -89,12 +89,14 @@ unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=
     //@+node:gmc.20080824181205.32: *4* << Post-process to make sure all operators have the same length >>
     size_t system_size = 0;
 
-    for(vector<quantum_operator>::iterator opref = operators.begin(); opref != operators.end(); opref++)
-        if(opref->length() > system_size)
-            system_size = opref->length();
+    BOOST_FOREACH(const quantum_operator& op, operators) {
+        if(op.length() > system_size)
+            system_size = op.length();
+    }
 
-    for(vector<quantum_operator>::iterator opref = operators.begin(); opref != operators.end(); opref++)
-        opref->resize(system_size);
+    BOOST_FOREACH(quantum_operator& op, operators) {
+        op.resize(system_size);
+    }
     //@-<< Post-process to make sure all operators have the same length >>
 
     return 0;
@@ -121,8 +123,9 @@ unsigned int main_dense_1d(string filename, bool compute_weights_flag, bool yaml
         cout << "---" << endl;
 
         cout << "Measurement Operators:" << endl;
-        for(vector<quantum_operator>::iterator opref = operators.begin(); opref != operators.end(); opref++)
-            cout << "    - " << (*opref) << endl;
+        BOOST_FOREACH(const quantum_operator& op, operators) {
+            cout << "    - " << op << endl;
+        }
 
         if(operators.size() > 0) {
             qec code(operators);
@@ -140,8 +143,9 @@ unsigned int main_dense_1d(string filename, bool compute_weights_flag, bool yaml
 
         cout << operators.size() << " operators specified:" << endl;
 
-        for(vector<quantum_operator>::iterator opref = operators.begin(); opref != operators.end(); opref++)
-            cout << "\t" << (*opref) << endl;
+        BOOST_FOREACH(const quantum_operator& op, operators) {
+            cout << "\t" << op << endl;
+        }
 
         cout << endl;
 

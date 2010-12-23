@@ -15,6 +15,8 @@
 #include <exception>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/foreach.hpp>
+#include <boost/range/irange.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <bitset>
 #include <string>
 #include <functional>
@@ -26,6 +28,8 @@ namespace CodeQuest {
 //@+<< Usings >>
 //@+node:gcross.20101217153202.1438: ** << Usings >>
 using boost::dynamic_bitset;
+using boost::irange;
+using boost::make_iterator_range;
 
 using std::bitset;
 using std::cout;
@@ -173,7 +177,7 @@ inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
 
         ChoiceIterator(const unsigned int n,const unsigned int k) : vector<unsigned int>(k), n(n), k(k), valid(true) {
             assert(k <= n);
-            for(unsigned int i = 0; i < k; i++) (*this)[i] = k-1-i;
+            BOOST_FOREACH(unsigned int i, irange((unsigned int)0,k)) { (*this)[i] = k-1-i; }
         }
 
 
@@ -262,14 +266,17 @@ inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
         while(choices.valid) {
 
             vector<unsigned int> field_sizes(r);
-            for(unsigned int i = 0; i < r; i++)
+            BOOST_FOREACH(unsigned int i, irange((unsigned int)0,r)) {
                 field_sizes[i] = pseudo_generators[choices[i]].field_size;
+            }
 
             CoefficientIterator coefficients(field_sizes);
 
             while(coefficients.valid) {
                 pseudo_generators[choices[0]].set(op,coefficients[0]);
-                for(unsigned int i = 1; i < r; i++) pseudo_generators[choices[i]].multiply(op,coefficients[i]);
+                BOOST_FOREACH(unsigned int i, irange((unsigned int)1,r)) {
+                    pseudo_generators[choices[i]].multiply(op,coefficients[i]);
+                }
 
                 bits = op.X;
                 bits |= op.Z;
@@ -386,8 +393,9 @@ template<class bitset> struct quantum_operator {
         string pauli_string;
         size_t length = X.size();
         pauli_string.reserve(length);
-        for(unsigned int i = 0; i < length; ++i)
+        BOOST_FOREACH(size_t i, irange((size_t)0,length)) {
             pauli_string.push_back(pauli_char_at(i));
+        }
         return pauli_string;
     }
 
@@ -816,14 +824,14 @@ template<
 
         operator_vector list_of_operators_that_commute_with_all_stabilizers = stabilizers;
 
-        for(const_qubit_iterator qubitref = gauge_qubits.begin();  qubitref != gauge_qubits.end();  qubitref++) {
-            list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->X);
-            list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->Z);
+        BOOST_FOREACH(const qubit_type& qubit, gauge_qubits) {
+            list_of_operators_that_commute_with_all_stabilizers.push_back(qubit.X);
+            list_of_operators_that_commute_with_all_stabilizers.push_back(qubit.Z);
         }
 
-        for(const_qubit_iterator qubitref = logical_qubits.begin();  qubitref != logical_qubits.end();  qubitref++) {
-            list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->X);
-            list_of_operators_that_commute_with_all_stabilizers.push_back(qubitref->Z);
+        BOOST_FOREACH(const qubit_type& qubit, logical_qubits) {
+            list_of_operators_that_commute_with_all_stabilizers.push_back(qubit.X);
+            list_of_operators_that_commute_with_all_stabilizers.push_back(qubit.Z);
         }
 
         vector<pseudo_generator<quantum_operator> > pseudo_generators =
@@ -866,30 +874,36 @@ template<
                     marked_as_eligible_to_fix_an_error[error_index] = false;
                     assert(error && qubit_fixing_the_error_ref->Z);
                     index = error_index+1;
-                    for(qubit_iterator qubit_to_fix_ref = qubit_fixing_the_error_ref+1; qubit_to_fix_ref != logical_qubits_end_of_optimized; ++qubit_to_fix_ref) {
-                        if(marked_as_eligible_to_fix_an_error[index] && (error && qubit_to_fix_ref->Z)) {
-                            qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
-                            qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
+                    BOOST_FOREACH(
+                        qubit_type& qubit_to_fix,
+                        make_iterator_range(qubit_fixing_the_error_ref+1,logical_qubits_end_of_optimized)
+                    ) {
+                        if(marked_as_eligible_to_fix_an_error[index] && (error && qubit_to_fix.Z)) {
+                            qubit_fixing_the_error_ref->X *= qubit_to_fix.X;
+                            qubit_to_fix.Z *= qubit_fixing_the_error_ref->Z;
                         }
-                        assert((!marked_as_eligible_to_fix_an_error[index]) || (error || qubit_to_fix_ref->Z));
+                        assert((!marked_as_eligible_to_fix_an_error[index]) || (error || qubit_to_fix.Z));
                         ++index;
                     }
-                    for(qubit_iterator qubit_to_fix_ref = logical_qubits_end_of_optimized; qubit_to_fix_ref != logical_qubits_end; ++qubit_to_fix_ref) {
-                        if(error && qubit_to_fix_ref->Z) {
-                            if(error && qubit_to_fix_ref->X) {
-                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
-                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->Z;
-                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
-                                qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->Z;
+                    BOOST_FOREACH(
+                        qubit_type& qubit_to_fix,
+                        make_iterator_range(logical_qubits_end_of_optimized,logical_qubits_end)
+                    ) {
+                        if(error && qubit_to_fix.Z) {
+                            if(error && qubit_to_fix.X) {
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix.X;
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix.Z;
+                                qubit_to_fix.Z *= qubit_fixing_the_error_ref->Z;
+                                qubit_to_fix.X *= qubit_fixing_the_error_ref->Z;
                             } else {
-                                qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->X;
-                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->Z;
+                                qubit_fixing_the_error_ref->X *= qubit_to_fix.X;
+                                qubit_to_fix.Z *= qubit_fixing_the_error_ref->Z;
                             }
-                        } else if(error && qubit_to_fix_ref->X) {
-                            qubit_fixing_the_error_ref->X *= qubit_to_fix_ref->Z;
-                            qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->Z;
+                        } else if(error && qubit_to_fix.X) {
+                            qubit_fixing_the_error_ref->X *= qubit_to_fix.Z;
+                            qubit_to_fix.X *= qubit_fixing_the_error_ref->Z;
                         }
-                        assert((error || qubit_to_fix_ref->X) && (error || qubit_to_fix_ref->Z));
+                        assert((error || qubit_to_fix.X) && (error || qubit_to_fix.Z));
                     }
                     //@-<< Case 1 >>
                     break;
@@ -907,22 +921,25 @@ template<
                     ++number_of_optimized_logical_qubits;
                     ++logical_qubits_end_of_optimized;
 
-                    for(qubit_iterator qubit_to_fix_ref = logical_qubits_end_of_optimized; qubit_to_fix_ref != logical_qubits_end; ++qubit_to_fix_ref) {
-                        if(error && qubit_to_fix_ref->Z) {
-                            if(error && qubit_to_fix_ref->X) {
-                                qubit_fixing_the_error_ref->Z *= qubit_to_fix_ref->X;
-                                qubit_fixing_the_error_ref->Z *= qubit_to_fix_ref->Z;
-                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->X;
-                                qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->X;
+                    BOOST_FOREACH(
+                        qubit_type& qubit_to_fix,
+                        make_iterator_range(logical_qubits_end_of_optimized,logical_qubits_end)
+                    ) {
+                        if(error && qubit_to_fix.Z) {
+                            if(error && qubit_to_fix.X) {
+                                qubit_fixing_the_error_ref->Z *= qubit_to_fix.X;
+                                qubit_fixing_the_error_ref->Z *= qubit_to_fix.Z;
+                                qubit_to_fix.Z *= qubit_fixing_the_error_ref->X;
+                                qubit_to_fix.X *= qubit_fixing_the_error_ref->X;
                             } else {
-                                qubit_fixing_the_error_ref->Z *= qubit_to_fix_ref->X;
-                                qubit_to_fix_ref->Z *= qubit_fixing_the_error_ref->X;
+                                qubit_fixing_the_error_ref->Z *= qubit_to_fix.X;
+                                qubit_to_fix.Z *= qubit_fixing_the_error_ref->X;
                             }
-                        } else if(error && qubit_to_fix_ref->X) {
-                            qubit_fixing_the_error_ref->Z *= qubit_to_fix_ref->Z;
-                            qubit_to_fix_ref->X *= qubit_fixing_the_error_ref->X;
+                        } else if(error && qubit_to_fix.X) {
+                            qubit_fixing_the_error_ref->Z *= qubit_to_fix.Z;
+                            qubit_to_fix.X *= qubit_fixing_the_error_ref->X;
                         }
-                        assert((error || qubit_to_fix_ref->X) && (error || qubit_to_fix_ref->Z));
+                        assert((error || qubit_to_fix.X) && (error || qubit_to_fix.Z));
                     }
                     if(error && qubit_fixing_the_error_ref->Z)
                         qubit_fixing_the_error_ref->Z *= qubit_fixing_the_error_ref->X;
@@ -969,7 +986,7 @@ template<
         //@+at
         // Loop though all of the qubit indices, looking for ones that have not been taken by a generator
         //@@c
-        for(size_t current_qubit_index = 0; current_qubit_index < number_of_physical_qubits; ++current_qubit_index) {
+        BOOST_FOREACH(size_t current_qubit_index, irange((size_t)0,number_of_physical_qubits)) {
         //@+at
         // If this qubit index has been taken by a generator, then skip to the next.
         //@@c
@@ -1022,28 +1039,31 @@ template<
 
         out << "Stabilizers:" << endl;
 
-        for(const_operator_iterator opref = stabilizers.begin(); opref != stabilizers.end(); opref++)
-            out << "    - " << opref->to_string() << endl;
+        BOOST_FOREACH(const quantum_operator& op, stabilizers) {
+            out << "    - " << op.to_string() << endl;
+        }
 
         out << "Gauge Qubits:" << endl;
 
-        for(unsigned int i = 0; i < gauge_qubits.size(); i++) {
-            out << "    - X: " << gauge_qubits[i].X.to_string() << endl;
-            out << "      Y: " << gauge_qubits[i].Y.to_string() << endl;
-            out << "      Z: " << gauge_qubits[i].Z.to_string() << endl;
+        BOOST_FOREACH(const qubit_type& qubit, gauge_qubits) {
+            out << "    - X: " << qubit.X.to_string() << endl;
+            out << "      Y: " << qubit.Y.to_string() << endl;
+            out << "      Z: " << qubit.Z.to_string() << endl;
         }
 
         out << "Logical Qubits:" << endl;
 
-        for(unsigned int i = 0; i < logical_qubits.size(); i++) {
-            out << "    - X: " << logical_qubits[i].X.to_string() << endl;
-            out << "      Y: " << logical_qubits[i].Y.to_string() << endl;
-            out << "      Z: " << logical_qubits[i].Z.to_string() << endl;
+        { int i = 0;
+        BOOST_FOREACH(const qubit_type& qubit, logical_qubits) {
+            out << "    - X: " << qubit.X.to_string() << endl;
+            out << "      Y: " << qubit.Y.to_string() << endl;
+            out << "      Z: " << qubit.Z.to_string() << endl;
             if(i < number_of_optimized_logical_qubits) {
                 out << "      Distance: " << logical_qubit_error_distances[i] << endl;
                 out << "      Minimum weight error: " << logical_qubit_errors[i].to_string() << endl;
             }
-        }
+            ++i;
+        }}
 
         out << "Summary:" << endl;
         out << "    Number of physical qubits: " << number_of_physical_qubits << endl;
