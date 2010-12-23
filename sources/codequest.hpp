@@ -25,6 +25,8 @@ namespace CodeQuest {
 
 //@+<< Usings >>
 //@+node:gcross.20101217153202.1438: ** << Usings >>
+using boost::dynamic_bitset;
+
 using std::bitset;
 using std::cout;
 using std::endl;
@@ -390,9 +392,9 @@ template<class bitset> struct quantum_operator {
 
 };
 
-struct dynamic_quantum_operator : public quantum_operator<boost::dynamic_bitset<unsigned int> > {
+struct dynamic_quantum_operator : public quantum_operator<dynamic_bitset<unsigned int> > {
 
-    typedef boost::dynamic_bitset<unsigned int> BitsetType;
+    typedef dynamic_bitset<unsigned int> BitsetType;
     typedef quantum_operator<BitsetType> BaseType;
     using BaseType::X;
     using BaseType::Z;
