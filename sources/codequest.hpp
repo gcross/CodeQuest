@@ -1045,16 +1045,18 @@ template<
 
         out << "Gauge Qubits:" << endl;
 
-        BOOST_FOREACH(const qubit_type& qubit, gauge_qubits) {
+        { int i = 0; BOOST_FOREACH(const qubit_type& qubit, gauge_qubits) {
+            out << "# " << (i+1) << endl;
             out << "    - X: " << qubit.X.to_string() << endl;
             out << "      Y: " << qubit.Y.to_string() << endl;
             out << "      Z: " << qubit.Z.to_string() << endl;
-        }
+            ++i;
+        }}
 
         out << "Logical Qubits:" << endl;
 
-        { int i = 0;
-        BOOST_FOREACH(const qubit_type& qubit, logical_qubits) {
+        { int i = 0; BOOST_FOREACH(const qubit_type& qubit, logical_qubits) {
+            out << "# " << (i+1) << endl;
             out << "    - X: " << qubit.X.to_string() << endl;
             out << "      Y: " << qubit.Y.to_string() << endl;
             out << "      Z: " << qubit.Z.to_string() << endl;
