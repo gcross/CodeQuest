@@ -102,7 +102,7 @@ unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=
     return 0;
 }
 //@+node:gmc.20080824181205.29: ** main_dense_1d
-unsigned int main_dense_1d(string filename, bool compute_weights_flag, bool yaml_flag) {
+unsigned int main_dense_1d(string filename, bool compute_weights_flag) {
     vector<quantum_operator> operators;
 
     unsigned int result;
@@ -117,45 +117,18 @@ unsigned int main_dense_1d(string filename, bool compute_weights_flag, bool yaml
     if(result != 0)
         return result;
 
-    if(yaml_flag) {
-        //@+<< YAML output >>
-        //@+node:gcross.20101123222425.2068: *3* << YAML output >>
-        cout << "---" << endl;
+    cout << "---" << endl;
 
-        cout << "Measurement Operators:" << endl;
-        BOOST_FOREACH(const quantum_operator& op, operators) {
-            cout << "    - " << op << endl;
-        }
+    cout << "Measurement Operators:" << endl;
+    BOOST_FOREACH(const quantum_operator& op, operators) {
+        cout << "    - " << op << endl;
+    }
+    cout << endl;
 
-        if(operators.size() > 0) {
-            qec code(operators);
-            if(compute_weights_flag) code.optimize_logical_qubits(false);
-            code.writeYAML(cout);
-        }
-        //@-<< YAML output >>
-    } else {
-        //@+<< Verbose output >>
-        //@+node:gcross.20101123222425.2067: *3* << Verbose output >>
-        if(operators.size() == 0) {
-            cout << "No operators specified." << endl;
-            return 0;
-        }
-
-        cout << operators.size() << " operators specified:" << endl;
-
-        BOOST_FOREACH(const quantum_operator& op, operators) {
-            cout << "\t" << op << endl;
-        }
-
-        cout << endl;
-
+    if(operators.size() > 0) {
         qec code(operators);
-        if(compute_weights_flag) code.optimize_logical_qubits();
-
-        cout << code;
-
-        cout << endl;
-        //@-<< Verbose output >>
+        if(compute_weights_flag) code.optimize_logical_qubits(false);
+        cout << code << endl;
     }
 
 }

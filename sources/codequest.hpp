@@ -1032,103 +1032,51 @@ template<
         assert(logical_qubits.size() == number_of_logical_qubits());
         //@-<< Compute logical qubits >>
     }
-    //@+node:gcross.20101123222425.2064: *4* writeYAML
-    void writeYAML(ostream& out) const {
-
-        using namespace std;
-
-        out << "Stabilizers:" << endl;
-
-        BOOST_FOREACH(const quantum_operator& op, stabilizers) {
-            out << "    - " << op.to_string() << endl;
-        }
-
-        out << "Gauge Qubits:" << endl;
-
-        { int i = 0; BOOST_FOREACH(const qubit_type& qubit, gauge_qubits) {
-            out << "# " << (i+1) << endl;
-            out << "    - X: " << qubit.X.to_string() << endl;
-            out << "      Y: " << qubit.Y.to_string() << endl;
-            out << "      Z: " << qubit.Z.to_string() << endl;
-            ++i;
-        }}
-
-        out << "Logical Qubits:" << endl;
-
-        { int i = 0; BOOST_FOREACH(const qubit_type& qubit, logical_qubits) {
-            out << "# " << (i+1) << endl;
-            out << "    - X: " << qubit.X.to_string() << endl;
-            out << "      Y: " << qubit.Y.to_string() << endl;
-            out << "      Z: " << qubit.Z.to_string() << endl;
-            if(i < number_of_optimized_logical_qubits) {
-                out << "      Distance: " << logical_qubit_error_distances[i] << endl;
-                out << "      Minimum weight error: " << logical_qubit_errors[i].to_string() << endl;
-            }
-            ++i;
-        }}
-
-        out << "Summary:" << endl;
-        out << "    Number of physical qubits: " << number_of_physical_qubits << endl;
-        out << "    Number of stabilizers:     " << stabilizers.size() << endl;
-        out << "    Number of gauge qubits:    " << gauge_qubits.size() << endl;
-        out << "    Number of logical qubits:  " << logical_qubits.size() << endl;
-
-    }
     //@-others
 };
 
 //@+<< I/O >>
 //@+node:gcross.20101217153202.1447: *4* << I/O >>
-template<class quantum_operator, class B, class operator_vector_type, class D> ostream& operator<<(ostream& out, const qec<quantum_operator,B,operator_vector_type,D>& code) {
+template<class quantum_operator, class qubit_vector_type, class operator_vector_type, class D> ostream& operator<<(ostream& out, const qec<quantum_operator,qubit_vector_type,operator_vector_type,D>& code) {
+    typedef typename qubit_vector_type::value_type qubit_type;
 
-    out << endl << "Stabilizers:" << endl;
-
+    out << "Stabilizers:" << endl;
     BOOST_FOREACH(const quantum_operator& op, code.stabilizers) {
-        out << "\t" << op << endl;
+        out << "    - " << op.to_string() << endl;
     }
+    out << endl;
 
-    out << endl << "Gauge Qubits:" << endl;
+    out << "Gauge Qubits:" << endl;
 
-    for(unsigned int i = 0; i < code.gauge_qubits.size(); i++) {
-        out << "----- QUBIT " << (i+1) << "-----" << endl;
-        out << "\tLogical X: " << code.gauge_qubits[i].X << endl;
-        out << "\tLogical Y: " << code.gauge_qubits[i].Y << endl;
-        out << "\tLogical Z: " << code.gauge_qubits[i].Z << endl;
-    }
+    { int i = 0; BOOST_FOREACH(const qubit_type& qubit, code.gauge_qubits) {
+        out << "# " << (i+1) << endl;
+        out << "    - X: " << qubit.X.to_string() << endl;
+        out << "      Y: " << qubit.Y.to_string() << endl;
+        out << "      Z: " << qubit.Z.to_string() << endl;
+        ++i;
+    }}
+    out << endl;
 
-    out << endl << "Logical Qubits:" << endl;
-
-    for(unsigned int i = 0; i < code.logical_qubits.size(); i++) {
-        out << "----- QUBIT " << (i+1) << "-----" << endl;
-        out << "\tLogical X: " << code.logical_qubits[i].X << endl;
-        out << "\tLogical Y: " << code.logical_qubits[i].Y << endl;
-        out << "\tLogical Z: " << code.logical_qubits[i].Z << endl;
+    out << "Logical Qubits:" << endl;
+    { int i = 0; BOOST_FOREACH(const qubit_type& qubit, code.logical_qubits) {
+        out << "# " << (i+1) << endl;
+        out << "    - X: " << qubit.X.to_string() << endl;
+        out << "      Y: " << qubit.Y.to_string() << endl;
+        out << "      Z: " << qubit.Z.to_string() << endl;
         if(i < code.number_of_optimized_logical_qubits) {
-            cout << "\tDistance: " << code.logical_qubit_error_distances[i] << endl;
-            cout << "\tMinimum weight error: " << code.logical_qubit_errors[i] << endl;
+            out << "      Distance: " << code.logical_qubit_error_distances[i] << endl;
+            out << "      Minimum weight error: " << code.logical_qubit_errors[i].to_string() << endl;
         }
-    }
-
-    out << endl << endl;
-
-
-    cout << code.number_of_physical_qubits << " physical qubit";
-    if(code.number_of_physical_qubits!=1) cout << "s";
-    cout << endl;
-
-    out << code.stabilizers.size() << " stabilizer";
-    if(code.stabilizers.size()!=1) out << "s";
+        ++i;
+    }}
     out << endl;
 
-    out << code.gauge_qubits.size() << " gauge qubit";
-    if(code.gauge_qubits.size()!=1) out << "s";
-    out << endl;
+    out << "Summary:" << endl;
+    out << "    Number of physical qubits: " << code.number_of_physical_qubits << endl;
+    out << "    Number of stabilizers:     " << code.stabilizers.size() << endl;
+    out << "    Number of gauge qubits:    " << code.gauge_qubits.size() << endl;
+    out << "    Number of logical qubits:  " << code.logical_qubits.size() << endl;
 
-    out << code.logical_qubits.size() << " logical qubit";
-    if(code.logical_qubits.size()!=1) out << "s";
-    out << endl;
-
-    return out;
 }
 //@-<< I/O >>
 //@-others
