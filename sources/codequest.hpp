@@ -1077,6 +1077,7 @@ template<class quantum_operator, class qubit_vector_type, class operator_vector_
     out << "    Number of gauge qubits:    " << code.gauge_qubits.size() << endl;
     out << "    Number of logical qubits:  " << code.logical_qubits.size() << endl;
 
+    return out;
 }
 //@-<< I/O >>
 //@-others
