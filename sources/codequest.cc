@@ -2,12 +2,14 @@
 //@+node:gcross.20081119221421.5: * @thin codequest.cc
 //@@language cplusplus
 
+#include <boost/function.hpp>
 #include <string>
 #include <iostream>
 #include <vector>
 
 #include <tclap/CmdLine.h>
 
+using namespace boost;
 using namespace std;
 using namespace TCLAP;
 
@@ -30,13 +32,15 @@ try {
 
     UnlabeledValueArg<string> filenameArg("filename","Input file with quantum operators;  if no file is specified, then defaults to standard input.",false,"","filename",cmd);
 
-	cmd.parse( argc, argv );
+    cmd.parse( argc, argv );
 
-    if(formatArg.getValue().compare("sparse") == 0) {
-        return main_sparse(filenameArg.getValue(),weightsSwitch.getValue());
-    } else {
-        return main_dense_1d(filenameArg.getValue(),weightsSwitch.getValue());
-    }
+    function<int (string filename, bool compute_weights_flag)> nextMain =
+        formatArg.getValue().compare("sparse") == 0
+            ? main_sparse
+            : main_dense_1d
+    ;
+
+    return nextMain(filenameArg.getValue(),weightsSwitch.getValue());
 } catch (ArgException &e)  // catch any exceptions
 	{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; }
 }
