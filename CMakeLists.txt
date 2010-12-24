@@ -3,7 +3,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (CodeQuest)
 
-find_package (Boost 1.29 REQUIRED)
+find_package (Boost 1.43 REQUIRED)
 find_path (TCLAP_INCLUDE_DIR "tclap/CmdLine.h" ${CMAKE_INCLUDE_PATH})
 
 if(TCLAP_INCLUDE_DIR)
