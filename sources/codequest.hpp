@@ -177,7 +177,7 @@ inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
 
         ChoiceIterator(const unsigned int n,const unsigned int k) : vector<unsigned int>(k), n(n), k(k), valid(true) {
             assert(k <= n);
-            BOOST_FOREACH(unsigned int i, irange((unsigned int)0,k)) { (*this)[i] = k-1-i; }
+            BOOST_FOREACH(unsigned int i, irange(0u,k)) { (*this)[i] = k-1-i; }
         }
 
 
@@ -266,7 +266,7 @@ inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
         while(choices.valid) {
 
             vector<unsigned int> field_sizes(r);
-            BOOST_FOREACH(unsigned int i, irange((unsigned int)0,r)) {
+            BOOST_FOREACH(unsigned int i, irange(0u,r)) {
                 field_sizes[i] = pseudo_generators[choices[i]].field_size;
             }
 
@@ -274,7 +274,7 @@ inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
 
             while(coefficients.valid) {
                 pseudo_generators[choices[0]].set(op,coefficients[0]);
-                BOOST_FOREACH(unsigned int i, irange((unsigned int)1,r)) {
+                BOOST_FOREACH(unsigned int i, irange(1u,r)) {
                     pseudo_generators[choices[i]].multiply(op,coefficients[i]);
                 }
 

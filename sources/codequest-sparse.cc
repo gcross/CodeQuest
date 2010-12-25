@@ -181,7 +181,7 @@ void print_op(const char* prefix, const unsigned int width, const unsigned int h
         --y;
         if((not skip_first_prefix) or (y < (height-1)))
             cout << prefix;
-        BOOST_FOREACH(unsigned int x, irange((unsigned int)0,width)) {
+        BOOST_FOREACH(unsigned int x, irange(0u,width)) {
             cout << grid[x][y];
         }
         cout << endl;
@@ -296,7 +296,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
             number_of_coordinates = 0;
             //@+<< Use existing ordering of qubits as the x coordinate >>
             //@+node:gmc.20080826191619.27: *4* << Use existing ordering of qubits as the x coordinate >>
-            BOOST_FOREACH(unsigned int i, irange((unsigned int)0,number_of_qubits)) {
+            BOOST_FOREACH(unsigned int i, irange(0u,number_of_qubits)) {
                 coordinate[0] = i;
                 qubit_coordinates.push_back(coordinate);
             }
