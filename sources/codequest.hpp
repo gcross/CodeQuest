@@ -690,6 +690,7 @@ template<
     //@+<< Fields >>
     //@+node:gcross.20090521215822.10: *4* << Fields >>
     const size_t number_of_physical_qubits;
+    bool optimized;
 
     operator_vector stabilizers;
     qubit_vector gauge_qubits, logical_qubits;
@@ -698,8 +699,6 @@ template<
 
     index_vector logical_qubit_error_distances;
     operator_vector logical_qubit_errors;
-    size_t number_of_optimized_logical_qubits;
-    bitset marked_as_eligible_to_fix_an_error;
     //@-<< Fields >>
 
     //@+others
@@ -749,7 +748,7 @@ template<
     qec(const operator_vector operators, const bool compute_logicals=true) :
         number_of_physical_qubits(operators[0].length()),
         post_stabilizer_elimination_state(operators[0].length()),
-        number_of_optimized_logical_qubits(0)
+        optimized(false)
     {
 
         if(operators.size()==0) return;
@@ -810,9 +809,6 @@ template<
             assert(logical_qubits.size() == number_of_logical_qubits());
         }
 
-        quantum_operator::resize_bitset(marked_as_eligible_to_fix_an_error,logical_qubits.size());
-        marked_as_eligible_to_fix_an_error.set();
-
     }
 
     //@+node:gcross.20081119221421.3: *4* optimize_logical_qubits
@@ -821,6 +817,7 @@ template<
         const size_t number_of_logical_qubits = logical_qubits.size();
 
         if(number_of_logical_qubits == 0) return;
+        if(optimized) return;
 
         operator_vector list_of_operators_that_commute_with_all_stabilizers = stabilizers;
 
@@ -836,6 +833,12 @@ template<
 
         vector<pseudo_generator<quantum_operator> > pseudo_generators =
             compute_pseudo_generators<quantum_operator,operator_vector>(list_of_operators_that_commute_with_all_stabilizers);
+
+        unsigned int number_of_optimized_logical_qubits = 0;
+
+        bitset marked_as_eligible_to_fix_an_error;
+        quantum_operator::resize_bitset(marked_as_eligible_to_fix_an_error,logical_qubits.size());
+        marked_as_eligible_to_fix_an_error.set();
 
         while (number_of_optimized_logical_qubits < number_of_logical_qubits) {
 
@@ -955,6 +958,8 @@ template<
         BOOST_FOREACH(qubit_type& q, logical_qubits) {
             q.Y = q.Z*q.X;
         }
+
+        optimized = true;
     }
     //@+node:gcross.20081203190837.3: *4* number_of_logical_qubits
     size_t number_of_logical_qubits() const {
@@ -1063,7 +1068,7 @@ template<class quantum_operator, class qubit_vector_type, class operator_vector_
         out << "    - X: " << qubit.X.to_string() << endl;
         out << "      Y: " << qubit.Y.to_string() << endl;
         out << "      Z: " << qubit.Z.to_string() << endl;
-        if(i < code.number_of_optimized_logical_qubits) {
+        if(code.optimized) {
             out << "      Distance: " << code.logical_qubit_error_distances[i] << endl;
             out << "      Minimum weight error: " << code.logical_qubit_errors[i].to_string() << endl;
         }

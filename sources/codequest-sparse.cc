@@ -397,7 +397,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
         print_op("\t|||||||||||||    ",width,height,qubit_coordinates,code.logical_qubits[i].Y,true);
         cout <<  "\t| Logical Z |    ";
         print_op("\t|||||||||||||    ",width,height,qubit_coordinates,code.logical_qubits[i].Z,true);
-        if(i < code.number_of_optimized_logical_qubits) {
+        if(code.optimized) {
             cout << "\t Distance: " << code.logical_qubit_error_distances[i] << endl;
             cout << "\t Minimum weight error:" << endl;
             print_op("\t       ",width,height,qubit_coordinates,code.logical_qubit_errors[i],false);
