@@ -5,8 +5,9 @@
 //@+<< Headers >>
 //@+node:gmc.20080826191619.11: ** << Headers >>
 #include <boost/algorithm/string.hpp>
-#include <boost/range/irange.hpp>
 #include <boost/array.hpp>
+#include <boost/range/irange.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -21,6 +22,7 @@
 using namespace CodeQuest;
 using namespace std;
 using namespace boost;
+using namespace boost::adaptors;
 using namespace boost::algorithm;
 using namespace __gnu_cxx;
 //@-<< Headers >>
@@ -108,20 +110,20 @@ unsigned int read_in_operators(vector<dynamic_quantum_operator>& operators, vect
                 while((*charref == ' ') and (charref != s.end())) charref++;
             }
             quantum_operator op(number_of_qubits);
-            for(map<size_t,pauli_pair>::iterator i = opmap.begin(); i != opmap.end(); i++) {
-                op.X[i->first] = i->second.first;
-                op.Z[i->first] = i->second.second;
+            typedef pair<size_t,pauli_pair> entry_t;
+            BOOST_FOREACH(const entry_t& entry, opmap) {
+                op.X[entry.first] = entry.second.first;
+                op.Z[entry.first] = entry.second.second;
             }
             operators.push_back(op);
         } catch(string& message) {
-            size_t current_column_number = (charref-s.begin())+1;
+            unsigned int current_column_number = (charref-s.begin())+1;
             cerr
                 << "Error in column " << current_column_number << " of line " << current_line_number << endl
                 << endl
                 << "\t" << s << endl
                 << "\t";
-            for(unsigned int j =  1; j < current_column_number; j++)
-                cerr.put(' ');
+            BOOST_FOREACH(size_t j, irange(1u,current_column_number)) { cerr.put(' '); }
             cerr
                 << "^" << endl
                 << endl
@@ -177,8 +179,7 @@ void print_op(const char* prefix, const unsigned int width, const unsigned int h
         grid[x][y] = op.pauli_char_at(i);
         ++i;
     }
-    for(unsigned int y = height; y > 0;) {
-        --y;
+    BOOST_FOREACH(unsigned int y, irange(0u,height) | reversed) {
         if((not skip_first_prefix) or (y < (height-1)))
             cout << prefix;
         BOOST_FOREACH(unsigned int x, irange(0u,width)) {
@@ -236,16 +237,18 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     //@+<< Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
     //@+node:gmc.20080826191619.26: *4* << Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
-    vector<string>::const_iterator labelref = qubit_labels.begin();
+    {
+        vector<string>::const_iterator labelref = qubit_labels.begin();
 
-    number_of_coordinates = count_coordinates_in(*labelref);
+        number_of_coordinates = count_coordinates_in(*labelref);
 
-    if(number_of_coordinates != 0)
-        for(labelref++; labelref != qubit_labels.end(); labelref++)
-            if(count_coordinates_in(*labelref) != number_of_coordinates) {
-                number_of_coordinates = 0;
-                break;
-            }
+        if(number_of_coordinates != 0)
+            for(labelref++; labelref != qubit_labels.end(); labelref++)
+                if(count_coordinates_in(*labelref) != number_of_coordinates) {
+                    number_of_coordinates = 0;
+                    break;
+                }
+    }
     //@-<< Count number of dimensions in coordinate (0 if labels aren't coordinates) >>
 
     vector<CoordinateVector> qubit_coordinates;
@@ -259,7 +262,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
         case 1:
             //@+<< Process 1D coordinates >>
             //@+node:gmc.20080826191619.28: *4* << Process 1D coordinates >>
-            for(labelref = qubit_labels.begin(); labelref != qubit_labels.end(); labelref++) {
+            BOOST_FOREACH(const string& label, qubit_labels) {
                 const int x = tonumeric(label);
                 if(x<mins[0])
                     mins[0] = x;
@@ -274,11 +277,11 @@ int main_sparse(string filename, bool compute_weights_flag) {
         case 2:
             //@+<< Process 2D coordinates >>
             //@+node:gmc.20080826191619.30: *4* << Process 2D coordinates >>
-            for(labelref = qubit_labels.begin(); labelref != qubit_labels.end(); labelref++) {
+            BOOST_FOREACH(const string& label, qubit_labels) {
                 vector<string> coordinates;
-                split(coordinates,*labelref,is_any_of(","));
+                split(coordinates,label,is_any_of(","));
 
-                BOOST_FOREACH(unsigned int i, irange(0,2)) {
+                BOOST_FOREACH(unsigned int i, irange(0u,2u)) {
                     string& s = coordinates[i];
                     trim(s);
                     const int c = tonumeric(s);
@@ -317,7 +320,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
         //@@c
 
         BOOST_FOREACH(CoordinateVector& coordinates, qubit_coordinates) {
-            BOOST_FOREACH(unsigned int i, irange(0,2)) {
+            BOOST_FOREACH(unsigned int i, irange(0u,2u)) {
                 coordinates[i] -= mins[i];
             }
         }
@@ -338,9 +341,12 @@ int main_sparse(string filename, bool compute_weights_flag) {
             break;
         default:
             cout << "Label cannot be interpreted as coordinates.  Numbering of labels is as follows:" << endl;
-            labelref = qubit_labels.begin();
-            for(unsigned int i = 1; labelref != qubit_labels.end(); i++, labelref++)
-                cout << setw(8) << i << ":" << *labelref << endl;
+            {
+                unsigned int i = 1u;
+                BOOST_FOREACH(const string& label, qubit_labels) {
+                    cout << setw(8) << i++ << ":" << label << endl;
+                }
+            }
             break;
     }
 
