@@ -1103,6 +1103,12 @@ protected:
 
 //@-others
 
+//@+<< Aliases >>
+//@+node:gcross.20101224191604.4185: ** << Aliases >>
+typedef qec<dynamic_quantum_operator> dynamic_qec;
+typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
+//@-<< Aliases >>
+
 }
 
 
