@@ -127,7 +127,7 @@ unsigned int main_dense_1d(string filename, bool compute_weights_flag) {
 
     if(operators.size() > 0) {
         qec code(operators);
-        if(compute_weights_flag) code.optimize_logical_qubits(false);
+        if(compute_weights_flag) code.optimize_logical_qubits();
         cout << code << endl;
     }
 

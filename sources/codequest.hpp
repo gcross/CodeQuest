@@ -812,7 +812,7 @@ template<
     }
 
     //@+node:gcross.20081119221421.3: *4* optimize_logical_qubits
-    void optimize_logical_qubits(const bool verbose=true) {
+    void optimize_logical_qubits(const bool verbose=false) {
 
         const size_t number_of_logical_qubits = logical_qubits.size();
 
