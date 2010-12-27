@@ -35,7 +35,7 @@ istream& operator>>(istream& in, quantum_operator& op);
 
 ostream& operator<<(ostream& out, const qec& code);
 
-typedef array<unsigned int,2> CoordinateVector;
+typedef array<int,2> CoordinateVector;
 //@-<< Declarations >>
 
 //@+others
@@ -145,9 +145,9 @@ bool isntnumeric(const string& s) {
     return find_if(s.begin(),s.end(),isntdigit) != s.end();
 }
 //@+node:gmc.20080826191619.29: *3* tonumeric
-unsigned int tonumeric(const string &s) {
+int tonumeric(const string &s) {
     istringstream ss(s);
-    unsigned int i;
+    int i;
     ss >> i;
     return i;
 }
@@ -250,8 +250,8 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     vector<CoordinateVector> qubit_coordinates;
 
-    array<unsigned int,2> mins;  mins.assign(0);
-    array<unsigned int,2> maxes;  maxes.assign(0);
+    array<int,2> mins;  mins.assign(0);
+    array<int,2> maxes;  maxes.assign(0);
 
     CoordinateVector coordinate;  coordinate.assign(0);
 
@@ -260,7 +260,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
             //@+<< Process 1D coordinates >>
             //@+node:gmc.20080826191619.28: *4* << Process 1D coordinates >>
             for(labelref = qubit_labels.begin(); labelref != qubit_labels.end(); labelref++) {
-                const unsigned int x = tonumeric(*labelref);
+                const int x = tonumeric(label);
                 if(x<mins[0])
                     mins[0] = x;
                 if(x>maxes[0])
@@ -281,7 +281,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
                 BOOST_FOREACH(unsigned int i, irange(0,2)) {
                     string& s = coordinates[i];
                     trim(s);
-                    const unsigned int c = tonumeric(s);
+                    const int c = tonumeric(s);
                     if(c<mins[i])
                         mins[i] = c;
                     if(c>maxes[i])
