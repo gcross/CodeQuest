@@ -27,6 +27,7 @@
 
 //@+<< Namespace Imports >>
 //@+node:gcross.20090522205550.2: ** << Namespace Imports >>
+using namespace CodeQuest;
 using namespace boost;
 using namespace boost::assign;
 using namespace std;

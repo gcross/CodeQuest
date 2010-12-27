@@ -24,6 +24,8 @@ endif ()
 
 message (STATUS "Build type is " ${CMAKE_BUILD_TYPE})
 
+include_directories("sources")
+
 add_subdirectory ("sources")
 add_subdirectory ("documentation")
 add_subdirectory ("tests")
