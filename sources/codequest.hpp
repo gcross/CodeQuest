@@ -745,7 +745,7 @@ template<
 
     };
     //@+node:gmc.20080824181205.26: *4* constructor
-    qec(const operator_vector operators, const bool compute_logicals=true) :
+    qec(const operator_vector& operators, const bool compute_logicals=true) :
         number_of_physical_qubits(operators[0].length()),
         post_stabilizer_elimination_state(operators[0].length()),
         optimized(false)
