@@ -1,4 +1,5 @@
 *.o
+*.a
 *.pyc
 programs
 test
@@ -7,3 +8,10 @@ CMakeCache.txt
 Makefile
 cmake_install.cmake
 install_manifest.txt
+tests/test
+tests/test-minimizer
+tests/test-minimizer-dynamic
+tests/test-minimizer-static
+tests/test-solver
+tests/test-solver-dynamic
+tests/test-solver-static

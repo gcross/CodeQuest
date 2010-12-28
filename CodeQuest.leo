@@ -48,7 +48,30 @@
 </v>
 <v t="gcross.20090521215822.28"><vh>Testing</vh>
 <v t="gcross.20090521215822.29"><vh>@path tests</vh>
-<v t="gcross.20090521215822.19"><vh>@thin randomized-tests.cc</vh></v>
+<v t="gcross.20090521215822.19"><vh>@thin randomized-tests.hpp</vh></v>
+<v t="gcross.20101228150742.1468"><vh>@thin test.cpp</vh></v>
+<v t="gcross.20101228150742.1466"><vh>@thin test-minimizer.cpp</vh></v>
+<v t="gcross.20101228150742.1464"><vh>@thin test-minimizer-dynamic.cpp</vh></v>
+<v t="gcross.20101228150742.1462"><vh>@thin test-minimizer-static.cpp</vh></v>
+<v t="gcross.20101228150742.1470"><vh>@thin test-solver.cpp</vh></v>
+<v t="gcross.20101228150742.1474"><vh>@thin test-solver-dynamic.cpp</vh></v>
+<v t="gcross.20101228150742.1472"><vh>@thin test-solver-static.cpp</vh></v>
+<v t="gcross.20101228150742.1437"><vh>@thin testlib.hpp</vh></v>
+<v t="gcross.20101228150742.1584"><vh>@thin testlib.cpp</vh></v>
+<v t="gcross.20101228150742.1458"><vh>@thin testlib-minimizer.cpp</vh></v>
+<v t="gcross.20101228150742.1432"><vh>@thin testlib-minimizer-dynamic.cpp</vh></v>
+<v t="gcross.20101228150742.1460"><vh>@thin testlib-minimizer-static.cpp</vh></v>
+<v t="gcross.20101228150742.1436"><vh>@thin testlib-minimizer-static-4.cpp</vh></v>
+<v t="gcross.20101228150742.1439"><vh>@thin testlib-minimizer-static-8.cpp</vh></v>
+<v t="gcross.20101228150742.1441"><vh>@thin testlib-minimizer-static-64.cpp</vh></v>
+<v t="gcross.20101228150742.1454"><vh>@thin testlib-solver.cpp</vh></v>
+<v t="gcross.20101228150742.1443"><vh>@thin testlib-solver-dynamic.cpp</vh></v>
+<v t="gcross.20101228150742.1456"><vh>@thin testlib-solver-static.cpp</vh></v>
+<v t="gcross.20101228150742.1445"><vh>@thin testlib-solver-static-4.cpp</vh></v>
+<v t="gcross.20101228150742.1447"><vh>@thin testlib-solver-static-8.cpp</vh></v>
+<v t="gcross.20101228150742.1449"><vh>@thin testlib-solver-static-16.cpp</vh></v>
+<v t="gcross.20101228150742.1451"><vh>@thin testlib-solver-static-32.cpp</vh></v>
+<v t="gcross.20101228150742.1453"><vh>@thin testlib-solver-static-64.cpp</vh></v>
 </v>
 </v>
 <v t="gcross.20101123222425.2060"><vh>CMakeLists</vh>
