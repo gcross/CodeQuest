@@ -586,6 +586,7 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
         number_of_physical_qubits(number_of_physical_qubits),
         current_operator_index(0)
     {
+        qubit_indices_chosen.reserve(number_of_physical_qubits);
         quantum_operator::resize_bitset(indices_taken,number_of_physical_qubits);
         quantum_operator::resize_bitset(paulis_chosen,number_of_physical_qubits);
     }
@@ -753,6 +754,9 @@ template<
 
         if(operators.size()==0) return;
 
+        stabilizers.reserve(operators.size());
+        gauge_qubits.reserve(min(operators.size()/2,number_of_physical_qubits));
+
         //@+<< Build table of stabilizers and gauge qubits >>
         //@+node:gmc.20080824181205.34: *5* << Build table of stabilizers and gauge qubits >>
         BOOST_FOREACH(const quantum_operator& op_, operators) {
@@ -805,6 +809,7 @@ template<
         //@-<< Build table of stabilizers and gauge qubits >>
 
         if(compute_logicals) {
+            logical_qubits.reserve(number_of_logical_qubits());
             recompute_logical_qubits();
             assert(logical_qubits.size() == number_of_logical_qubits());
         }
@@ -818,6 +823,9 @@ template<
 
         if(number_of_logical_qubits == 0) return;
         if(optimized) return;
+
+        logical_qubit_error_distances.reserve(number_of_logical_qubits);
+        logical_qubit_errors.reserve(number_of_logical_qubits);
 
         operator_vector list_of_operators_that_commute_with_all_stabilizers = stabilizers;
 
