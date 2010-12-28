@@ -1,6 +1,7 @@
 #@+leo-ver=5-thin
 #@+node:gcross.20101123222425.2063: * @thin tests/CMakeLists.txt
-include_directories(.)
+include_directories(includes)
+
 add_library(testlib EXCLUDE_FROM_ALL
     testlib
     testlib-minimizer

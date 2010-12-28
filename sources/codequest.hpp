@@ -1115,6 +1115,28 @@ protected:
 //@+node:gcross.20101224191604.4185: ** << Aliases >>
 typedef qec<dynamic_quantum_operator> dynamic_qec;
 typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
+
+//@+<< static_qec >>
+//@+node:gcross.20101228150742.1589: *3* << static_qec >>
+template<unsigned int nbits> struct wrapped_static_qec {
+    typedef qec
+        < static_quantum_operator<nbits>
+        , static_vector<qubit<static_quantum_operator<nbits> >,nbits>
+        , static_vector<static_quantum_operator<nbits>,8*nbits>
+        , static_vector<size_t,nbits>
+        > type;
+};
+
+template<unsigned int nbits> struct static_qec : public wrapped_static_qec<nbits>::type {
+
+    typedef typename wrapped_static_qec<nbits>::type qec_t;
+
+    static_qec(const typename qec_t::operator_vector& operators, const bool compute_logicals=true)
+        : qec_t(operators,compute_logicals)
+    { }
+
+};
+//@-<< static_qec >>
 //@-<< Aliases >>
 
 }

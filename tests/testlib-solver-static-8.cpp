@@ -13,7 +13,7 @@ void testSolverStatic8() {
         (10000, make_pair(1,50))
         ;
     for(unsigned int i = 0; i < tests.size(); ++i) {
-        run_test_batch_with_fixed_number_of_qubits<static_qec<8>::type>
+        run_test_batch_with_fixed_number_of_qubits<static_qec<8> >
             (i+1,tests[i].get<0>(),8,tests[i].get<1>());
     }
 }

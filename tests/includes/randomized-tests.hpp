@@ -2,6 +2,9 @@
 //@+node:gcross.20090521215822.19: * @thin randomized-tests.hpp
 //@@language cplusplus
 
+#ifndef RANDOMIZED_TESTS_HPP
+#define RANDOMIZED_TESTS_HPP
+
 //@+<< Headers >>
 //@+node:gcross.20090521215822.20: ** << Headers >>
 #include <vector>
@@ -41,18 +44,6 @@ extern variate_generator<mt19937&, uniform_smallint<> > random_pauli;
 extern uniform_01<> u01;
 extern variate_generator<mt19937&, uniform_01<> > random_real;
 //@-<< Random number generators >>
-
-//@+<< Typedefs >>
-//@+node:gcross.20090522205550.7: ** << Typedefs >>
-template<unsigned int nbits> struct static_qec {
-    typedef qec<
-        static_quantum_operator<nbits>,
-        static_vector<qubit<static_quantum_operator<nbits> >,nbits>,
-        static_vector<static_quantum_operator<nbits>,nbits*(nbits-1)>,
-        static_vector<size_t,nbits>
-      > type;
-};
-//@-<< Typedefs >>
 
 //@+others
 //@+node:gcross.20090521215822.21: ** append_error
@@ -621,4 +612,6 @@ template<class qec_type> bool run_weight_minimization_test_batch_with_fixed_numb
     cout << endl;
 }
 //@-others
+
+#endif
 //@-leo
