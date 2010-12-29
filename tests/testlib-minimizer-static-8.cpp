@@ -12,7 +12,7 @@ void testMinimizerStatic8() {
         (10000, make_pair(1,16))
         ;
     for(unsigned int i = 0; i < tests.size(); ++i) {
-        run_weight_minimization_test_batch_with_fixed_number_of_qubits<static_qec<8> >
+        run_weight_minimization_test_batch_with_fixed_number_of_qubits<static_qec<8,16> >
             (i+1,tests[i].get<0>(),8,tests[i].get<1>());
     }
 }

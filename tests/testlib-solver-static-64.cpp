@@ -11,7 +11,7 @@ void testSolverStatic64() {
         (10000, make_pair(1,256))
         ;
     for(unsigned int i = 0; i < tests.size(); ++i) {
-        run_test_batch_with_fixed_number_of_qubits<static_qec<64> >
+        run_test_batch_with_fixed_number_of_qubits<static_qec<64,256> >
             (i+1,tests[i].get<0>(),64,tests[i].get<1>());
     }
 }

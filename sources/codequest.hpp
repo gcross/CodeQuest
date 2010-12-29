@@ -1143,22 +1143,22 @@ typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
 
 //@+<< static_qec >>
 //@+node:gcross.20101228150742.1589: *3* << static_qec >>
-template<unsigned int nbits> struct wrapped_static_qec {
+template<unsigned int nbits, unsigned int nops> struct wrapped_static_qec {
     typedef static_quantum_operator<nbits> quantum_operator;
     typedef qubit<static_quantum_operator<nbits> > qubit_t;
     typedef pseudo_generator<quantum_operator> pseudo_generator_t;
     typedef qec
         < quantum_operator
         , static_vector<qubit_t,nbits>
-        , static_vector<quantum_operator,8*nbits>
+        , static_vector<quantum_operator,nops>
         , static_vector<size_t,nbits>
         , static_vector<pseudo_generator_t,nbits>
         > type;
 };
 
-template<unsigned int nbits> struct static_qec : public wrapped_static_qec<nbits>::type {
+template<unsigned int nbits, unsigned int nops> struct static_qec : public wrapped_static_qec<nbits,nops>::type {
 
-    typedef typename wrapped_static_qec<nbits>::type qec_t;
+    typedef typename wrapped_static_qec<nbits,nops>::type qec_t;
 
     static_qec(const typename qec_t::operator_vector& operators, const bool compute_logicals=true)
         : qec_t(operators,compute_logicals)
