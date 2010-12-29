@@ -1150,7 +1150,7 @@ template<unsigned int nbits, unsigned int nops> struct wrapped_static_qec {
     typedef qec
         < quantum_operator
         , static_vector<qubit_t,nbits>
-        , static_vector<quantum_operator,nops>
+        , static_vector<quantum_operator,(nops < 2*nbits ? 2*nbits : nops)>
         , static_vector<size_t,nbits>
         , static_vector<pseudo_generator_t,nbits>
         > type;
