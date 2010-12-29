@@ -178,7 +178,7 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
 
         ChoiceIterator(const uint n,const uint k) : index_vector(k), n(n), k(k), valid(true) {
             assert(k <= n);
-            BOOST_FOREACH(uint i, irange((uint)0u,k)) { (*this)[i] = k-1-i; }
+            BOOST_FOREACH(const uint i, irange((uint)0u,k)) { (*this)[i] = k-1-i; }
         }
 
 
@@ -266,7 +266,7 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
         while(choices.valid) {
 
             index_vector field_sizes(r);
-            BOOST_FOREACH(uint i, irange<uint>(0u,r)) {
+            BOOST_FOREACH(const uint i, irange<uint>(0u,r)) {
                 field_sizes[i] = pseudo_generators[choices[i]].field_size;
             }
 
@@ -274,7 +274,7 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
 
             while(coefficients.valid) {
                 pseudo_generators[choices[0]].set(op,coefficients[0]);
-                BOOST_FOREACH(uint i, irange<uint>(1u,r)) {
+                BOOST_FOREACH(const uint i, irange<uint>(1u,r)) {
                     pseudo_generators[choices[i]].multiply(op,coefficients[i]);
                 }
 
@@ -395,7 +395,7 @@ template<class bitset> struct quantum_operator {
         string pauli_string;
         size_t length = X.size();
         pauli_string.reserve(length);
-        BOOST_FOREACH(size_t i, irange((size_t)0,length)) {
+        BOOST_FOREACH(const size_t i, irange((size_t)0,length)) {
             pauli_string.push_back(pauli_char_at(i));
         }
         return pauli_string;
@@ -778,7 +778,7 @@ template<
         //@+at
         // Make sure that this operator commutes with all of the gauge qubit operators.
         //@@c
-            BOOST_FOREACH(qubit_type& gauge_qubit, gauge_qubits) {
+            BOOST_FOREACH(const qubit_type& gauge_qubit, gauge_qubits) {
                 if(!(op||gauge_qubit.Z)) op *= gauge_qubit.X;
                 if(!(op||gauge_qubit.X)) op *= gauge_qubit.Z;
             }
@@ -1006,7 +1006,7 @@ template<
 
         operator_vector generators(stabilizers);
         generators.reserve(number_of_generators);
-        BOOST_FOREACH(qubit_type& qubit, gauge_qubits) { generators.push_back(qubit.X); }
+        BOOST_FOREACH(const qubit_type& qubit, gauge_qubits) { generators.push_back(qubit.X); }
 
         //@+at
         // Run the Gaussian elimination.
@@ -1017,7 +1017,7 @@ template<
         //@+at
         // Loop though all of the qubit indices, looking for ones that have not been taken by a generator
         //@@c
-        BOOST_FOREACH(size_t current_qubit_index, irange((size_t)0,number_of_physical_qubits)) {
+        BOOST_FOREACH(const size_t current_qubit_index, irange((size_t)0u,number_of_physical_qubits)) {
         //@+at
         // If this qubit index has been taken by a generator, then skip to the next.
         //@@c
@@ -1033,7 +1033,7 @@ template<
         //@@c
             size_t op_index = 0;
             typename index_vector::iterator chosen_qubit_index_iter = elimination_state.qubit_indices_chosen.begin();
-            BOOST_FOREACH(quantum_operator& op, generators) {
+            BOOST_FOREACH(const quantum_operator& op, generators) {
                 if(elimination_state.paulis_chosen[op_index]) {
                     if(op.Z.test(current_qubit_index)) logical_qubit.X.Z.set(*chosen_qubit_index_iter);
                     if(op.X.test(current_qubit_index)) logical_qubit.Z.Z.set(*chosen_qubit_index_iter);

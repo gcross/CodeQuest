@@ -123,7 +123,7 @@ unsigned int read_in_operators(vector<dynamic_quantum_operator>& operators, vect
                 << endl
                 << "\t" << s << endl
                 << "\t";
-            BOOST_FOREACH(size_t j, irange(1u,current_column_number)) { cerr.put(' '); }
+            BOOST_FOREACH(const size_t j, irange(1u,current_column_number)) { cerr.put(' '); }
             cerr
                 << "^" << endl
                 << endl
@@ -179,10 +179,10 @@ void print_op(const char* prefix, const unsigned int width, const unsigned int h
         grid[x][y] = op.pauli_char_at(i);
         ++i;
     }
-    BOOST_FOREACH(unsigned int y, irange(0u,height) | reversed) {
+    BOOST_FOREACH(const unsigned int y, irange(0u,height) | reversed) {
         if((not skip_first_prefix) or (y < (height-1)))
             cout << prefix;
-        BOOST_FOREACH(unsigned int x, irange(0u,width)) {
+        BOOST_FOREACH(const unsigned int x, irange(0u,width)) {
             cout << grid[x][y];
         }
         cout << endl;
@@ -193,7 +193,7 @@ void print_op(const char* prefix, const unsigned int width, const unsigned int h
 //@+node:gmc.20080915140059.7: *3* print_op_sparse
 void print_op_sparse(const vector<string>& qubit_labels, const quantum_operator& op) {
 
-    BOOST_FOREACH(size_t i, irange((size_t)0,op.length())) {
+    BOOST_FOREACH(const size_t i, irange((size_t)0,op.length())) {
         const char c = op.pauli_char_at(i);
         if(c != '.')
             cout << "(" << qubit_labels[i] << ") " << c << " ";       
@@ -281,7 +281,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
                 vector<string> coordinates;
                 split(coordinates,label,is_any_of(","));
 
-                BOOST_FOREACH(unsigned int i, irange(0u,2u)) {
+                BOOST_FOREACH(const unsigned int i, irange(0u,2u)) {
                     string& s = coordinates[i];
                     trim(s);
                     const int c = tonumeric(s);
@@ -299,7 +299,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
             number_of_coordinates = 0;
             //@+<< Use existing ordering of qubits as the x coordinate >>
             //@+node:gmc.20080826191619.27: *4* << Use existing ordering of qubits as the x coordinate >>
-            BOOST_FOREACH(unsigned int i, irange(0u,number_of_qubits)) {
+            BOOST_FOREACH(const unsigned int i, irange(0u,number_of_qubits)) {
                 coordinate[0] = i;
                 qubit_coordinates.push_back(coordinate);
             }
@@ -383,7 +383,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     cout << endl;
 
-    BOOST_FOREACH(size_t i, irange((size_t)0,code.gauge_qubits.size())) {
+    BOOST_FOREACH(const size_t i, irange((size_t)0,code.gauge_qubits.size())) {
         cout << "----- GAUGE QUBIT " << (i+1) << "-----" << endl;
         cout <<  "\t| Logical X |    ";
         print_op("\t|||||||||||||    ",width,height,qubit_coordinates,code.gauge_qubits[i].X,true);
@@ -395,7 +395,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     cout << endl;
 
-    BOOST_FOREACH(size_t i, irange((size_t)0,code.logical_qubits.size())) {
+    BOOST_FOREACH(const size_t i, irange((size_t)0,code.logical_qubits.size())) {
         cout << "----- LOGICAL QUBIT " << (i+1) << "-----" << endl;
         cout <<  "\t| Logical X |    ";
         print_op("\t|||||||||||||    ",width,height,qubit_coordinates,code.logical_qubits[i].X,true);
@@ -434,7 +434,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
 
     if(compute_weights_flag and code.logical_qubits.size()>0) {
         cout << " with weights: ";
-        BOOST_FOREACH(size_t i, irange((size_t)0,code.logical_qubits.size()-1)) {
+        BOOST_FOREACH(const size_t i, irange((size_t)0,code.logical_qubits.size()-1)) {
             cout << code.logical_qubit_error_distances[i] << ", ";
         }
         cout << code.logical_qubit_error_distances[code.logical_qubits.size()-1] << endl;

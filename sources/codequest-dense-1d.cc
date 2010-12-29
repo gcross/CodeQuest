@@ -23,7 +23,7 @@ istream& operator>>(istream& in, quantum_operator& op) {
     string s;
     getline(in,s);
     op.resize(s.length());
-    BOOST_FOREACH(size_t i, irange((size_t)0, s.length())) {
+    BOOST_FOREACH(const size_t i, irange((size_t)0u, s.length())) {
         switch(s[i]) {
             case 'x':
             case 'X':
@@ -76,7 +76,7 @@ unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=
             << endl
             << "\t" << e.operator_string << endl
             << "\t";
-        BOOST_FOREACH(size_t j, irange((size_t)0, e.column)) { cerr.put(' '); }
+        BOOST_FOREACH(const size_t j, irange((size_t)0, e.column)) { cerr.put(' '); }
         cerr
             << "^" << endl
             << endl
