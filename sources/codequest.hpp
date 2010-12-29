@@ -152,6 +152,7 @@ template<class operator_vector> void reduce_row_echelon_split_representation(ope
 //@+node:gcross.20100318202249.1411: *3* compute_minimum_weight_operator
 template<
     class pseudo_generator_vector,
+    class index_vector,
     class query_function_type,
     class query_result_type
     >
@@ -162,28 +163,29 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
 ) {
     typedef typename pseudo_generator_vector::value_type::quantum_operator quantum_operator;
     typedef typename quantum_operator::bitset_type bitset;
+    typedef typename index_vector::value_type uint;
 
     //@+<< Nested classes >>
     //@+node:gcross.20101217153202.1442: *4* << Nested classes >>
     //@+others
     //@+node:gcross.20101217153202.1443: *5* ChoiceIterator
-    class ChoiceIterator : public vector<unsigned int> {
+    class ChoiceIterator : public index_vector {
 
     public:
 
-        const unsigned int n, k;
+        const uint n, k;
         bool valid;
 
-        ChoiceIterator(const unsigned int n,const unsigned int k) : vector<unsigned int>(k), n(n), k(k), valid(true) {
+        ChoiceIterator(const uint n,const uint k) : index_vector(k), n(n), k(k), valid(true) {
             assert(k <= n);
-            BOOST_FOREACH(unsigned int i, irange(0u,k)) { (*this)[i] = k-1-i; }
+            BOOST_FOREACH(uint i, irange((uint)0u,k)) { (*this)[i] = k-1-i; }
         }
 
 
         operator bool() { return valid; }
 
-        int increment(const unsigned int pivot_index) {
-            unsigned int& pivot = (*this)[pivot_index];
+        int increment(const uint pivot_index) {
+            uint& pivot = (*this)[pivot_index];
             pivot++;
             if(pivot == n-pivot_index) {
                 if(pivot_index == k-1) {
@@ -207,25 +209,24 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
 
     };
     //@+node:gcross.20101217153202.1444: *5* CoefficientIterator
-    class CoefficientIterator : public vector<unsigned int> {
+    class CoefficientIterator : public index_vector {
 
     public:
 
-        vector<unsigned int> maxes;
+        const index_vector maxes;
         bool valid;
 
-        CoefficientIterator(const vector<unsigned int>& maxes) : vector<unsigned int>(maxes.size(),1), maxes(maxes), valid(true) { }
-
+        CoefficientIterator(const index_vector& maxes) : index_vector(maxes.size(),1), maxes(maxes), valid(true) { }
 
         operator bool() { return valid; }
 
-        void increment(unsigned int index) {
+        void increment(uint index) {
             if(index == -1) {
                 valid = false;
             } else if (maxes[index] == 2) {
                 increment(index-1);
             } else {
-                unsigned int& coefficient = (*this)[index];
+                uint& coefficient = (*this)[index];
                 ++coefficient;
                 if(coefficient == maxes[index]) {
                     coefficient = 1;
@@ -234,13 +235,13 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
             }
         }
 
-        void operator ++() { increment(size()-1); }
+        void operator ++() { increment(index_vector::size()-1); }
 
     };
     //@-others
     //@-<< Nested classes >>
 
-    unsigned int r = 0;
+    uint r = 0;
 
     const size_t number_of_physical_qubits = pseudo_generators[0].number_of_qubits(),
                  number_of_pseudo_generators = pseudo_generators.size();
@@ -264,8 +265,8 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
 
         while(choices.valid) {
 
-            vector<unsigned int> field_sizes(r);
-            BOOST_FOREACH(unsigned int i, irange(0u,r)) {
+            index_vector field_sizes(r);
+            BOOST_FOREACH(uint i, irange<uint>(0u,r)) {
                 field_sizes[i] = pseudo_generators[choices[i]].field_size;
             }
 
@@ -273,7 +274,7 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
 
             while(coefficients.valid) {
                 pseudo_generators[choices[0]].set(op,coefficients[0]);
-                BOOST_FOREACH(unsigned int i, irange(1u,r)) {
+                BOOST_FOREACH(uint i, irange<uint>(1u,r)) {
                     pseudo_generators[choices[i]].multiply(op,coefficients[i]);
                 }
 
@@ -506,6 +507,11 @@ public:
 
     static_vector() : end_ptr(data), current_size(0) { }
     static_vector(size_t size) : end_ptr(data+size), current_size(size) { }
+    static_vector(size_t size, T fill) : end_ptr(data+size), current_size(size) {
+        BOOST_FOREACH(T& x, *this) {
+            x = fill;
+        }
+    }
     static_vector(const static_vector& old) : end_ptr(data+old.size()), current_size(old.size()) {
         copy(old.begin(),old.end(),begin());
     }
@@ -870,6 +876,7 @@ template<
             pair<quantum_operator,const pair<unsigned int,unsigned int> > error_information = 
                 compute_minimum_weight_operator <
                     pseudo_generator_vector,
+                    index_vector,
                     anti_commutes_with_some_logical,
                     pair<unsigned int,unsigned int>
                 > (

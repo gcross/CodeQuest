@@ -408,6 +408,7 @@ template<class qec_type> void generate_and_test_weight_minimization_problem(
     typedef typename qec_type::quantum_operator quantum_operator;
     typedef typename qec_type::operator_vector operator_vector;
     typedef typename qec_type::pseudo_generator_vector pseudo_generator_vector;
+    typedef typename qec_type::index_vector index_vector;
 
     operator_vector operators =
         generate_random_operators<qec_type>(
@@ -428,6 +429,7 @@ template<class qec_type> void generate_and_test_weight_minimization_problem(
     pair<quantum_operator,unsigned int> error_information = 
         compute_minimum_weight_operator<
             pseudo_generator_vector,
+            index_vector,
             always_true<quantum_operator>,
             unsigned int
         > (
