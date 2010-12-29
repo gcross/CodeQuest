@@ -150,18 +150,17 @@ template<class operator_vector> void reduce_row_echelon_split_representation(ope
     rows.erase(rowref,rows.end());
 }
 //@+node:gcross.20100318202249.1411: *3* compute_minimum_weight_operator
-template<class quantum_operator> class pseudo_generator;
-
 template<
-    class quantum_operator,
+    class pseudo_generator_vector,
     class query_function_type,
     class query_result_type
     >
-inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
-        const vector<pseudo_generator<quantum_operator> > & restrict pseudo_generators,
+inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query_result_type> compute_minimum_weight_operator(
+        const pseudo_generator_vector & restrict pseudo_generators,
         const query_function_type & restrict query_function,
         const bool verbose = false
 ) {
+    typedef typename pseudo_generator_vector::value_type::quantum_operator quantum_operator;
     typedef typename quantum_operator::bitset_type bitset;
 
     //@+<< Nested classes >>
@@ -308,25 +307,27 @@ inline pair<quantum_operator,query_result_type> compute_minimum_weight_operator(
 }
 //@+node:gcross.20100910154654.1413: *3* compute_pseudo_generators
 template<
-    class quantum_operator,
-    class operator_vector
+    class operator_vector,
+    class pseudo_generator_vector
     >
-inline vector<pseudo_generator<quantum_operator> > compute_pseudo_generators(operator_vector & restrict operators) {
+inline pseudo_generator_vector compute_pseudo_generators(operator_vector & restrict operators) {
+    typedef typename pseudo_generator_vector::value_type pseudo_generator;
+
     reduce_row_echelon_block_representation<operator_vector>(operators);
 
     typename operator_vector::const_iterator rowref = operators.begin();
     unsigned int column = 0;
 
-    vector<pseudo_generator<quantum_operator> > pseudo_generators;
+    pseudo_generator_vector pseudo_generators;
     while(rowref != operators.end()) {
         if(not (*rowref)[column]) {
             column++;
         } else if((rowref+1) != operators.end() and (*(rowref+1))[column]) {
-            pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref,*(rowref+1)));
+            pseudo_generators.push_back(pseudo_generator(*rowref,*(rowref+1)));
             rowref += 2;
             column++;
         } else {
-            pseudo_generators.push_back(pseudo_generator<quantum_operator>(*rowref));
+            pseudo_generators.push_back(pseudo_generator(*rowref));
             rowref += 1;
             column++;
         }
@@ -465,14 +466,17 @@ template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<
     return out;
 }
 //@+node:gmc.20080910123558.5: *3* pseudo_generator
-template<class quantum_operator> class pseudo_generator {
+template<class Quantum_operator> class pseudo_generator {
 
 public:
+
+    typedef Quantum_operator quantum_operator;
 
     unsigned int field_size;
 
     quantum_operator op_1, op_2;
 
+    pseudo_generator() { }
     pseudo_generator(const quantum_operator& restrict op_1_) : op_1(op_1_), field_size(2) { }
     pseudo_generator(const quantum_operator& restrict op_1_, const quantum_operator& restrict op_2_) : op_1(op_1_), op_2(op_2_), field_size(4) { }
 
@@ -489,6 +493,7 @@ public:
     }
 
     inline size_t number_of_qubits() const { return op_1.length(); }
+
 };
 //@+node:gcross.20081201142225.2: *3* static_vector
 template<typename T,unsigned int buffer_size> class static_vector {
@@ -665,10 +670,11 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
 
 //@+node:gmc.20080824181205.19: *3* qec
 template<
-    class Quantum_operator,
+    class Quantum_operator = dynamic_quantum_operator,
     class Qubit_vector = vector<qubit<Quantum_operator> >,
     class Operator_vector = vector<Quantum_operator>,
-    class Index_vector = vector<size_t>
+    class Index_vector = vector<size_t>,
+    class Pseudo_generator_vector = vector<pseudo_generator<Quantum_operator> >
 > struct qec {
 
     //@+<< Typedefs >>
@@ -677,6 +683,7 @@ template<
     typedef Qubit_vector qubit_vector;
     typedef Operator_vector operator_vector;
     typedef Index_vector index_vector;
+    typedef Pseudo_generator_vector pseudo_generator_vector;
 
     typedef typename quantum_operator::bitset_type bitset;
     typedef qubit<quantum_operator> qubit_type;
@@ -839,8 +846,12 @@ template<
             list_of_operators_that_commute_with_all_stabilizers.push_back(qubit.Z);
         }
 
-        vector<pseudo_generator<quantum_operator> > pseudo_generators =
-            compute_pseudo_generators<quantum_operator,operator_vector>(list_of_operators_that_commute_with_all_stabilizers);
+        pseudo_generator_vector pseudo_generators =
+            compute_pseudo_generators
+                <operator_vector
+                ,pseudo_generator_vector
+                >
+                (list_of_operators_that_commute_with_all_stabilizers);
 
         unsigned int number_of_optimized_logical_qubits = 0;
 
@@ -858,7 +869,7 @@ template<
 
             pair<quantum_operator,const pair<unsigned int,unsigned int> > error_information = 
                 compute_minimum_weight_operator <
-                    quantum_operator,
+                    pseudo_generator_vector,
                     anti_commutes_with_some_logical,
                     pair<unsigned int,unsigned int>
                 > (
@@ -1050,8 +1061,15 @@ template<
 
 //@+<< I/O >>
 //@+node:gcross.20101217153202.1447: *4* << I/O >>
-template<class quantum_operator, class qubit_vector_type, class operator_vector_type, class D> ostream& operator<<(ostream& out, const qec<quantum_operator,qubit_vector_type,operator_vector_type,D>& code) {
-    typedef typename qubit_vector_type::value_type qubit_type;
+template
+    < class quantum_operator
+    , class qubit_vector
+    , class operator_vector
+    , class index_vector
+    , class pseudo_generator_vector
+    >
+ostream& operator<<(ostream& out, const qec<quantum_operator,qubit_vector,operator_vector,index_vector,pseudo_generator_vector>& code) {
+    typedef typename qubit_vector::value_type qubit;
 
     out << "Stabilizers:" << endl;
     BOOST_FOREACH(const quantum_operator& op, code.stabilizers) {
@@ -1061,7 +1079,7 @@ template<class quantum_operator, class qubit_vector_type, class operator_vector_
 
     out << "Gauge Qubits:" << endl;
 
-    { int i = 0; BOOST_FOREACH(const qubit_type& qubit, code.gauge_qubits) {
+    { int i = 0; BOOST_FOREACH(const qubit& qubit, code.gauge_qubits) {
         out << "# " << (i+1) << endl;
         out << "    - X: " << qubit.X.to_string() << endl;
         out << "      Y: " << qubit.Y.to_string() << endl;
@@ -1071,7 +1089,7 @@ template<class quantum_operator, class qubit_vector_type, class operator_vector_
     out << endl;
 
     out << "Logical Qubits:" << endl;
-    { int i = 0; BOOST_FOREACH(const qubit_type& qubit, code.logical_qubits) {
+    { int i = 0; BOOST_FOREACH(const qubit& qubit, code.logical_qubits) {
         out << "# " << (i+1) << endl;
         out << "    - X: " << qubit.X.to_string() << endl;
         out << "      Y: " << qubit.Y.to_string() << endl;
@@ -1113,17 +1131,21 @@ protected:
 
 //@+<< Aliases >>
 //@+node:gcross.20101224191604.4185: ** << Aliases >>
-typedef qec<dynamic_quantum_operator> dynamic_qec;
+typedef qec<> dynamic_qec;
 typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
 
 //@+<< static_qec >>
 //@+node:gcross.20101228150742.1589: *3* << static_qec >>
 template<unsigned int nbits> struct wrapped_static_qec {
+    typedef static_quantum_operator<nbits> quantum_operator;
+    typedef qubit<static_quantum_operator<nbits> > qubit_t;
+    typedef pseudo_generator<quantum_operator> pseudo_generator_t;
     typedef qec
-        < static_quantum_operator<nbits>
-        , static_vector<qubit<static_quantum_operator<nbits> >,nbits>
-        , static_vector<static_quantum_operator<nbits>,8*nbits>
+        < quantum_operator
+        , static_vector<qubit_t,nbits>
+        , static_vector<quantum_operator,8*nbits>
         , static_vector<size_t,nbits>
+        , static_vector<pseudo_generator_t,nbits>
         > type;
 };
 
