@@ -33,10 +33,12 @@ using boost::make_iterator_range;
 
 using std::bitset;
 using std::cout;
+using std::copy;
 using std::endl;
 using std::exception;
 using std::fill;
 using std::make_pair;
+using std::min;
 using std::ostream;
 using std::pair;
 using std::string;
