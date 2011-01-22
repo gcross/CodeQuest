@@ -4,6 +4,7 @@
 
 //@+<< Headers >>
 //@+node:gmc.20080826191619.4: ** << Headers >>
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/range/irange.hpp>
 #include <fstream>
 
@@ -12,6 +13,7 @@
 using namespace CodeQuest;
 using namespace std;
 using namespace boost;
+using namespace boost::algorithm;
 //@-<< Headers >>
 
 #define quantum_operator dynamic_quantum_operator
@@ -22,6 +24,7 @@ using namespace boost;
 istream& operator>>(istream& in, quantum_operator& op) {
     string s;
     getline(in,s);
+    trim_right(s);
     op.resize(s.length());
     BOOST_FOREACH(const size_t i, irange((size_t)0u, s.length())) {
         switch(s[i]) {
