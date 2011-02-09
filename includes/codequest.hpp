@@ -457,6 +457,11 @@ template<unsigned int number_of_bits> struct static_quantum_operator : public qu
         return op;
     }
 };
+
+template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<bitset>& op) {
+    out << op.to_string();
+    return out;
+}
 //@+node:gmc.20080824181205.18: *3* qubit
 template<class quantum_operator> struct qubit {
     quantum_operator X, Y, Z;
@@ -469,12 +474,7 @@ template<class quantum_operator> struct qubit {
     inline bool operator||(const quantum_operator& op) const { return (X||op) and (Z||op); }
 };
 
-template<class quantum_operator> inline bool operator||(const quantum_operator& restrict op, const qubit<quantum_operator>& restrict q) { return q||op; }
-
-template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<bitset>& op) {
-    out << op.to_string();
-    return out;
-}
+template<class bitset> inline bool operator||(const quantum_operator<bitset>& restrict op, const qubit<quantum_operator<bitset> >& restrict q) { return q||op; }
 
 typedef qubit<dynamic_quantum_operator> dynamic_qubit;
 typedef vector<dynamic_qubit> dynamic_qubit_vector;
