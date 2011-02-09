@@ -427,6 +427,11 @@ struct dynamic_quantum_operator : public quantum_operator<dynamic_bitset<unsigne
         bitset.resize(newlen,value);
     }
 
+    dynamic_quantum_operator inline operator*(const dynamic_quantum_operator & restrict other) const {
+        dynamic_quantum_operator op(*this);
+        op *= other;
+        return op;
+    }
 };
 
 typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
@@ -445,13 +450,13 @@ template<unsigned int number_of_bits> struct static_quantum_operator : public qu
     static void inline resize_bitset(bitset<number_of_bits>& bitset, const size_t newlen, const bool value = false) {
         assert(newlen<=number_of_bits);
     }
-};
 
-template<class quantum_operator> quantum_operator inline operator*(const quantum_operator& restrict A, const quantum_operator& restrict B) {
-    quantum_operator op(A);
-    op *= B;
-    return op;
-}
+    static_quantum_operator inline operator*(const static_quantum_operator & restrict other) const {
+        static_quantum_operator op(*this);
+        op *= other;
+        return op;
+    }
+};
 //@+node:gmc.20080824181205.18: *3* qubit
 template<class quantum_operator> struct qubit {
     quantum_operator X, Y, Z;
