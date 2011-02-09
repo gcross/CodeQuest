@@ -1,5 +1,5 @@
 //@+leo-ver=5-thin
-//@+node:gcross.20081119221421.5: * @thin codequest.cc
+//@+node:gcross.20081119221421.5: * @thin codequest.cpp
 //@@language cplusplus
 
 #include <boost/function.hpp>

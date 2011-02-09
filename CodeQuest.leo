@@ -7,19 +7,27 @@
 <find_panel_settings/>
 <vnodes>
 <v t="gcross.20090221232044.2"><vh>@chapters</vh></v>
-<v t="gmc.20080824181205.12"><vh>Algorithm</vh>
-<v t="gcross.20090221223144.1"><vh>@path sources</vh>
+<v t="gcross.20101123222425.2061"><vh>@thin CMakeLists.txt</vh></v>
+<v t="gcross.20110209133648.2292"><vh>@path documentation</vh>
+<v t="gcross.20101123222425.2066"><vh>@thin CMakeLists.txt</vh></v>
+</v>
+<v t="gcross.20110209133648.1992"><vh>@path includes</vh>
+<v t="gcross.20110209133648.2284"><vh>@thin CMakeLists.txt</vh></v>
 <v t="gmc.20080824181205.14"><vh>@thin codequest.hpp</vh></v>
 </v>
+<v t="gcross.20110209133648.2285"><vh>@path sources</vh>
+<v t="gcross.20110209133648.2288"><vh>@thin CMakeLists.txt</vh></v>
+<v t="gcross.20110209133648.2286"><vh>@path library</vh>
+<v t="gcross.20110209133648.2290"><vh>@thin CMakeLists.txt</vh></v>
+<v t="gcross.20110209133648.2291"><vh>@thin codequest.cpp</vh></v>
 </v>
-<v t="gcross.20090526153741.2"><vh>Front end</vh>
-<v t="gcross.20090221223144.3"><vh>@path sources</vh>
-<v t="gmc.20080826191619.3"><vh>@thin codequest-dense-1d.cc</vh></v>
-<v t="gmc.20080826191619.10"><vh>@thin codequest-sparse.cc</vh></v>
-<v t="gcross.20081119221421.5"><vh>@thin codequest.cc</vh></v>
+<v t="gcross.20090221223144.3"><vh>@path program</vh>
+<v t="gcross.20101123222425.2062"><vh>@thin CMakeLists.txt</vh></v>
+<v t="gmc.20080826191619.3"><vh>@thin codequest-dense-1d.cpp</vh></v>
+<v t="gmc.20080826191619.10"><vh>@thin codequest-sparse.cpp</vh></v>
+<v t="gcross.20081119221421.5"><vh>@thin codequest.cpp</vh></v>
 </v>
 </v>
-<v t="gmc.20080911170647.10"><vh>Examples</vh>
 <v t="gmc.20080911170647.4"><vh>@path examples/generate</vh>
 <v t="gmc.20080912133652.3"><vh>@thin fix-permissions.sh</vh></v>
 <v t="gmc.20080911170647.8"><vh>@thin read_grid_parameters.py</vh></v>
@@ -42,9 +50,8 @@
 <v t="gmc.20080912133652.5"><vh>@thin triangular-lattice-compass-interactions-with-one-flaw.py</vh></v>
 </v>
 </v>
-</v>
-<v t="gcross.20090521215822.28"><vh>Testing</vh>
 <v t="gcross.20090521215822.29"><vh>@path tests</vh>
+<v t="gcross.20101123222425.2063"><vh>@thin CMakeLists.txt</vh></v>
 <v t="gcross.20101228150742.1586"><vh>@path includes</vh>
 <v t="gcross.20090521215822.19"><vh>@thin randomized-tests.hpp</vh></v>
 <v t="gcross.20101228150742.1437"><vh>@thin testlib.hpp</vh></v>
@@ -72,25 +79,16 @@
 <v t="gcross.20101228150742.1451"><vh>@thin testlib-solver-static-32.cpp</vh></v>
 <v t="gcross.20101228150742.1453"><vh>@thin testlib-solver-static-64.cpp</vh></v>
 </v>
-</v>
-<v t="gcross.20101123222425.2060"><vh>CMakeLists</vh>
-<v t="gcross.20101123222425.2061"><vh>@thin CMakeLists.txt</vh></v>
-<v t="gcross.20101123222425.2062"><vh>@thin sources/CMakeLists.txt</vh></v>
-<v t="gcross.20101123222425.2063"><vh>@thin tests/CMakeLists.txt</vh></v>
-<v t="gcross.20101123222425.2066"><vh>@thin documentation/CMakeLists.txt</vh></v>
-</v>
 </vnodes>
 <tnodes>
-<t tx="gcross.20090221223144.1"></t>
 <t tx="gcross.20090221223144.3"></t>
 <t tx="gcross.20090221232044.2"></t>
-<t tx="gcross.20090521215822.28"></t>
 <t tx="gcross.20090521215822.29"></t>
-<t tx="gcross.20090526153741.2"></t>
-<t tx="gcross.20101123222425.2060"></t>
 <t tx="gcross.20101228150742.1586"></t>
-<t tx="gmc.20080824181205.12"></t>
-<t tx="gmc.20080911170647.10"></t>
+<t tx="gcross.20110209133648.1992"></t>
+<t tx="gcross.20110209133648.2285"></t>
+<t tx="gcross.20110209133648.2286"></t>
+<t tx="gcross.20110209133648.2292"></t>
 <t tx="gmc.20080911170647.4">@others
 </t>
 <t tx="gmc.20080912133652.6"></t>

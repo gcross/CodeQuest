@@ -1,5 +1,5 @@
 //@+leo-ver=5-thin
-//@+node:gmc.20080826191619.3: * @thin codequest-dense-1d.cc
+//@+node:gmc.20080826191619.3: * @thin codequest-dense-1d.cpp
 //@@language cplusplus
 
 //@+<< Headers >>

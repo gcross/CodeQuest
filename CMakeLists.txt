@@ -1,7 +1,7 @@
 #@+leo-ver=5-thin
 #@+node:gcross.20101123222425.2061: * @thin CMakeLists.txt
 cmake_minimum_required (VERSION 2.6)
-project (CodeQuest)
+project (CodeQuest CXX)
 
 find_package (Boost 1.43 REQUIRED)
 find_path (TCLAP_INCLUDE_DIR "tclap/CmdLine.h" ${CMAKE_INCLUDE_PATH})
@@ -24,7 +24,13 @@ endif ()
 
 message (STATUS "Build type is " ${CMAKE_BUILD_TYPE})
 
-include_directories("sources")
+if(UNIX)
+    if(CMAKE_COMPILER_IS_GNUCC)
+         add_definitions(-Wall -Wno-strict-aliasing)
+    endif(CMAKE_COMPILER_IS_GNUCC)
+endif(UNIX)
+
+include_directories("includes")
 
 add_subdirectory ("sources")
 add_subdirectory ("documentation")

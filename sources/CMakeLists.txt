@@ -1,14 +1,5 @@
 #@+leo-ver=5-thin
-#@+node:gcross.20101123222425.2062: * @thin sources/CMakeLists.txt
-install (FILES codequest.hpp DESTINATION include)
-
-include_directories(.)
-
-add_executable(codequest
-    codequest.cc
-    codequest-sparse.cc
-    codequest-dense-1d.cc
-)
-set_property(TARGET codequest PROPERTY RUNTIME_OUTPUT_DIRECTORY ../programs)
-install (TARGETS codequest RUNTIME DESTINATION bin)
+#@+node:gcross.20110209133648.2288: * @thin CMakeLists.txt
+add_subdirectory ("library")
+add_subdirectory ("program")
 #@-leo
