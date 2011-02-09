@@ -429,6 +429,8 @@ struct dynamic_quantum_operator : public quantum_operator<dynamic_bitset<unsigne
 
 };
 
+typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
+
 template<unsigned int number_of_bits> struct static_quantum_operator : public quantum_operator<bitset<number_of_bits> >{
 
     inline static_quantum_operator() { }
@@ -468,6 +470,9 @@ template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<
     out << op.to_string();
     return out;
 }
+
+typedef qubit<dynamic_quantum_operator> dynamic_qubit;
+typedef vector<dynamic_qubit> dynamic_qubit_vector;
 //@+node:gmc.20080910123558.5: *3* pseudo_generator
 template<class Quantum_operator> class pseudo_generator {
 
@@ -1120,31 +1125,11 @@ ostream& operator<<(ostream& out, const qec<quantum_operator,qubit_vector,operat
     return out;
 }
 //@-<< I/O >>
-//@-others
-
-template<class A, class B> class anti_commute_test {
-
-public:
-
-    anti_commute_test(const A& a_) : a(a_) { }
-
-    bool operator()(const B& b) const { return not (a||b); }
-
-protected:
-
-    const A& a;
-
-};
-
-//@-others
 
 //@+<< Aliases >>
-//@+node:gcross.20101224191604.4185: ** << Aliases >>
+//@+node:gcross.20101228150742.1589: *4* << Aliases >>
 typedef qec<> dynamic_qec;
-typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
 
-//@+<< static_qec >>
-//@+node:gcross.20101228150742.1589: *3* << static_qec >>
 template<unsigned int nbits, unsigned int nops> struct wrapped_static_qec {
     typedef static_quantum_operator<nbits> quantum_operator;
     typedef qubit<static_quantum_operator<nbits> > qubit_t;
@@ -1167,8 +1152,24 @@ template<unsigned int nbits, unsigned int nops> struct static_qec : public wrapp
     { }
 
 };
-//@-<< static_qec >>
 //@-<< Aliases >>
+//@-others
+
+template<class A, class B> class anti_commute_test {
+
+public:
+
+    anti_commute_test(const A& a_) : a(a_) { }
+
+    bool operator()(const B& b) const { return not (a||b); }
+
+protected:
+
+    const A& a;
+
+};
+
+//@-others
 
 }
 
