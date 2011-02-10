@@ -45,6 +45,22 @@ extern uniform_01<> u01;
 extern variate_generator<mt19937&, uniform_01<> > random_real;
 //@-<< Random number generators >>
 
+//@+<< Forward function declarations >>
+//@+node:gcross.20110210011631.1492: ** << Forward function declarations >>
+double generate_and_test_solver(
+        unsigned int number_of_physical_qubits,
+        unsigned int number_of_operators,
+        float bernoulli_trial_probability
+);
+
+bool run_test_solver_batch(
+    unsigned int batch_number,
+    unsigned int number_of_cases,
+    pair<unsigned int,unsigned int> qubit_range,
+    pair<unsigned int,unsigned int> operator_range
+);
+//@-<< Forward function declarations >>
+
 //@+others
 //@+node:gcross.20090521215822.21: ** append_error
 #define append_error(message)   {   \

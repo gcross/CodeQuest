@@ -9,6 +9,7 @@ extern void testMinimizerStatic4();
 extern void testMinimizerStatic8();
 extern void testMinimizerStatic64();
 extern void testSolver();
+extern void testSolverAdaptive();
 extern void testSolverDynamic();
 extern void testSolverStatic();
 extern void testSolverStatic4();

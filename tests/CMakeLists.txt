@@ -11,6 +11,7 @@ add_library(testlib EXCLUDE_FROM_ALL
     testlib-minimizer-static-8
     testlib-minimizer-static-64
     testlib-solver
+    testlib-solver-adaptive
     testlib-solver-dynamic
     testlib-solver-static
     testlib-solver-static-4
@@ -22,7 +23,7 @@ add_library(testlib EXCLUDE_FROM_ALL
 
 macro(makeTestProgram program-name)
     add_executable(${program-name} EXCLUDE_FROM_ALL ${program-name}.cpp)
-    target_link_libraries(${program-name} testlib ${Boost_LIBRARIES})
+    target_link_libraries(${program-name} testlib CodeQuest ${Boost_LIBRARIES})
     set_property(TARGET ${program-name} PROPERTY RUNTIME_OUTPUT_DIRECTORY .)
     add_dependencies(tests ${program-name})
 endmacro(makeTestProgram)

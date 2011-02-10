@@ -71,6 +71,7 @@
 <v t="gcross.20101228150742.1439"><vh>@thin testlib-minimizer-static-8.cpp</vh></v>
 <v t="gcross.20101228150742.1441"><vh>@thin testlib-minimizer-static-64.cpp</vh></v>
 <v t="gcross.20101228150742.1454"><vh>@thin testlib-solver.cpp</vh></v>
+<v t="gcross.20110210011631.1503"><vh>@thin testlib-solver-adaptive.cpp</vh></v>
 <v t="gcross.20101228150742.1443"><vh>@thin testlib-solver-dynamic.cpp</vh></v>
 <v t="gcross.20101228150742.1456"><vh>@thin testlib-solver-static.cpp</vh></v>
 <v t="gcross.20101228150742.1445"><vh>@thin testlib-solver-static-4.cpp</vh></v>

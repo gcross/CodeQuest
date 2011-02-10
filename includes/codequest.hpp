@@ -1191,7 +1191,10 @@ template<unsigned int nbits, unsigned int nops=2*nbits> struct static_qec : publ
 //@+node:gcross.20110209133648.2297: *3* code
 struct code {
     typedef dynamic_quantum_operator quantum_operator;
+    typedef dynamic_operator_vector operator_vector;
     typedef dynamic_qubit qubit_type;
+    typedef dynamic_qubit_vector qubit_vector;
+    typedef vector<size_t> index_vector;
 
     unsigned int number_of_physical_qubits;
     bool optimized;
