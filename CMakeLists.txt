@@ -35,6 +35,7 @@ message(STATUS "Flags:" ${CMAKE_CXX_FLAGS_RELEASE})
 
 include_directories("includes")
 
+add_subdirectory ("includes")
 add_subdirectory ("sources")
 add_subdirectory ("documentation")
 add_subdirectory ("tests")
