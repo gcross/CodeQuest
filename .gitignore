@@ -15,3 +15,4 @@ tests/test-minimizer-static
 tests/test-solver
 tests/test-solver-dynamic
 tests/test-solver-static
+sources/library/solvers/*.cpp

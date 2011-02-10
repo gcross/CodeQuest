@@ -338,6 +338,50 @@ inline pseudo_generator_vector compute_pseudo_generators(operator_vector & restr
 
     return pseudo_generators;
 }
+//@+node:gcross.20110209133648.2305: *3* writeYAML
+template<typename code_t> ostream& writeYAML(ostream& out, const code_t& code) {
+    typedef typename code_t::quantum_operator quantum_operator;
+    typedef typename code_t::qubit_type qubit;
+
+    out << "Stabilizers:" << endl;
+    BOOST_FOREACH(const quantum_operator& op, code.stabilizers) {
+        out << "    - " << op.to_string() << endl;
+    }
+    out << endl;
+
+    out << "Gauge Qubits:" << endl;
+
+    { int i = 0; BOOST_FOREACH(const qubit& qubit, code.gauge_qubits) {
+        out << "# " << (i+1) << endl;
+        out << "    - X: " << qubit.X.to_string() << endl;
+        out << "      Y: " << qubit.Y.to_string() << endl;
+        out << "      Z: " << qubit.Z.to_string() << endl;
+        ++i;
+    }}
+    out << endl;
+
+    out << "Logical Qubits:" << endl;
+    { int i = 0; BOOST_FOREACH(const qubit& qubit, code.logical_qubits) {
+        out << "# " << (i+1) << endl;
+        out << "    - X: " << qubit.X.to_string() << endl;
+        out << "      Y: " << qubit.Y.to_string() << endl;
+        out << "      Z: " << qubit.Z.to_string() << endl;
+        if(code.optimized) {
+            out << "      Distance: " << code.logical_qubit_error_distances[i] << endl;
+            out << "      Minimum weight error: " << code.logical_qubit_errors[i].to_string() << endl;
+        }
+        ++i;
+    }}
+    out << endl;
+
+    out << "Summary:" << endl;
+    out << "    Number of physical qubits: " << code.number_of_physical_qubits << endl;
+    out << "    Number of stabilizers:     " << code.stabilizers.size() << endl;
+    out << "    Number of gauge qubits:    " << code.gauge_qubits.size() << endl;
+    out << "    Number of logical qubits:  " << code.logical_qubits.size() << endl;
+
+    return out;
+}
 //@-others
 //@+node:gmc.20080824181205.16: ** Classes
 //@+others
@@ -403,40 +447,18 @@ template<class bitset> struct quantum_operator {
         return pauli_string;
     }
 
+    template<typename other_quantum_operator> inline void assign(const other_quantum_operator& op) {
+        BOOST_FOREACH(size_t const i, irange((size_t)0u,op.length())) {
+            X[i] = op.X[i];
+            Z[i] = op.Z[i];
+        }
+    }
+
 };
 
-struct dynamic_quantum_operator : public quantum_operator<dynamic_bitset<unsigned int> > {
-
-    typedef dynamic_bitset<unsigned int> BitsetType;
-    typedef quantum_operator<BitsetType> BaseType;
-    using BaseType::X;
-    using BaseType::Z;
-
-    inline size_t length() const { return X.size(); }
-
-    inline dynamic_quantum_operator(const size_t len) : BaseType(BitsetType(len),BitsetType(len)) { }
-
-    inline dynamic_quantum_operator() : BaseType(BitsetType(0), BitsetType(0)) {}
-
-    void inline resize(const size_t newlen, const bool value = false) {
-        X.resize(newlen,value);
-        Z.resize(newlen,value);
-    }
-
-    static void inline resize_bitset(BitsetType& bitset, const size_t newlen, const bool value = false) {
-        bitset.resize(newlen,value);
-    }
-
-    dynamic_quantum_operator inline operator*(const dynamic_quantum_operator & restrict other) const {
-        dynamic_quantum_operator op(*this);
-        op *= other;
-        return op;
-    }
-};
-
-typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
-
+struct dynamic_quantum_operator;
 template<unsigned int number_of_bits> struct static_quantum_operator : public quantum_operator<bitset<number_of_bits> >{
+    typedef quantum_operator<bitset<number_of_bits> > BaseType;
 
     inline static_quantum_operator() { }
     inline static_quantum_operator(size_t len) { assert(len==number_of_bits); }
@@ -456,12 +478,60 @@ template<unsigned int number_of_bits> struct static_quantum_operator : public qu
         op *= other;
         return op;
     }
+
+    static_quantum_operator& operator=(const dynamic_quantum_operator& op) {
+        BaseType::assign(op);
+        return *this;
+    }
 };
 
 template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<bitset>& op) {
     out << op.to_string();
     return out;
 }
+
+struct dynamic_quantum_operator : public quantum_operator<dynamic_bitset<unsigned int> > {
+
+    typedef dynamic_bitset<unsigned int> BitsetType;
+    typedef quantum_operator<BitsetType> BaseType;
+    using BaseType::X;
+    using BaseType::Z;
+
+    inline size_t length() const { return X.size(); }
+
+    inline dynamic_quantum_operator(const size_t len) : BaseType(BitsetType(len),BitsetType(len)) { }
+
+    inline dynamic_quantum_operator() : BaseType(BitsetType(0), BitsetType(0)) {}
+
+    template<unsigned int number_of_bits> dynamic_quantum_operator(const static_quantum_operator<number_of_bits>& op)
+     : BaseType(BitsetType(number_of_bits), BitsetType(number_of_bits))
+    {
+        BaseType::assign(op);
+    }
+
+    void inline resize(const size_t newlen, const bool value = false) {
+        X.resize(newlen,value);
+        Z.resize(newlen,value);
+    }
+
+    static void inline resize_bitset(BitsetType& bitset, const size_t newlen, const bool value = false) {
+        bitset.resize(newlen,value);
+    }
+
+    dynamic_quantum_operator inline operator*(const dynamic_quantum_operator & restrict other) const {
+        dynamic_quantum_operator op(*this);
+        op *= other;
+        return op;
+    }
+
+    template<unsigned int number_of_bits> dynamic_quantum_operator& operator=(const static_quantum_operator<number_of_bits>& op) {
+        resize(number_of_bits);
+        BaseType::assign(op);
+        return *this;
+    }
+};
+
+typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
 //@+node:gmc.20080824181205.18: *3* qubit
 template<class quantum_operator> struct qubit {
     quantum_operator X, Y, Z;
@@ -470,6 +540,8 @@ template<class quantum_operator> struct qubit {
 
     inline qubit(const quantum_operator& restrict X,const quantum_operator& restrict Z) : X(X), Z(Z), Y(Z*X) {}
     inline qubit(const size_t number_of_physical_qubits) : X(number_of_physical_qubits), Z(number_of_physical_qubits), Y(number_of_physical_qubits) {}
+
+    template<unsigned int number_of_qubits> inline qubit(const qubit<static_quantum_operator<number_of_qubits> >& restrict other) : X(other.X), Y(other.Y), Z(other.Z) {}
 
     inline bool operator||(const quantum_operator& op) const { return (X||op) and (Z||op); }
 };
@@ -517,15 +589,21 @@ public:
     typedef const T* const_iterator;
     typedef T value_type;
 
-    static_vector() : end_ptr(data), current_size(0) { }
-    static_vector(size_t size) : end_ptr(data+size), current_size(size) { }
-    static_vector(size_t size, T fill) : end_ptr(data+size), current_size(size) {
+    static_vector() : current_size(0), end_ptr(data+current_size) { }
+    static_vector(size_t size) : current_size(size), end_ptr(data+current_size)  { }
+    static_vector(size_t size, T fill) : current_size(size), end_ptr(data+current_size)  {
         BOOST_FOREACH(T& x, *this) {
             x = fill;
         }
     }
-    static_vector(const static_vector& old) : end_ptr(data+old.size()), current_size(old.size()) {
+    static_vector(const static_vector& old) : current_size(old.size()), end_ptr(data+current_size) {
         copy(old.begin(),old.end(),begin());
+    }
+
+    template<typename Iterator> static_vector(Iterator start,Iterator finish)
+      : current_size(finish-start), end_ptr(data+current_size) 
+    {
+        copy(start,finish,begin());
     }
 
     void operator=(const static_vector& old) {
@@ -590,8 +668,8 @@ protected:
 
     T data[buffer_size];
 
-    T* end_ptr;
     size_t current_size;
+    T* end_ptr;
 
 };
 //@+node:gcross.20090526161317.2: *3* gaussian_elimination_state
@@ -1080,55 +1158,7 @@ template<
 
 //@+<< I/O >>
 //@+node:gcross.20101217153202.1447: *4* << I/O >>
-template
-    < class quantum_operator
-    , class qubit_vector
-    , class operator_vector
-    , class index_vector
-    , class pseudo_generator_vector
-    >
-ostream& operator<<(ostream& out, const qec<quantum_operator,qubit_vector,operator_vector,index_vector,pseudo_generator_vector>& code) {
-    typedef typename qubit_vector::value_type qubit;
-
-    out << "Stabilizers:" << endl;
-    BOOST_FOREACH(const quantum_operator& op, code.stabilizers) {
-        out << "    - " << op.to_string() << endl;
-    }
-    out << endl;
-
-    out << "Gauge Qubits:" << endl;
-
-    { int i = 0; BOOST_FOREACH(const qubit& qubit, code.gauge_qubits) {
-        out << "# " << (i+1) << endl;
-        out << "    - X: " << qubit.X.to_string() << endl;
-        out << "      Y: " << qubit.Y.to_string() << endl;
-        out << "      Z: " << qubit.Z.to_string() << endl;
-        ++i;
-    }}
-    out << endl;
-
-    out << "Logical Qubits:" << endl;
-    { int i = 0; BOOST_FOREACH(const qubit& qubit, code.logical_qubits) {
-        out << "# " << (i+1) << endl;
-        out << "    - X: " << qubit.X.to_string() << endl;
-        out << "      Y: " << qubit.Y.to_string() << endl;
-        out << "      Z: " << qubit.Z.to_string() << endl;
-        if(code.optimized) {
-            out << "      Distance: " << code.logical_qubit_error_distances[i] << endl;
-            out << "      Minimum weight error: " << code.logical_qubit_errors[i].to_string() << endl;
-        }
-        ++i;
-    }}
-    out << endl;
-
-    out << "Summary:" << endl;
-    out << "    Number of physical qubits: " << code.number_of_physical_qubits << endl;
-    out << "    Number of stabilizers:     " << code.stabilizers.size() << endl;
-    out << "    Number of gauge qubits:    " << code.gauge_qubits.size() << endl;
-    out << "    Number of logical qubits:  " << code.logical_qubits.size() << endl;
-
-    return out;
-}
+template<typename A,typename B,typename C,typename D,typename E> ostream& operator<<(ostream& out, const qec<A,B,C,D,E>& code) { return writeYAML(out,code); }
 //@-<< I/O >>
 
 //@+<< Aliases >>
@@ -1148,7 +1178,7 @@ template<unsigned int nbits, unsigned int nops> struct wrapped_static_qec {
         > type;
 };
 
-template<unsigned int nbits, unsigned int nops> struct static_qec : public wrapped_static_qec<nbits,nops>::type {
+template<unsigned int nbits, unsigned int nops=2*nbits> struct static_qec : public wrapped_static_qec<nbits,nops>::type {
 
     typedef typename wrapped_static_qec<nbits,nops>::type qec_t;
 
@@ -1158,6 +1188,31 @@ template<unsigned int nbits, unsigned int nops> struct static_qec : public wrapp
 
 };
 //@-<< Aliases >>
+//@+node:gcross.20110209133648.2297: *3* code
+struct code {
+    typedef dynamic_quantum_operator quantum_operator;
+    typedef dynamic_qubit qubit_type;
+
+    unsigned int number_of_physical_qubits;
+    bool optimized;
+    dynamic_operator_vector stabilizers;
+    dynamic_qubit_vector gauge_qubits, logical_qubits;
+    vector<size_t> logical_qubit_error_distances;
+    dynamic_operator_vector logical_qubit_errors;
+
+    template<typename A,typename B,typename C,typename D,typename E> code(const qec<A,B,C,D,E>& other)
+     : number_of_physical_qubits(other.number_of_physical_qubits)
+     , optimized(other.optimized)
+     , stabilizers(other.stabilizers.begin(),other.stabilizers.end())
+     , gauge_qubits(other.gauge_qubits.begin(),other.gauge_qubits.end())
+     , logical_qubits(other.logical_qubits.begin(),other.logical_qubits.end())
+     , logical_qubit_error_distances(other.logical_qubit_error_distances.begin(),other.logical_qubit_error_distances.end())
+     , logical_qubit_errors(other.logical_qubit_errors.begin(),other.logical_qubit_errors.end())
+    {}
+};
+
+code solve(const dynamic_operator_vector& operators, bool optimize_logical_qubits);
+ostream& operator<<(ostream& out, const code& code);
 //@-others
 
 template<class A, class B> class anti_commute_test {
@@ -1174,6 +1229,16 @@ protected:
 
 };
 
+//@+node:gcross.20110209133648.2311: ** function solveForFixedSize
+template<typename operator_vector,unsigned int number_of_qubits> code solveForFixedSize(const operator_vector& operators,const bool optimize_logical_qubits) {
+    typedef static_qec<number_of_qubits> qec_t;
+    operator_vector reduced_operators(operators);
+    reduce_row_echelon_split_representation(reduced_operators);
+    typename qec_t::operator_vector qec_operators(reduced_operators.begin(),reduced_operators.end());
+    qec_t qec(qec_operators);
+    if(optimize_logical_qubits) qec.optimize_logical_qubits();
+    return code(qec);
+}
 //@-others
 
 }

@@ -32,11 +32,7 @@ using namespace __gnu_cxx;
 
 //@+<< Declarations >>
 //@+node:gmc.20080826191619.12: ** << Declarations >>
-ostream& operator<<(ostream& out, const quantum_operator& op);
 istream& operator>>(istream& in, quantum_operator& op);
-
-ostream& operator<<(ostream& out, const qec& code);
-
 typedef array<int,2> CoordinateVector;
 //@-<< Declarations >>
 
