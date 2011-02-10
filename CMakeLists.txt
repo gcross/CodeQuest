@@ -26,7 +26,7 @@ message (STATUS "Build type is " ${CMAKE_BUILD_TYPE})
 
 if(UNIX)
     if(CMAKE_COMPILER_IS_GNUCXX)
-         set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -momit-leaf-frame-pointer -fno-tree-pre -falign-loops -mtune=native -march=native -funroll-loops -funsafe-loop-optimizations -fipa-pta -ftree-loop-linear -ftree-loop-im -fivopts -fvariable-expansion-in-unroller -ftracer -ftree-vectorize ${CMAKE_CXX_FLAGS}")
+         set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -momit-leaf-frame-pointer -fno-tree-pre -falign-loops -mtune=native -funroll-loops -funsafe-loop-optimizations -fipa-pta -ftree-loop-linear -ftree-loop-im -fivopts -fvariable-expansion-in-unroller -ftracer -ftree-vectorize ${CMAKE_CXX_FLAGS}")
          #add_definitions(-Wall -Wno-strict-aliasing)
     endif(CMAKE_COMPILER_IS_GNUCXX)
 endif(UNIX)
