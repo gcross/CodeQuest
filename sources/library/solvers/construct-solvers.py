@@ -13,6 +13,6 @@ namespace CodeQuest {
 }
 """
 
-for i in range(1,128+1):
+for i in range(1,256+1):
     with open("%03i.cpp" % i,"w") as f:
         print >> f, template % (i,i)
