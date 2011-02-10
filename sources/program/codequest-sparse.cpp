@@ -361,12 +361,9 @@ int main_sparse(string filename, bool compute_weights_flag) {
     //tms before, after;
     cout << "Computing code...";
     //times(&before);
-    qec code(operators);
+    code code = solve(operators,compute_weights_flag);
     //times(&after);
     cout << "done!" << endl; //  Took " << (((after.tms_utime+after.tms_stime)-(before.tms_utime+before.tms_stime)) * CLK_TCK) << " seconds." << endl << endl;
-
-    if(compute_weights_flag)
-        code.optimize_logical_qubits(false);
     //@-<< Compute code >>
 
     //@+<< Print out results >>
