@@ -55,8 +55,9 @@ extern variate_generator<mt19937&, uniform_01<> > random_real;
 //@+node:gcross.20090521215822.22: ** compute_basis
 typedef vector<pair<size_t,unsigned int> > basis_information;
 
-template<class operator_vector> basis_information compute_basis(operator_vector& operators, const char name[], vector<string>& errors, bool reduce_first=true) {
+template<class operator_vector> basis_information compute_basis(const operator_vector& original_operators, const char name[], vector<string>& errors, bool reduce_first=true) {
     basis_information operator_basis;
+    operator_vector operators(original_operators);
 
     if(operators.size()==0) operator_basis;
 
@@ -90,7 +91,7 @@ template<class quantum_operator,class operator_vector> bool contained_in(const q
     return residual.is_identity();
 }
 //@+node:gcross.20090521215822.24: ** check_for_problems_in_code
-template<class qec_type> vector<string> check_for_problems_in_code(const typename qec_type::operator_vector& operators, qec_type& code) {
+template<class qec_type> vector<string> check_for_problems_in_code(const typename qec_type::operator_vector& operators, const qec_type& code) {
     vector<string> errors;
 
     const size_t number_of_physical_qubits = code.number_of_physical_qubits,
@@ -115,12 +116,12 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
         append_error("Stabilizers are not independent!  Before reduced row escehlon there were " << code_stabilizers_original_size << " operators, and after there were " << code.stabilizers.size() << "operators!");
 
     operator_vector code_operators = code.stabilizers;
-    BOOST_FOREACH(qubit_type& q, code.gauge_qubits) {
+    BOOST_FOREACH(const qubit_type& q, code.gauge_qubits) {
         code_operators.push_back(q.X);
         code_operators.push_back(q.Z);
     }
     operator_vector sg_operators = code_operators;
-    BOOST_FOREACH(qubit_type& q, code.logical_qubits) {
+    BOOST_FOREACH(const qubit_type& q, code.logical_qubits) {
         code_operators.push_back(q.X);
         code_operators.push_back(q.Z);
     }
