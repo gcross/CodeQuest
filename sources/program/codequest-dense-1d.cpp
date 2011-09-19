@@ -67,6 +67,17 @@ unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=
 
         while( in.good() ) {
             current_line_number++;
+            {
+                char first_column;
+                in.get(first_column);
+                if(first_column == '#') {
+                    string junk;
+                    getline(in,junk);
+                    continue;
+                } else {
+                    in.putback(first_column);
+                }
+            }
             quantum_operator op;
             in >> op;
             if(!op.is_identity())
