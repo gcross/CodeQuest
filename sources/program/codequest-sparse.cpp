@@ -52,6 +52,7 @@ unsigned int read_in_operators(vector<dynamic_quantum_operator>& operators, vect
         current_line_number++;
         string::const_iterator charref = s.begin();
         while((*charref == ' ') and (charref != s.end())) charref++;
+        if(*charref == '#') continue;
         try {
             map<size_t,pauli_pair> opmap;
             while(charref != s.end()) {
