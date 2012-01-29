@@ -380,6 +380,15 @@ template<typename code_t> ostream& writeYAML(ostream& out, const code_t& code) {
     out << "    Number of gauge qubits:    " << code.gauge_qubits.size() << endl;
     out << "    Number of logical qubits:  " << code.logical_qubits.size() << endl;
 
+    if(code.logical_qubits.size()>0 and code.optimized) {
+        cout <<
+           "    Logical qubit weights:     [";
+        BOOST_FOREACH(const size_t i, irange<size_t>(0,code.logical_qubits.size()-1)) {
+            cout << code.logical_qubit_error_distances[i] << ", ";
+        }
+        cout << code.logical_qubit_error_distances[code.logical_qubits.size()-1] << ']' << endl;
+    } else cout << endl;
+
     return out;
 }
 //@-others
