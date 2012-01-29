@@ -371,7 +371,7 @@ int main_sparse(string filename, bool compute_weights_flag) {
     //@+node:gmc.20080826191619.31: *3* << Print out results >>
     cout << "Stabilizers:" << endl;
 
-    BOOST_FOREACH(const quantum_operator& op, operators) {
+    BOOST_FOREACH(const quantum_operator& op, code.stabilizers) {
         print_op("\t",width,height,qubit_coordinates,op);
     }
 
