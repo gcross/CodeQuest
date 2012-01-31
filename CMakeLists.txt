@@ -1,5 +1,3 @@
-#@+leo-ver=5-thin
-#@+node:gcross.20101123222425.2061: * @thin CMakeLists.txt
 cmake_minimum_required (VERSION 2.6)
 project (CodeQuest CXX)
 
@@ -39,4 +37,3 @@ add_subdirectory ("includes")
 add_subdirectory ("sources")
 add_subdirectory ("documentation")
 add_subdirectory ("tests")
-#@-leo

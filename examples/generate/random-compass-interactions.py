@@ -1,7 +1,4 @@
 #!/usr/bin/python
-#@+leo-ver=4-thin
-#@+node:gmc.20080911170647.2:@thin random-compass-interactions.py
-#@@first
 
 from read_grid_parameters import width, height
 
@@ -20,5 +17,3 @@ for x in xrange(1,width+1):
         #op = choice(["I","X","Y","Z"])
         #if op != "I":
         #    print("(%i,%i) %s" % (x,y,op))
-#@-node:gmc.20080911170647.2:@thin random-compass-interactions.py
-#@-leo

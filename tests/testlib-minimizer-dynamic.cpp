@@ -1,7 +1,3 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20101228150742.1432: * @thin testlib-minimizer-dynamic.cpp
-//@@language cplusplus
-
 #include "randomized-tests.hpp"
 
 void testMinimizerDynamic() {
@@ -16,4 +12,3 @@ void testMinimizerDynamic() {
             (i+1,tests[i].get<0>(),tests[i].get<1>(),tests[i].get<2>());
     }
 }
-//@-leo

@@ -1,7 +1,3 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20101228150742.1447: * @thin testlib-solver-static-8.cpp
-//@@language cplusplus
-
 #include "randomized-tests.hpp"
 
 void testSolverStatic8() {
@@ -17,4 +13,3 @@ void testSolverStatic8() {
             (i+1,tests[i].get<0>(),8,tests[i].get<1>());
     }
 }
-//@-leo

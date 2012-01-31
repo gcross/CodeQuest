@@ -1,7 +1,3 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20081119221421.5: * @thin codequest.cpp
-//@@language cplusplus
-
 #include <boost/function.hpp>
 #include <string>
 #include <iostream>
@@ -44,4 +40,3 @@ try {
 } catch (ArgException &e)  // catch any exceptions
 	{ cerr << "error: " << e.error() << " for arg " << e.argId() << endl; }
 }
-//@-leo

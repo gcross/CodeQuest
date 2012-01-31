@@ -1,7 +1,5 @@
 #!/usr/bin/python
-#@+leo-ver=4-thin
-#@+node:gmc.20080912133652.5:@thin triangular-lattice-compass-interactions-with-one-flaw.py
-#@@first
+
 from __future__ import with_statement
 from numpy import array
 
@@ -54,5 +52,3 @@ for op, forward, left in directions:
             add_line(position+left*i,position+left*(i+1))
         for i in xrange(size-j):
             add_line(position-left*i,position-left*(i+1))
-#@-node:gmc.20080912133652.5:@thin triangular-lattice-compass-interactions-with-one-flaw.py
-#@-leo

@@ -1,7 +1,4 @@
 #!/usr/bin/python
-#@+leo-ver=4-thin
-#@+node:gmc.20080911170647.3:@thin compass-interactions.py
-#@@first
 
 from read_grid_parameters import width, height
 
@@ -12,5 +9,3 @@ for x in xrange(1,width+1):
         if y != height:
             print("(%i,%i) Z (%i,%i) Z" % (x,y,x,y+1))
 
-#@-node:gmc.20080911170647.3:@thin compass-interactions.py
-#@-leo

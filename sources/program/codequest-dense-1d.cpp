@@ -1,26 +1,24 @@
-//@+leo-ver=5-thin
-//@+node:gmc.20080826191619.3: * @thin codequest-dense-1d.cpp
-//@@language cplusplus
-
-//@+<< Headers >>
-//@+node:gmc.20080826191619.4: ** << Headers >>
+// Includes {{{
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/range/irange.hpp>
 #include <fstream>
 
 #include "codequest.hpp"
+// }}}
 
+// Namespace imports {{{
 using namespace CodeQuest;
 using namespace std;
 using namespace boost;
 using namespace boost::algorithm;
-//@-<< Headers >>
+// }}}
 
+// Type aliases {{{
 #define quantum_operator dynamic_quantum_operator
 #define qec qec<dynamic_quantum_operator>
+// }}}
 
-//@+<< I/O >>
-//@+node:gmc.20080824181205.25: ** << I/O >>
+// IO Operator {{{
 istream& operator>>(istream& in, quantum_operator& op) {
     string s;
     getline(in,s);
@@ -52,15 +50,11 @@ istream& operator>>(istream& in, quantum_operator& op) {
     }
 	return in;
 }
-//@-<< I/O >>
+// }}}
 
-//@+others
-//@+node:gmc.20080826191619.5: ** Functions
-//@+node:gmc.20080824181205.30: *3* read_in_operators
-unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=cin) {
+unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=cin) { // {{{
 
-    //@+<< Read in and parse each of the operator strings >>
-    //@+node:gmc.20080826191619.2: *4* << Read in and parse each of the operator strings >>
+    // Read in and parse each of the operator strings {{{
     unsigned int current_line_number = 0;
 
     try {
@@ -97,10 +91,9 @@ unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=
             << "Invalid Pauli operator '" << e.operator_string[e.column] << "'." << endl;
         return -1;
     }
-    //@-<< Read in and parse each of the operator strings >>
+    // }}}
 
-    //@+<< Post-process to make sure all operators have the same length >>
-    //@+node:gmc.20080824181205.32: *4* << Post-process to make sure all operators have the same length >>
+    // Post-process to make sure all operators have the same length {{{
     size_t system_size = 0;
 
     BOOST_FOREACH(const quantum_operator& op, operators) {
@@ -111,12 +104,13 @@ unsigned int read_in_operators(vector<quantum_operator>& operators, istream& in=
     BOOST_FOREACH(quantum_operator& op, operators) {
         op.resize(system_size);
     }
-    //@-<< Post-process to make sure all operators have the same length >>
+    // }}}
 
     return 0;
 }
-//@+node:gmc.20080824181205.29: ** main_dense_1d
-unsigned int main_dense_1d(string filename, bool compute_weights_flag) {
+// }}}
+
+unsigned int main_dense_1d(string filename, bool compute_weights_flag) { // {{{
     vector<quantum_operator> operators;
 
     unsigned int result;
@@ -144,5 +138,4 @@ unsigned int main_dense_1d(string filename, bool compute_weights_flag) {
     }
 
 }
-//@-others
-//@-leo
+// }}}

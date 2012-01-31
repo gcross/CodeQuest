@@ -1,7 +1,3 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20101228150742.1453: * @thin testlib-solver-static-64.cpp
-//@@language cplusplus
-
 #include "randomized-tests.hpp"
 
 void testSolverStatic64() {
@@ -15,4 +11,3 @@ void testSolverStatic64() {
             (i+1,tests[i].get<0>(),64,tests[i].get<1>());
     }
 }
-//@-leo

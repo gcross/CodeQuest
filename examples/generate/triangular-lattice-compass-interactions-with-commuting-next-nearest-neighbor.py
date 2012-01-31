@@ -1,7 +1,5 @@
 #!/usr/bin/python
-#@+leo-ver=4-thin
-#@+node:gmc.20080912133652.4:@thin triangular-lattice-compass-interactions-with-commuting-next-nearest-neighbor.py
-#@@first
+
 from __future__ import with_statement
 from numpy import array
 
@@ -67,5 +65,3 @@ for op, forward, left in directions:
                 add_line(position-left*i,position-left*(i+2))
         if j != size:
             add_line(position+left,position-left)
-#@-node:gmc.20080912133652.4:@thin triangular-lattice-compass-interactions-with-commuting-next-nearest-neighbor.py
-#@-leo

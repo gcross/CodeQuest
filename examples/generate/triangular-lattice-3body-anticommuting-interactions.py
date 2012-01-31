@@ -1,7 +1,5 @@
 #!/usr/bin/python
-#@+leo-ver=4-thin
-#@+node:gmc.20080912133652.2:@thin triangular-lattice-3body-anticommuting-interactions.py
-#@@first
+
 from __future__ import with_statement
 from numpy import array
 
@@ -48,5 +46,3 @@ for row_number in xrange(size+1):
     do_row(row_number,-row_number,size*2-row_number)
     if row_number != size and row_number != 0:
         do_row(row_number,+row_number,size*2-row_number)
-#@-node:gmc.20080912133652.2:@thin triangular-lattice-3body-anticommuting-interactions.py
-#@-leo

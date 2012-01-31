@@ -1,14 +1,9 @@
-//@+leo-ver=5-thin
-//@+node:gmc.20080824181205.14: * @thin codequest.hpp
-//@@language cplusplus
-
 #ifndef CODEQUEST_H
 #define CODEQUEST_H
 
 #define restrict __restrict__
 
-//@+<< Includes >>
-//@+node:gmc.20080824181205.15: ** << Includes >>
+// Includes {{{
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -21,12 +16,11 @@
 #include <string>
 #include <functional>
 #include <utility>
-//@-<< Includes >>
+// }}}
 
 namespace CodeQuest {
 
-//@+<< Usings >>
-//@+node:gcross.20101217153202.1438: ** << Usings >>
+// Namespace imports {{{
 using boost::dynamic_bitset;
 using boost::irange;
 using boost::make_iterator_range;
@@ -43,13 +37,10 @@ using std::ostream;
 using std::pair;
 using std::string;
 using std::vector;
-//@-<< Usings >>
+// }}}
 
-//@+others
-//@+node:gmc.20080907163416.85: ** Exceptions
-//@+others
-//@+node:gmc.20080826115908.2: *3* invalid_pauli
-class invalid_pauli : public exception {
+// Exceptions {{{
+class invalid_pauli : public exception { // {{{
 
 public:
 
@@ -64,11 +55,14 @@ public:
     const char* what() throw() { return "invalid pauli operator specificed"; }
 
 };
-//@-others
-//@+node:gmc.20080824181205.27: ** Functions
-//@+others
-//@+node:gmc.20080907163416.84: *3* reduce_row_echelon_block_representation
-template<class operator_vector> void reduce_row_echelon_block_representation(operator_vector& rows, const bool zero_upper=true) {
+// }}}
+// }}}
+
+// Functions {{{
+template<class operator_vector> void reduce_row_echelon_block_representation( // {{{
+    operator_vector& rows,
+    const bool zero_upper=true
+) {
     if(rows.size()==0) return;
     typename operator_vector::iterator rref, rowref = rows.begin();
     size_t system_size = rowref->length();
@@ -112,8 +106,12 @@ template<class operator_vector> void reduce_row_echelon_block_representation(ope
     }
     rows.erase(rowref,rows.end());
 }
-//@+node:gcross.20090526153741.1: *3* reduce_row_echelon_split_representation
-template<class operator_vector> void reduce_row_echelon_split_representation(operator_vector& rows, const bool zero_upper=false) {
+// }}}
+
+template<class operator_vector> void reduce_row_echelon_split_representation( // {{{
+    operator_vector& rows,
+    const bool zero_upper=false
+) {
     if(rows.size()==0) return;
     typename operator_vector::iterator rref, rowref = rows.begin();
     size_t system_size = rowref->length();
@@ -151,7 +149,9 @@ template<class operator_vector> void reduce_row_echelon_split_representation(ope
     }
     rows.erase(rowref,rows.end());
 }
-//@+node:gcross.20100318202249.1411: *3* compute_minimum_weight_operator
+// }}}
+
+// inline template<..> compute_minimum_weight_operator( {{{
 template<
     class pseudo_generator_vector,
     class index_vector,
@@ -167,11 +167,8 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
     typedef typename quantum_operator::bitset_type bitset;
     typedef typename index_vector::value_type uint;
 
-    //@+<< Nested classes >>
-    //@+node:gcross.20101217153202.1442: *4* << Nested classes >>
-    //@+others
-    //@+node:gcross.20101217153202.1443: *5* ChoiceIterator
-    class ChoiceIterator : public index_vector {
+    // Nested classes {{{
+    class ChoiceIterator : public index_vector { // {{{
 
     public:
 
@@ -210,8 +207,9 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
         void operator ++() { increment(0); }
 
     };
-    //@+node:gcross.20101217153202.1444: *5* CoefficientIterator
-    class CoefficientIterator : public index_vector {
+    // }}}
+
+    class CoefficientIterator : public index_vector { // {{{
 
     public:
 
@@ -240,8 +238,8 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
         void operator ++() { increment(index_vector::size()-1); }
 
     };
-    //@-others
-    //@-<< Nested classes >>
+    // }}}
+    // }}}
 
     uint r = 0;
 
@@ -308,7 +306,9 @@ inline pair<typename pseudo_generator_vector::value_type::quantum_operator,query
     return make_pair(minimum_weight_operator,minimum_weight_query_result);
 
 }
-//@+node:gcross.20100910154654.1413: *3* compute_pseudo_generators
+// }}}
+
+// inline template<..> compute_pseudo_generators(operator_vector & restrict operators) {{{
 template<
     class operator_vector,
     class pseudo_generator_vector
@@ -338,8 +338,9 @@ inline pseudo_generator_vector compute_pseudo_generators(operator_vector & restr
 
     return pseudo_generators;
 }
-//@+node:gcross.20110209133648.2305: *3* writeYAML
-template<typename code_t> ostream& writeYAML(ostream& out, const code_t& code) {
+// }}}
+
+template<typename code_t> ostream& writeYAML(ostream& out, const code_t& code) { // {{{
     typedef typename code_t::quantum_operator quantum_operator;
     typedef typename code_t::qubit_type qubit;
 
@@ -391,11 +392,13 @@ template<typename code_t> ostream& writeYAML(ostream& out, const code_t& code) {
 
     return out;
 }
-//@-others
-//@+node:gmc.20080824181205.16: ** Classes
-//@+others
-//@+node:gmc.20080824181205.17: *3* quantum_operator
-template<class bitset> struct quantum_operator {
+// }}}
+// }}}
+
+// Classes {{{
+// Quantum operator classes {{{
+
+template<class bitset> struct quantum_operator { // {{{
 
     typedef bitset bitset_type;
 
@@ -465,8 +468,14 @@ template<class bitset> struct quantum_operator {
 
 };
 
+template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<bitset>& op) {
+    out << op.to_string();
+    return out;
+}
+// }}}
+
 struct dynamic_quantum_operator;
-template<unsigned int number_of_bits> struct static_quantum_operator : public quantum_operator<bitset<number_of_bits> >{
+template<unsigned int number_of_bits> struct static_quantum_operator : public quantum_operator<bitset<number_of_bits> >{ // {{{
     typedef quantum_operator<bitset<number_of_bits> > BaseType;
 
     inline static_quantum_operator() { }
@@ -493,13 +502,9 @@ template<unsigned int number_of_bits> struct static_quantum_operator : public qu
         return *this;
     }
 };
+// }}}
 
-template<class bitset> ostream& operator<<(ostream& out, const quantum_operator<bitset>& op) {
-    out << op.to_string();
-    return out;
-}
-
-struct dynamic_quantum_operator : public quantum_operator<dynamic_bitset<unsigned int> > {
+struct dynamic_quantum_operator : public quantum_operator<dynamic_bitset<unsigned int> > { // {{{
 
     typedef dynamic_bitset<unsigned int> BitsetType;
     typedef quantum_operator<BitsetType> BaseType;
@@ -541,8 +546,11 @@ struct dynamic_quantum_operator : public quantum_operator<dynamic_bitset<unsigne
 };
 
 typedef vector<dynamic_quantum_operator> dynamic_operator_vector;
-//@+node:gmc.20080824181205.18: *3* qubit
-template<class quantum_operator> struct qubit {
+// }}}
+
+// }}}
+
+template<class quantum_operator> struct qubit { // {{{
     quantum_operator X, Y, Z;
 
     inline qubit() {}
@@ -559,8 +567,9 @@ template<class bitset> inline bool operator||(const quantum_operator<bitset>& re
 
 typedef qubit<dynamic_quantum_operator> dynamic_qubit;
 typedef vector<dynamic_qubit> dynamic_qubit_vector;
-//@+node:gmc.20080910123558.5: *3* pseudo_generator
-template<class Quantum_operator> class pseudo_generator {
+// }}}
+
+template<class Quantum_operator> class pseudo_generator { // {{{
 
 public:
 
@@ -589,8 +598,9 @@ public:
     inline size_t number_of_qubits() const { return op_1.length(); }
 
 };
-//@+node:gcross.20081201142225.2: *3* static_vector
-template<typename T,unsigned int buffer_size> class static_vector {
+// }}}
+
+template<typename T,unsigned int buffer_size> class static_vector { // {{{
 
 public:
 
@@ -681,18 +691,16 @@ protected:
     T* end_ptr;
 
 };
-//@+node:gcross.20090526161317.2: *3* gaussian_elimination_state
-template<class quantum_operator, class operator_vector, class index_vector> struct gaussian_elimination_state {
-    //@+<< Fields >>
-    //@+node:gcross.20090526161317.3: *4* << Fields >>
+// }}}
+
+template<class quantum_operator, class operator_vector, class index_vector> struct gaussian_elimination_state { // {{{
+    // Fields {{{
     typename quantum_operator::bitset_type indices_taken, paulis_chosen;
     index_vector qubit_indices_chosen;
     size_t current_operator_index;
     const size_t number_of_physical_qubits;
-    //@-<< Fields >>
-    //@+others
-    //@+node:gcross.20090526161317.4: *4* constructor
-    gaussian_elimination_state(const unsigned int number_of_physical_qubits) :
+    // }}}
+    gaussian_elimination_state(const unsigned int number_of_physical_qubits) : // {{{
         number_of_physical_qubits(number_of_physical_qubits),
         current_operator_index(0)
     {
@@ -700,21 +708,13 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
         quantum_operator::resize_bitset(indices_taken,number_of_physical_qubits);
         quantum_operator::resize_bitset(paulis_chosen,number_of_physical_qubits);
     }
-    //@+node:gcross.20090526161317.5: *4* run_elimination
-    void run_elimination(operator_vector& operators) {
-        //@+<< Perform the Gaussian elimination >>
-        //@+node:gcross.20090526161317.6: *5* << Perform the Gaussian elimination >>
-        //@+at
+    // }}}
+    void run_elimination(operator_vector& operators) { // {{{
         // Initialize some iterators.
-        //@@c
         typename operator_vector::iterator op_overwrite_iter = operators.begin()+current_operator_index;
-        //@+at
         // Loop over the remaining operators.
-        //@@c
         BOOST_FOREACH(quantum_operator op, operators) {
-        //@+at
         // Loop over the previous operators and make sure that operator is independent of them.
-        //@@c
             typename index_vector::iterator qubit_index_chosen_iter = qubit_indices_chosen.begin();
             size_t op2_index = 0;
             BOOST_FOREACH(const quantum_operator& op2, make_pair(operators.begin(),op_overwrite_iter)) {
@@ -724,13 +724,9 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
                 ++qubit_index_chosen_iter;
                 ++op2_index;
             }
-        //@+at
         // If the operator is now the identity, then skip it and move to the next.
-        //@@c
             if(op.is_identity()) continue;
-        //@+at
         // Look for the first physical qubit at a non-taken index with a non-trivial Pauli.
-        //@@c
             unsigned int qubit_index_chosen;
             bool pauli_chosen;
             for(qubit_index_chosen = 0; qubit_index_chosen < number_of_physical_qubits; ++qubit_index_chosen) {
@@ -745,9 +741,7 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
                 }
             }
             assert(qubit_index_chosen < number_of_physical_qubits);
-        //@+at
         // Loop over the previous operators and make sure that operator is independent of them.
-        //@@c
             if(pauli_chosen)
                 BOOST_FOREACH(quantum_operator& op2, make_pair(operators.begin(),op_overwrite_iter)) {
                     if(op2.X.test(qubit_index_chosen)) op2 *= op;
@@ -756,24 +750,20 @@ template<class quantum_operator, class operator_vector, class index_vector> stru
                 BOOST_FOREACH(quantum_operator& op2, make_pair(operators.begin(),op_overwrite_iter)) {
                     if(op2.Z.test(qubit_index_chosen)) op2 *= op;
                 }
-        //@+at
         // Store the index and pauli chosen, copy the operator to the overwrite index, and increment the current operator index.
-        //@@c
             indices_taken.set(qubit_index_chosen);
             qubit_indices_chosen.push_back(qubit_index_chosen);
             paulis_chosen[current_operator_index++] = pauli_chosen;
             *(op_overwrite_iter++) = op;
         }
-        //@+at
         // Erase everything after the last operator.
-        //@@c
         operators.erase(op_overwrite_iter,operators.end());
-        //@-<< Perform the Gaussian elimination >>
     }
-    //@-others
+    // }}}
 };
+// }}}
 
-//@+node:gmc.20080824181205.19: *3* qec
+// template<...> qec {{{
 template<
     class Quantum_operator = dynamic_quantum_operator,
     class Qubit_vector = vector<qubit<Quantum_operator> >,
@@ -782,8 +772,7 @@ template<
     class Pseudo_generator_vector = vector<pseudo_generator<Quantum_operator> >
 > struct qec {
 
-    //@+<< Typedefs >>
-    //@+node:gcross.20090521215822.9: *4* << Typedefs >>
+    // Type aliases {{{
     typedef Quantum_operator quantum_operator;
     typedef Qubit_vector qubit_vector;
     typedef Operator_vector operator_vector;
@@ -798,10 +787,10 @@ template<
     typedef typename operator_vector::const_iterator const_operator_iterator;
     typedef typename index_vector::iterator index_iterator;
     typedef gaussian_elimination_state<quantum_operator,operator_vector,index_vector> gaussian_elimination_state_type;
-    //@-<< Typedefs >>
+    // }}}
 
-    //@+<< Fields >>
-    //@+node:gcross.20090521215822.10: *4* << Fields >>
+
+    // Fields {{{
     const size_t number_of_physical_qubits;
     bool optimized;
 
@@ -812,12 +801,12 @@ template<
 
     index_vector logical_qubit_error_distances;
     operator_vector logical_qubit_errors;
-    //@-<< Fields >>
+    // }}}
 
-    //@+others
-    //@+node:gcross.20100318162833.1399: *4* Nested classes
-    //@+node:gcross.20100318162833.1391: *5* anti_commutes_with_some_logical
-    struct anti_commutes_with_some_logical {
+
+
+    // Nested classes {{{
+    struct anti_commutes_with_some_logical { // {{{
 
         const bitset & restrict marked_as_eligible_to_fix_an_error;
         const const_qubit_iterator logical_qubits_begin,
@@ -857,8 +846,10 @@ template<
         }
 
     };
-    //@+node:gmc.20080824181205.26: *4* constructor
-    qec(const operator_vector& operators, const bool compute_logicals=true) :
+    // }}}
+
+    // }}}
+    qec(const operator_vector& operators, const bool compute_logicals=true) : // {{{
         number_of_physical_qubits(operators[0].length()),
         post_stabilizer_elimination_state(operators[0].length()),
         optimized(false)
@@ -869,43 +860,30 @@ template<
         stabilizers.reserve(operators.size());
         gauge_qubits.reserve(min(operators.size()/2,number_of_physical_qubits));
 
-        //@+<< Build table of stabilizers and gauge qubits >>
-        //@+node:gmc.20080824181205.34: *5* << Build table of stabilizers and gauge qubits >>
+        // Build table of stabilizers and gauge qubits {{{
         BOOST_FOREACH(const quantum_operator& op_, operators) {
         quantum_operator op = op_;
 
-        //@+at
         // Make sure that this operator commutes with all of the gauge qubit operators.
-        //@@c
             BOOST_FOREACH(const qubit_type& gauge_qubit, gauge_qubits) {
                 if(!(op||gauge_qubit.Z)) op *= gauge_qubit.X;
                 if(!(op||gauge_qubit.X)) op *= gauge_qubit.Z;
             }
-        //@+at
         // If the remaining operator is trivial, then we are done.
-        //@@c
             if(op.is_identity()) continue;
-        //@+at
         // Otherwise, see if it commutes with all of the stabilizers.
-        //@@c
             operator_iterator first_found_conjugal_partner = stabilizers.begin();
             while(first_found_conjugal_partner != stabilizers.end() and ((*first_found_conjugal_partner)||op))
                 ++first_found_conjugal_partner;
-        //@+at
         // If all stabilizer elements commute with this operator, then add this operator to the list of stabilizers and continue to the next one.
-        //@@c
             if(first_found_conjugal_partner==stabilizers.end()) {
                 stabilizers.push_back(op);
                 continue;
             }
-        //@+at
         // Otherwise, make a gauge qubit out of these two anti-commuting operators.
-        //@@c
             qubit_type gauge_qubit(*first_found_conjugal_partner,op);
             gauge_qubits.push_back(gauge_qubit);
-        //@+at
         // We now need to make sure that all of the stabilizers commute with op by multiplying those which done by op's conjugal partner.  While we are doing this, we simultaneously filter out all of the duplicates of the stabilizer we chose to be op's conjugal partner.
-        //@@c
             operator_iterator next_stabilizer_to_overwrite = stabilizers.begin();
             BOOST_FOREACH(const quantum_operator& stabilizer, stabilizers) {
                 if(stabilizer==gauge_qubit.X) continue;
@@ -914,11 +892,9 @@ template<
             stabilizers.erase(next_stabilizer_to_overwrite,stabilizers.end());
         }
 
-        //@+at
         // Now we have a set of stabilizers, but they might not be linearly independent.  We perform a gaussian elimination to fix this.
-        //@@c
         post_stabilizer_elimination_state.run_elimination(stabilizers);
-        //@-<< Build table of stabilizers and gauge qubits >>
+        // }}}
 
         if(compute_logicals) {
             logical_qubits.reserve(number_of_logical_qubits());
@@ -927,9 +903,9 @@ template<
         }
 
     }
+    // }}}
 
-    //@+node:gcross.20081119221421.3: *4* optimize_logical_qubits
-    void optimize_logical_qubits(const bool verbose=false) {
+    void optimize_logical_qubits(const bool verbose=false) { // {{{
 
         const size_t number_of_logical_qubits = logical_qubits.size();
 
@@ -997,8 +973,7 @@ template<
             unsigned int index = 3453456;
             switch(error_case) {
                 case 1:
-                    //@+<< Case 1 >>
-                    //@+node:gcross.20100208221030.1400: *5* << Case 1 >>
+                    // Case 1 {{{
                     marked_as_eligible_to_fix_an_error[error_index] = false;
                     assert(error && qubit_fixing_the_error_ref->Z);
                     index = error_index+1;
@@ -1033,11 +1008,10 @@ template<
                         }
                         assert((error || qubit_to_fix.X) && (error || qubit_to_fix.Z));
                     }
-                    //@-<< Case 1 >>
+                    // }}}
                     break;
                 case 2:
-                    //@+<< Case 2 >>
-                    //@+node:gcross.20100208221030.1401: *5* << Case 2 >>
+                    // Case 2 {{{
                     assert((error && qubit_fixing_the_error_ref->X) || (error && qubit_fixing_the_error_ref->Z));
                     if(error || qubit_fixing_the_error_ref->X)
                         swap(qubit_fixing_the_error_ref->X,qubit_fixing_the_error_ref->Z);
@@ -1075,7 +1049,7 @@ template<
 
                     logical_qubit_error_distances.push_back(error.weight());
                     logical_qubit_errors.push_back(error);
-                    //@-<< Case 2 >>
+                    // }}}
             }
 
         }
@@ -1086,20 +1060,18 @@ template<
 
         optimized = true;
     }
-    //@+node:gcross.20081203190837.3: *4* number_of_logical_qubits
-    size_t number_of_logical_qubits() const {
+    // }}}
+
+    size_t number_of_logical_qubits() const { // {{{
         return (stabilizers.size() == 0 && gauge_qubits.size() == 0)
              ? 0
              : number_of_physical_qubits - stabilizers.size() - gauge_qubits.size();
     }
-    //@+node:gmc.20080916172520.9: *4* recompute_logical_qubits
-    void recompute_logical_qubits() {
+    // }}}
+
+    void recompute_logical_qubits() { // {{{
         if(number_of_logical_qubits()==0) return;
-        //@+<< Compute logical qubits >>
-        //@+node:gcross.20090522205550.9: *5* << Compute logical qubits >>
-        //@+at
         // Initialize the set of generators with the list of stabilizers and the X logical operators of the gauge qubits.
-        //@@c
         const unsigned int number_of_generators = stabilizers.size() + gauge_qubits.size();
         if(number_of_generators==0) return;
 
@@ -1107,29 +1079,19 @@ template<
         generators.reserve(number_of_generators);
         BOOST_FOREACH(const qubit_type& qubit, gauge_qubits) { generators.push_back(qubit.X); }
 
-        //@+at
         // Run the Gaussian elimination.
-        //@@c
         gaussian_elimination_state_type elimination_state = post_stabilizer_elimination_state;
         elimination_state.run_elimination(generators);
 
-        //@+at
         // Loop though all of the qubit indices, looking for ones that have not been taken by a generator
-        //@@c
         BOOST_FOREACH(const size_t current_qubit_index, irange((size_t)0u,number_of_physical_qubits)) {
-        //@+at
         // If this qubit index has been taken by a generator, then skip to the next.
-        //@@c
             if(elimination_state.indices_taken[current_qubit_index]) continue;
-        //@+at
         // Okidoke, since this index has not been taken use it for our logical qubit.
-        //@@c
             qubit_type logical_qubit(number_of_physical_qubits);
             logical_qubit.X.X.set(current_qubit_index);
             logical_qubit.Z.Z.set(current_qubit_index);
-        //@+at
         // Now we need to multiply this qubit by factors that ensure it commutes with all of the generators.  The idea here is that if the generator anti-commutes with the local Pauli operator X or Z at current_qubit_index, then we need to multiply our logical qubit by an operator which we know anti-commutes with this generator and only this generator, and fortunately through the process of Gaussian elimination we know exactly what this operator is.
-        //@@c
             size_t op_index = 0;
             typename index_vector::iterator chosen_qubit_index_iter = elimination_state.qubit_indices_chosen.begin();
             BOOST_FOREACH(const quantum_operator& op, generators) {
@@ -1143,35 +1105,26 @@ template<
                 ++chosen_qubit_index_iter;
                 ++op_index;
             }
-        //@+at
         // We now need to make sure that the logical qubit also commutes with all of the gauge qubit Z operators, since these were not present in our list of generators.
-        //@@c
             BOOST_FOREACH(const qubit_type& q, gauge_qubits) {
                 if(!(logical_qubit.X||q.Z)) logical_qubit.X *= q.X;
                 if(!(logical_qubit.Z||q.Z)) logical_qubit.Z *= q.X;
             }
-        //@+at
         // Finally, we are done.  Comptue the logical qubit Y operator for convenience, and then add the logical qubit to the list.
-        //@@c
             logical_qubit.Y = logical_qubit.X * logical_qubit.Z;
             logical_qubits.push_back(logical_qubit);
         }
-        //@+at
         // Assert that we found the correct number of logical qubits.
-        //@@c
         assert(logical_qubits.size() == number_of_logical_qubits());
-        //@-<< Compute logical qubits >>
     }
-    //@-others
+    // }}}
 };
 
-//@+<< I/O >>
-//@+node:gcross.20101217153202.1447: *4* << I/O >>
+// IO {{{
 template<typename A,typename B,typename C,typename D,typename E> ostream& operator<<(ostream& out, const qec<A,B,C,D,E>& code) { return writeYAML(out,code); }
-//@-<< I/O >>
+// }}}
 
-//@+<< Aliases >>
-//@+node:gcross.20101228150742.1589: *4* << Aliases >>
+// Aliases {{{
 typedef qec<> dynamic_qec;
 
 template<unsigned int nbits, unsigned int nops> struct wrapped_static_qec {
@@ -1196,9 +1149,10 @@ template<unsigned int nbits, unsigned int nops=2*nbits> struct static_qec : publ
     { }
 
 };
-//@-<< Aliases >>
-//@+node:gcross.20110209133648.2297: *3* code
-struct code {
+// }}}
+// }}}
+
+struct code { // {{{
     typedef dynamic_quantum_operator quantum_operator;
     typedef dynamic_operator_vector operator_vector;
     typedef dynamic_qubit qubit_type;
@@ -1225,9 +1179,9 @@ struct code {
 
 code solve(const dynamic_operator_vector& operators, bool optimize_logical_qubits);
 ostream& operator<<(ostream& out, const code& code);
-//@-others
+// }}}
 
-template<class A, class B> class anti_commute_test {
+template<class A, class B> class anti_commute_test { // {{{
 
 public:
 
@@ -1240,9 +1194,14 @@ protected:
     const A& a;
 
 };
+// }}}
 
-//@+node:gcross.20110209133648.2311: ** function solveForFixedSize
-template<typename operator_vector,unsigned int number_of_qubits> code solveForFixedSize(const operator_vector& operators,const bool optimize_logical_qubits) {
+// }}}
+
+template<typename operator_vector,unsigned int number_of_qubits> code solveForFixedSize( // {{{
+    const operator_vector& operators,
+    const bool optimize_logical_qubits
+) {
     typedef static_qec<number_of_qubits> qec_t;
     operator_vector reduced_operators(operators);
     reduce_row_echelon_split_representation(reduced_operators);
@@ -1251,10 +1210,8 @@ template<typename operator_vector,unsigned int number_of_qubits> code solveForFi
     if(optimize_logical_qubits) qec.optimize_logical_qubits();
     return code(qec);
 }
-//@-others
+// }}}
 
 }
 
-
 #endif
-//@-leo

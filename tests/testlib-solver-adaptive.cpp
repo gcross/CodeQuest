@@ -1,7 +1,3 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20110210011631.1503: * @thin testlib-solver-adaptive.cpp
-//@@language cplusplus
-
 #include "randomized-tests.hpp"
 
 void testSolverAdaptive() {
@@ -19,4 +15,3 @@ void testSolverAdaptive() {
             (i+1,tests[i].get<0>(),tests[i].get<1>(),tests[i].get<2>());
     }
 }
-//@-leo

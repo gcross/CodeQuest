@@ -1,5 +1,3 @@
-#@+leo-ver=4-thin
-#@+node:gmc.20080911170647.8:@thin read_grid_parameters.py
 __all__ = ["width","height"]
 
 import sys
@@ -20,5 +18,3 @@ if len(sys.argv) == 3:
     height = int(sys.argv[2])
 else:
     height = width
-#@-node:gmc.20080911170647.8:@thin read_grid_parameters.py
-#@-leo

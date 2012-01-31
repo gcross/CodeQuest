@@ -1,7 +1,3 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20101228150742.1436: * @thin testlib-minimizer-static-4.cpp
-//@@language cplusplus
-
 #include "randomized-tests.hpp"
 
 void testMinimizerStatic4() {
@@ -16,4 +12,3 @@ void testMinimizerStatic4() {
             (i+1,tests[i].get<0>(),4,tests[i].get<1>());
     }
 }
-//@-leo

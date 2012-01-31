@@ -1,22 +1,17 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20101228150742.1584: * @thin testlib.cpp
-//@@language cplusplus
-
-//@+<< Includes >>
-//@+node:gcross.20110210011631.1497: ** << Includes >>
+// Includes {{{
 #include "randomized-tests.hpp"
-//@-<< Includes >>
+// }}}
 
-//@+others
-//@+node:gcross.20110210011631.1495: ** Generators
+// Random number generators {{{
 mt19937 rng;
 uniform_smallint<> one_through_three(1,3);
 variate_generator<mt19937&, uniform_smallint<> > random_pauli(rng, one_through_three);
 uniform_01<> u01;
 variate_generator<mt19937&, uniform_01<> > random_real(rng, u01);
-//@+node:gcross.20110210011631.1496: ** Functions
-//@+node:gcross.20110210011631.1494: *3* generate_and_test_solver
-double generate_and_test_solver(
+// }}}
+
+// Functions {{{
+double generate_and_test_solver( // {{{
         unsigned int number_of_physical_qubits,
         unsigned int number_of_operators,
         float bernoulli_trial_probability
@@ -55,8 +50,9 @@ double generate_and_test_solver(
         throw exception();
     } else return elapsed_time;
 }
-//@+node:gcross.20110210011631.1501: *3* run_test_solver_batch
-bool run_test_solver_batch(
+// }}}
+
+bool run_test_solver_batch( // {{{
     unsigned int batch_number,
     unsigned int number_of_cases,
     pair<unsigned int,unsigned int> qubit_range,
@@ -92,5 +88,5 @@ bool run_test_solver_batch(
     cout << " codes/second." << endl;
     cout << endl;
 }
-//@-others
-//@-leo
+// }}}
+// }}}

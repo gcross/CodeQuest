@@ -1,7 +1,4 @@
 #!/usr/bin/python
-#@+leo-ver=4-thin
-#@+node:gmc.20080911170647.6:@thin compass-interactions-with-3body-XXX-ZZZ.py
-#@@first
 
 from read_grid_parameters import width, height
 
@@ -22,5 +19,3 @@ for x in xrange(width+1):
     for y in xrange(1,height,2):
         print(("(%i,%i) Z "*2) % (x  ,y  ,x  ,y+1))
 
-#@-node:gmc.20080911170647.6:@thin compass-interactions-with-3body-XXX-ZZZ.py
-#@-leo

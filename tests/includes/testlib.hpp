@@ -1,7 +1,3 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20101228150742.1437: * @thin testlib.hpp
-//@@language cplusplus
-
 extern void testMinimizer();
 extern void testMinimizerDynamic();
 extern void testMinimizerStatic();
@@ -17,4 +13,3 @@ extern void testSolverStatic8();
 extern void testSolverStatic16();
 extern void testSolverStatic32();
 extern void testSolverStatic64();
-//@-leo

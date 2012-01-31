@@ -1,12 +1,7 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20090521215822.19: * @thin randomized-tests.hpp
-//@@language cplusplus
-
 #ifndef RANDOMIZED_TESTS_HPP
 #define RANDOMIZED_TESTS_HPP
 
-//@+<< Headers >>
-//@+node:gcross.20090521215822.20: ** << Headers >>
+// Includes {{{
 #include <vector>
 #include <list>
 #include <utility>
@@ -26,27 +21,24 @@
 #include <boost/assign/list_of.hpp>
 
 #include "codequest.hpp"
-//@-<< Headers >>
+// }}}
 
-//@+<< Namespace Imports >>
-//@+node:gcross.20090522205550.2: ** << Namespace Imports >>
+// Namespace imports {{{
 using namespace CodeQuest;
 using namespace boost;
 using namespace boost::assign;
 using namespace std;
-//@-<< Namespace Imports >>
+// }}}
 
-//@+<< Random number generators >>
-//@+node:gcross.20090522205550.6: ** << Random number generators >>
+// Random number generators {{{
 extern mt19937 rng;
 extern uniform_smallint<> one_through_three;
 extern variate_generator<mt19937&, uniform_smallint<> > random_pauli;
 extern uniform_01<> u01;
 extern variate_generator<mt19937&, uniform_01<> > random_real;
-//@-<< Random number generators >>
+// }}}
 
-//@+<< Forward function declarations >>
-//@+node:gcross.20110210011631.1492: ** << Forward function declarations >>
+// Forward function declarations {{{
 double generate_and_test_solver(
         unsigned int number_of_physical_qubits,
         unsigned int number_of_operators,
@@ -59,19 +51,26 @@ bool run_test_solver_batch(
     pair<unsigned int,unsigned int> qubit_range,
     pair<unsigned int,unsigned int> operator_range
 );
-//@-<< Forward function declarations >>
+// }}}
 
-//@+others
-//@+node:gcross.20090521215822.21: ** append_error
+// Macros {{{
 #define append_error(message)   {   \
     ostringstream error;            \
     error << message;               \
     errors.push_back(error.str());  \
 }
-//@+node:gcross.20090521215822.22: ** compute_basis
+// }}}
+
+// Functions {{{
+// template<class operator_vector> basis_information compute_basis {{{
 typedef vector<pair<size_t,unsigned int> > basis_information;
 
-template<class operator_vector> basis_information compute_basis(operator_vector& operators, const char name[], vector<string>& errors, bool reduce_first=true) {
+template<class operator_vector> basis_information compute_basis(
+    operator_vector& operators,
+    const char name[],
+    vector<string>& errors,
+    bool reduce_first=true
+) {
     basis_information operator_basis;
 
     if(operators.size()==0) operator_basis;
@@ -97,16 +96,25 @@ template<class operator_vector> basis_information compute_basis(operator_vector&
 
     return operator_basis;
 }
-//@+node:gcross.20090521215822.23: ** contained_in
-template<class quantum_operator,class operator_vector> bool contained_in(const quantum_operator& operator_,const operator_vector& basis_operators, const basis_information& basis_info) {
+// }}}
+
+template<class quantum_operator,class operator_vector> bool contained_in( // {{{
+    const quantum_operator& operator_,
+    const operator_vector& basis_operators,
+    const basis_information& basis_info
+) {
     quantum_operator residual = operator_;
     for(unsigned int i = 0; i < basis_operators.size() and not residual.is_identity(); ++i)
         if(residual[basis_info[i].first] & basis_info[i].second)
             residual *= basis_operators[i];
     return residual.is_identity();
 }
-//@+node:gcross.20090521215822.24: ** check_for_problems_in_code
-template<class qec_type> vector<string> check_for_problems_in_code(const typename qec_type::operator_vector& operators, qec_type& code) {
+// }}}
+
+template<class qec_type> vector<string> check_for_problems_in_code( // {{{
+    const typename qec_type::operator_vector& operators,
+    qec_type& code
+) {
     vector<string> errors;
 
     const size_t number_of_physical_qubits = code.number_of_physical_qubits,
@@ -120,8 +128,7 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
     typedef typename qec_type::operator_vector operator_vector;
     typedef typename qec_type::index_vector index_vector;
 
-    //@+<< Check completeness >>
-    //@+node:gcross.20090521215822.25: *3* << Check completeness >>
+    // Check completeness {{{
     if(number_of_physical_qubits!=code.stabilizers.size()+code.gauge_qubits.size()+code.logical_qubits.size())
         append_error("There are " << number_of_physical_qubits << " physical qubits, but the computed code found " << code.stabilizers.size() << " stabilizers, " << code.gauge_qubits.size() << " gauge qubits and " << code.logical_qubits.size() << " logical qubits, which adds up to " << (code.stabilizers.size()+code.gauge_qubits.size()+code.logical_qubits.size()) << "!")
 
@@ -175,10 +182,9 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
         }
     }
     skip_completeness_test: ;
-    //@-<< Check completeness >>
+    // }}}
 
-    //@+<< Check commutators >>
-    //@+node:gcross.20090521215822.26: *3* << Check commutators >>
+    // Check commutators {{{
     #define check_op_comm(index1,op1,prename1,postname1,index2,op2,prename2,postname2)              \
             if(not (op1 || op2)) {                                                                  \
                 ostringstream error;                                                                \
@@ -237,10 +243,9 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
             check_op_comm(i+1,code.logical_qubits[i].Z,"Logical Qubit","'s Z operator",j+1,code.logical_qubits[j].Z,"Logical Qubit","'s Z operator")
         }
     }
-    //@-<< Check commutators >>
+    // }}}
 
-    //@+<< Check distances >>
-    //@+node:gcross.20100318131715.1383: *3* << Check distances >>
+    // Check distances {{{
     if (number_of_logical_qubits > 1) {
         for(unsigned int i = 0; i < number_of_logical_qubits-1; ++i) {
             if(code.logical_qubit_error_distances[i] > code.logical_qubit_error_distances[i+1]) {
@@ -342,12 +347,13 @@ template<class qec_type> vector<string> check_for_problems_in_code(const typenam
             }
         }
     }
-    //@-<< Check distances >>
+    // }}}
 
     return errors;
 }
-//@+node:gcross.20100318202249.1389: ** generate_random_operators
-template<class qec_type> typename qec_type::operator_vector generate_random_operators(
+// }}}
+
+template<class qec_type> typename qec_type::operator_vector generate_random_operators( // {{{
         unsigned int number_of_physical_qubits,
         unsigned int number_of_operators,
         float bernoulli_trial_probability
@@ -368,8 +374,9 @@ template<class qec_type> typename qec_type::operator_vector generate_random_oper
     }
     return operators;
 }
-//@+node:gcross.20090522205550.4: ** generate_and_test_code
-template<class qec_type> double generate_and_test_code(
+// }}}
+
+template<class qec_type> double generate_and_test_code( // {{{
         unsigned int number_of_physical_qubits,
         unsigned int number_of_operators,
         float bernoulli_trial_probability
@@ -409,7 +416,10 @@ template<class qec_type> double generate_and_test_code(
         throw exception();
     } else return elapsed_time;
 }
-//@+node:gcross.20100318202249.1391: ** generate_and_test_weight_minimization_problem
+// }}}
+
+// template<class qec_type> void generate_and_test_weight_minimization_problem {{{
+
 template<class quantum_operator> struct always_true {
     inline pair<bool,unsigned int> operator() (const quantum_operator & restrict op) const {
         return make_pair(true,42);
@@ -503,8 +513,9 @@ template<class qec_type> void generate_and_test_weight_minimization_problem(
         throw exception();
     }
 }
-//@+node:gcross.20100318202249.1393: ** run_test_batch
-template<class qec_type> bool run_test_batch(
+// }}}
+
+template<class qec_type> bool run_test_batch( // {{{
     unsigned int batch_number,
     unsigned int number_of_cases,
     pair<unsigned int,unsigned int> qubit_range,
@@ -540,8 +551,9 @@ template<class qec_type> bool run_test_batch(
     cout << " codes/second." << endl;
     cout << endl;
 }
-//@+node:gcross.20090522205550.5: ** run_weight_minimization_test_batch
-template<class qec_type> bool run_weight_minimization_test_batch(
+// }}}
+
+template<class qec_type> bool run_weight_minimization_test_batch( // {{{
     unsigned int batch_number,
     unsigned int number_of_cases,
     pair<unsigned int,unsigned int> qubit_range,
@@ -570,8 +582,9 @@ template<class qec_type> bool run_weight_minimization_test_batch(
     cout << "All test cases completed successfully.  Took " << T.elapsed() << " seconds." << endl;
     cout << endl;
 }
-//@+node:gcross.20090522205550.8: ** run_test_batch_with_fixed_number_of_qubits
-template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(
+// }}}
+
+template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits( // {{{
     unsigned int batch_number,
     unsigned int number_of_cases,
     unsigned int number_of_qubits,
@@ -605,8 +618,9 @@ template<class qec_type> bool run_test_batch_with_fixed_number_of_qubits(
     cout << " codes/second." << endl;
     cout << endl;
 }
-//@+node:gcross.20100318202249.1395: ** run_weight_minimization_test_batch_with_fixed_number_of_qubits
-template<class qec_type> bool run_weight_minimization_test_batch_with_fixed_number_of_qubits(
+// }}}
+
+template<class qec_type> bool run_weight_minimization_test_batch_with_fixed_number_of_qubits( // {{{
     unsigned int batch_number,
     unsigned int number_of_cases,
     unsigned int number_of_qubits,
@@ -633,7 +647,7 @@ template<class qec_type> bool run_weight_minimization_test_batch_with_fixed_numb
     cout << "All test cases completed successfully.  Took " << T.elapsed() << " seconds." << endl;
     cout << endl;
 }
-//@-others
+// }}}
+// }}}
 
 #endif
-//@-leo

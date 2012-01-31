@@ -1,31 +1,24 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20110209133648.2291: * @thin codequest.cpp
-//@@language cplusplus
-
-//@+<< Includes >>
-//@+node:gcross.20110209133648.2300: ** << Includes >>
+// Includes {{{
 #include <boost/assign/list_of.hpp>
 #include <boost/function.hpp>
 #include <boost/optional.hpp>
 #include <map>
 
 #include "codequest.hpp"
-//@-<< Includes >>
+// }}}
 
 namespace CodeQuest {
 
-//@+<< Usings >>
-//@+node:gcross.20110209133648.2301: ** << Usings >>
+// Namespace imports {{{
 using boost::assign::map_list_of;
 using boost::function;
 using boost::none;
 using boost::optional;
 
 using std::map;
-//@-<< Usings >>
+// }}}
 
-//@+others
-//@+node:gcross.20110209133648.2304: ** Typedefs
+// Typedefs {{{
 typedef function<code (const dynamic_operator_vector&,bool)> solver;
 
 extern solver solver_001;
@@ -284,9 +277,10 @@ extern solver solver_253;
 extern solver solver_254;
 extern solver solver_255;
 extern solver solver_256;
-//@+node:gcross.20110209133648.2307: ** Functions
-//@+node:gcross.20110209204631.1491: *3* getSolverFor
-optional<solver> getSolverFor(unsigned int const number_of_qubits) {
+// }}}
+
+// Functions {{{
+optional<solver> getSolverFor(unsigned int const number_of_qubits) { // {{{
     static map<unsigned int,solver> solver_table = map_list_of
         (  1,solver_001)
         (  2,solver_002)
@@ -551,8 +545,9 @@ optional<solver> getSolverFor(unsigned int const number_of_qubits) {
             : none
     ;
 }
-//@+node:gcross.20110209133648.2302: *3* function solve
-code solve(const dynamic_operator_vector& operators,const bool optimize_logical_qubits) {
+// }}}
+
+code solve(const dynamic_operator_vector& operators,const bool optimize_logical_qubits) { // {{{
     unsigned int const number_of_qubits = operators[0].length();
     optional<solver> maybe_solver = getSolverFor(number_of_qubits);
     if(maybe_solver) {
@@ -563,9 +558,9 @@ code solve(const dynamic_operator_vector& operators,const bool optimize_logical_
         return code(qec);
     }
 }
-//@+node:gcross.20110209133648.2306: *3* operator<<
+// }}}
+
 ostream& operator<<(ostream& out, const code& code) { return writeYAML(out,code); }
-//@-others
+// }}}
 
 }
-//@-leo

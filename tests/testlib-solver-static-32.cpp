@@ -1,7 +1,3 @@
-//@+leo-ver=5-thin
-//@+node:gcross.20101228150742.1451: * @thin testlib-solver-static-32.cpp
-//@@language cplusplus
-
 #include "randomized-tests.hpp"
 
 void testSolverStatic32() {
@@ -16,4 +12,3 @@ void testSolverStatic32() {
             (i+1,tests[i].get<0>(),32,tests[i].get<1>());
     }
 }
-//@-leo
