@@ -1,6 +1,7 @@
 *.o
 *.a
 *.pyc
+*.swp
 programs
 test
 CMakeFiles
